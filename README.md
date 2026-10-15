@@ -7,7 +7,7 @@
 **一行试玩（不用 Token、不用 API Key）：**
 
 ```bash
-pip install -e . && mcbench demo        # 或：python3 -m mcbench demo   /   npx github:<你的用户名>/mcbench
+pip install -e . && mcbench demo        # 或：python3 -m mcbench demo   /   npx github:leoz9/mcbench
 ```
 
 ## 🏁 首期真实榜单（2026-10-15）
@@ -55,7 +55,7 @@ pip install -e . && mcbench demo        # 或：python3 -m mcbench demo   /   np
 需要 Python ≥ 3.9；渲染视频需要 `ffmpeg`（可选）。
 
 ```bash
-git clone https://github.com/<你的用户名>/mcbench && cd mcbench
+git clone https://github.com/leoz9/mcbench && cd mcbench
 pip install -e .
 ```
 
