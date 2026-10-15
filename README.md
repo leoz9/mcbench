@@ -32,23 +32,25 @@ Core 已经快被前沿模型刷满了，所以加了 **McBench-Hard** 作为主
 
 | Agent | Overall | Hard 分 | Hard pass@1 | Core 分 | Core pass@1 |
 |---|---:|---:|---:|---:|---:|
+| **gpt-6-luna**（Codex CLI） | **79.7** | 68.5 | 13.6% | **96.5** | 64.8% |
 | demo-planner（精确求解器脚本，上界参考） | 78.7 | 70.4 | 54.5% | 91.1 | 100% |
+| gpt-5.6-luna（Codex CLI） | 71.5 | 63.8 | 22.7% | 83.1 | 68.5% |
 | demo-greedy | 53.7 | 50.5 | 0% | 58.6 | 0% |
 | demo-hasty | 15.3 | 14.5 | 0% | 16.5 | 0% |
-| gpt-6-luna | 待测 | 待测 | 待测 | 96.5 | 64.8% |
-| gpt-5.6-luna | 待测 | 待测 | 待测 | 83.1 | 68.5% |
+| gpt-6-sol（Codex CLI） | 待测 | **84.7** | **59.1%** | 待测 | 待测 |
+| gpt-6.1-sol（Codex CLI） | 待测 | 78.8 | 40.9% | 待测 | 待测 |
 
-> ⏳ 8 个 Codex 模型（gpt-6.1-sol、gpt-6-astra、gpt-6-sol、gpt-6-luna、gpt-reserve、gpt-5.6-sol、gpt-5.6-terra、gpt-5.6-luna）都已探测可用。完整 Hard 跑分因为 Codex 账号用量到上限而暂停，恢复后跑 `scripts/run_hard.sh` 就会自动续跑并更新本表。
-> 校准探针（Hard 早期版本 10 题，同一 rubric）：gpt-6-sol 60%、gpt-6.1-sol 20%（多次撞上 150 步上限）、gpt-6-luna 20%。之后又加强了注入、干扰、隐藏三类题（人数更多，并加 25 次调用预算）。
-> Core 一栏是 v1.0 的旧轨迹按 v1.1 严格规则重新评分得到的（gpt-6-luna 的 Core pass@1 从 89% 降到 65%，主要因为最优差超过 2%）。
+> Hard 一栏：4 个 Codex 模型（gpt-6.1-sol、gpt-6-sol、gpt-6-luna、gpt-5.6-luna）都已跑完 Hard test 全部 22 题（离线冻结快照，150 步上限，k=1），0 安全违规、0 编造编码。gpt-6-sol 在 Hard 分数和严格通过率上都超过了精确求解器脚本基线（84.7 / 59.1% vs 70.4 / 54.5%），gpt-6.1-sol 分数也更高但严格通过率更低（40.9%）；luna 系列在 Core 上接近满分，但到了 Hard 严格通过率只有 14–23%，不可行识别、营养推理和抗注入几乎全军覆没——这正是 Hard 要拉开的差距。
+> Core 一栏：两个 luna 模型沿用 v1.0 test 18 题的旧轨迹（含 pass^k 重复），按 v1.1 严格规则重新评分。两个 sol 模型的 Core test 在跑到一半时撞上 Codex 用量上限，所以 Overall 暂记“待测”；用量恢复后跑 `scripts/run_hard_4.sh` 会续跑并自动更新本表与网页榜单。
+> 其余 4 个 Codex 模型（gpt-6-astra、gpt-reserve、gpt-5.6-sol、gpt-5.6-terra）尚未进入本轮 Hard 评测。
 
 ![能力雷达](docs/media/radar_v1.png)
 
-<sub>上图：Core v1.0 全 54 题、v1.1 rubric 下的能力雷达（luna 经 Codex CLI）。</sub>
+<sub>上图：McBench-Hard v1.1 test 22 题上 4 个 Codex 模型的能力雷达（v1.1 rubric，括号内为 Hard 分）。</sub>
 
 ![对决视频](docs/media/mcbench_v1.gif)
 
-<sub>自动生成的竖屏解说视频：[`docs/media/mcbench_v1_explainer.mp4`](docs/media/mcbench_v1_explainer.mp4)（`mcbench video runs/v1.0`）。早期 5 题实时榜单与视频保留在 `runs/real-20261015/`、`docs/media/battle_real.gif`。</sub>
+<sub>自动生成的竖屏解说视频：[`docs/media/mcbench_v1_explainer.mp4`](docs/media/mcbench_v1_explainer.mp4)（`mcbench video runs/hard-v1.1`，Hard 榜前两名 gpt-6-sol vs gpt-6.1-sol 对决）。早期 5 题实时榜单与视频保留在 `runs/real-20261015/`、`docs/media/battle_real.gif`。</sub>
 
 ![网页榜单：雷达 + 可排序表格 + 分屏回放](docs/media/web_v1.png)
 

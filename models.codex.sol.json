@@ -1,0 +1,4 @@
+{"models":[
+ {"name":"gpt-6.1-sol","provider":"codex","model":"gpt-6.1-sol"},
+ {"name":"gpt-6-sol","provider":"codex","model":"gpt-6-sol"}
+]}

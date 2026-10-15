@@ -116,7 +116,16 @@ def cmd_run(a):
         with ThreadPoolExecutor(max_workers=a.jobs) as ex:
             futs = [ex.submit(one, w) for w in work]
             for f in as_completed(futs):
-                tr = f.result()
+                try:
+                    tr = f.result()
+                except Exception as e:  # noqa
+                    if type(e).__name__ == "CodexRateLimited":
+                        for g in futs:
+                            g.cancel()
+                        print(f"\n!! CODEX RATE LIMITED — stopping (resume later with --resume):\n{e}", flush=True)
+                        ex.shutdown(wait=True, cancel_futures=True)
+                        sys.exit(3)
+                    raise
                 save_trace(out, tr)
                 v = tr["verdict"]
                 print(f"  {tr['model']:<20} {tr['task']:<18} {'PASS' if v.get('passed') else 'FAIL'}  ¥{v.get('payable', '-')}  score={tr['score']}")

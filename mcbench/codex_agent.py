@@ -15,6 +15,12 @@ from .tasks import SYSTEM_PROMPT
 
 ROOT = Path(__file__).resolve().parent.parent
 
+_LIMIT_PAT = ("usage limit", "rate limit", "rate_limit", "429", "too many requests", "quota")
+
+
+class CodexRateLimited(RuntimeError):
+    """Codex refused the run (usage/rate limit) — do not record a trace; resume later."""
+
 
 def codex_bin():
     p = shutil.which("codex")
@@ -51,10 +57,22 @@ def run_codex_episode(model, label, task, env: McBenchEnv, timeout=900, task_set
     t0 = time.time()
     try:
         proc = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=timeout)
-        stdout, rc = proc.stdout, proc.returncode
+        stdout, rc, stderr = proc.stdout, proc.returncode, proc.stderr or ""
     except subprocess.TimeoutExpired as e:
         stdout = e.stdout.decode() if isinstance(e.stdout, bytes) else (e.stdout or "")
-        rc = "timeout"
+        rc, stderr = "timeout", ""
+    errs = []
+    for line in stdout.splitlines():
+        try:
+            ev = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if ev.get("type") in ("error", "turn.failed"):
+            errs.append(json.dumps(ev, ensure_ascii=False))
+    errtxt = (" ".join(errs) + " " + (stderr if rc not in (0, "timeout") else "")).lower()
+    if not tpath.exists() and any(k in errtxt for k in _LIMIT_PAT):
+        shutil.rmtree(work, ignore_errors=True)
+        raise CodexRateLimited(f"{model} {task['id']}: " + (" ".join(errs) or stderr)[-1500:])
     thoughts, usage, shell = [], {}, 0
     for line in stdout.splitlines():
         try:

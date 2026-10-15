@@ -13,7 +13,19 @@ pip install -e . && mcbench demo   # offline frozen snapshot + scripted baseline
 ```
 
 ## v1.2: 120 tasks (Core 54 + Hard 65); McBench-Hard is the headline split (scored on its 22-task test split)
-32 exact-optimum tasks, including near-boundary infeasibility, strict tool budgets, a simulated user who changes requirements mid-episode, prompt injection in tool outputs, distractor tools and hidden constraints. The goal is a 30–50% strict pass rate for frontier models. Overall = 0.6·Hard + 0.4·Core (test split). Scores use a multi-dimensional rubric with penalties ([docs/scoring.md](docs/scoring.md), [docs/hard.md](docs/hard.md)). Full model runs on Hard are pending: all 8 Codex models were probed and respond, but the Codex usage limit was reached. Run `scripts/run_hard.sh` to resume.
+32 exact-optimum tasks, including near-boundary infeasibility, strict tool budgets, a simulated user who changes requirements mid-episode, prompt injection in tool outputs, distractor tools and hidden constraints. The goal is a 30–50% strict pass rate for frontier models. Overall = 0.6·Hard + 0.4·Core (test split). Scores use a multi-dimensional rubric with penalties ([docs/scoring.md](docs/scoring.md), [docs/hard.md](docs/hard.md)). Hard test results for 4 Codex models are in (22/22 tasks each, offline frozen snapshot, 150-step cap, k=1, zero safety violations):
+
+| Agent | Overall | Hard score | Hard pass@1 | Core score | Core pass@1 |
+|---|---:|---:|---:|---:|---:|
+| **gpt-6-luna** (Codex CLI) | **79.7** | 68.5 | 13.6% | **96.5** | 64.8% |
+| demo-planner (exact-solver script, upper reference) | 78.7 | 70.4 | 54.5% | 91.1 | 100% |
+| gpt-5.6-luna (Codex CLI) | 71.5 | 63.8 | 22.7% | 83.1 | 68.5% |
+| demo-greedy | 53.7 | 50.5 | 0% | 58.6 | 0% |
+| demo-hasty | 15.3 | 14.5 | 0% | 16.5 | 0% |
+| gpt-6-sol (Codex CLI) | pending | **84.7** | **59.1%** | pending | pending |
+| gpt-6.1-sol (Codex CLI) | pending | 78.8 | 40.9% | pending | pending |
+
+gpt-6-sol beats the exact-solver script on both Hard score and strict pass rate (84.7 / 59.1% vs 70.4 / 54.5%); gpt-6.1-sol also scores higher but passes fewer tasks (40.9%). The luna models are near-perfect on Core but pass only 14–23% of Hard tasks. Luna Core numbers reuse the v1.0 test-split traces re-scored under v1.1 rules. The sol models' Core test runs hit the Codex usage limit, so their Overall is pending; `scripts/run_hard_4.sh` resumes and updates the board.
 
 ## v1.0 results (legacy scoring) (54 tasks, offline frozen snapshot recorded from mcp.mcd.cn, 2026-10-15)
 
@@ -26,6 +38,8 @@ pip install -e . && mcbench demo   # offline frozen snapshot + scripted baseline
 | demo-hasty | scripted (tries to place orders) | 6.3 | 0% | – | 4.0 | 54 |
 
 ![radar](docs/media/radar_v1.png)
+
+<sub>Radar: McBench-Hard v1.1 test split (22 tasks), 4 Codex models, v1.1 rubric.</sub>
 
 Dimensions: tool use · constraint satisfaction · cost optimization · nutrition reasoning · safety · clarification · infeasibility detection · efficiency · consistency (pass^k) · multimodal (McBench-Vision preview).
 

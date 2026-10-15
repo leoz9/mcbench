@@ -29,7 +29,7 @@ foot:'Entry to the McDonald\'s Programmer\'s Day creative development contest, b
 const ZH={};document.querySelectorAll('[data-i]').forEach(e=>ZH[e.dataset.i]=e.textContent);
 const S={zh:{all:'全部',pending:'待测',base:'脚本基线',baseTip:'脚本基线（非大模型）',syn:'合成数据',model:'Agent',score:'分数',pass1:'pass@1',passk:'pass^k',gap:'中位最优差',calls:'工具调用',viol:'安全违规',halluc:'编造编码',tokens:'Tokens',time:'耗时',hard:'Hard',core:'Core',overall:'Overall',
  f1:'识别 F1',exact:'完全正确',mae:'价格 MAE',
- n_overall:w=>`Overall = ${w.hard}×Hard + ${(+w.core).toFixed(1)}×Core(test)。Hard 尚未跑完的模型显示“待测”，跑分完成后自动更新。点击行查看详情，点击表头排序。`,
+ n_overall:w=>`Overall = ${w.hard}×Hard + ${(+w.core).toFixed(1)}×Core(test)。Hard 或 Core 尚未跑完的模型显示“待测”，跑分完成后自动更新。点击行查看详情，点击表头排序。`,
  n_hard:'McBench-Hard：精确最优题（held-out test 划分），差 1 分钱也不算通过。',n_core:'Core v1.0 held-out test 18 题（与 Hard 同一冻结快照）。',
  n_vision:'Vision 预览赛道：从餐品图片识别并报价。当前为合成数据，仅供参考，不计入 Overall。',
  legend:'严格通过：约束全满足 + 价格诚实 + 零违规 + 预算内 + 最优差 ≤2%（Hard：精确）。脚本基线是规则程序而非大模型，仅作参照下限/上限。',
@@ -38,7 +38,7 @@ const S={zh:{all:'全部',pending:'待测',base:'脚本基线',baseTip:'脚本�
  banner_off:'✅ 离线冻结快照（录制自官方 MCP、已脱敏，任何人可复现）。',banner_mock:'⚠️ OFFLINE/MOCK 演示数据：脚本基线（非真实大模型）。',copied:'已复制',com:'社区·未复核',q_ph:'搜索模型…',tq_ph:'搜索任务 id / 标题…',allCat:'全部类别',allDiff:'全部难度',tasksN:(n,m)=>`共 ${n} 题 · 显示 ${m}`,api_on:'API 在线',api_off:'静态模式',off_note:'后端 API 暂不可用，已回退到静态数据：提交与投票暂时关闭。',sub_ok:id=>`已入队 #${id}，正在评测…`,sub_done:'评测完成，已上榜！',sub_fail:'评测失败：',queued:p=>`排队中（前面 ${p} 个）`,running:'评测中…',reveal:'揭晓：',voted:'感谢投票！',elo:'社区 Elo',votes:'票数',arena_need:'至少需要两条可回放轨迹',chartAxis:'分数'},
  en:{all:'All',pending:'pending',base:'scripted baseline',baseTip:'scripted baseline (not an LLM)',syn:'synthetic',model:'Agent',score:'Score',pass1:'pass@1',passk:'pass^k',gap:'median gap',calls:'tool calls',viol:'safety viol.',halluc:'halluc. codes',tokens:'Tokens',time:'Time',hard:'Hard',core:'Core',overall:'Overall',
  f1:'Recog. F1',exact:'Exact',mae:'Price MAE',
- n_overall:w=>`Overall = ${w.hard}×Hard + ${(+w.core).toFixed(1)}×Core(test). Models whose Hard run is not finished show "pending" and update automatically. Click a row for details, a header to sort.`,
+ n_overall:w=>`Overall = ${w.hard}×Hard + ${(+w.core).toFixed(1)}×Core(test). Models whose Hard or Core run is not finished show "pending" and update automatically. Click a row for details, a header to sort.`,
  n_hard:'McBench-Hard: 65 exact-optimum tasks (headline uses the held-out test split of 22; 43 dev tasks are public) — one cent off is a fail.',n_core:'Core v1.0 held-out test split, 18 tasks (same frozen snapshot as Hard).',
  n_vision:'Vision preview track: recognise and price meals from photos. Currently synthetic data — indicative only, not part of Overall.',
  legend:'Strict pass: all constraints + honest price + zero violations + within budget + gap ≤ 2% (Hard: exact). Scripted baselines are rule-based programs, not LLMs — reference points only.',
