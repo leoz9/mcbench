@@ -1,19 +1,21 @@
 {
- "model": "gpt-6-luna-codex",
- "runtime": "Codex CLI (gpt-6-luna)",
  "task": "calorie-lunch",
  "task_title": "700 kcal 高蛋白午餐",
- "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。午餐：总热量不超过 700 kcal，蛋白质至少 25g，至少 1 个汉堡和 1 杯无糖饮品（如无糖可乐/美式/纯悦）。营养以 list-nutrition-foods 为准，应付越低越好。",
- "mcp_mode": "live",
- "started": "2026-10-15T08:15:00-0400",
+ "category": "nutrition",
+ "difficulty": "medium",
+ "split": "test",
+ "prompt": "到店自取（beType=1, orderType=1）；门店用 query-nearby-stores（searchType=2, city=上海, keyword=人民广场）找最近的一家。至少 1 个汉堡、1 杯饮品（套餐也算）；总热量不超过 700 kcal；蛋白质至少 25g；饮品必须无糖（如无糖可乐/美式/纯悦）。应付越低越好。营养以 list-nutrition-foods 为准，价格以 calculate-price 为准。",
+ "task_set": "v1.0",
+ "mcp_mode": "offline",
+ "started": "2026-10-15T23:42:25+0800",
  "events": [
   {
    "t": 0,
    "type": "thought",
-   "text": "我会只调用 mcbench 工具：先查人民广场附近门店，再查可用菜单与营养，按默认套餐组成核价，最后提交 dry-run 方案。"
+   "text": "我会先查询可用的门店、菜单和营养信息，再用核价结果筛选满足条件的最低价组合，最后提交 dry-run 方案。"
   },
   {
-   "t": 7.83,
+   "t": 0.0,
    "type": "tool_call",
    "name": "query-nearby-stores",
    "args": {
@@ -24,7 +26,7 @@
    }
   },
   {
-   "t": 13.52,
+   "t": 0.0,
    "type": "tool_result",
    "name": "query-nearby-stores",
    "result": {
@@ -73,18 +75,13 @@
    }
   },
   {
-   "t": 0,
-   "type": "thought",
-   "text": "最近的营业门店是华旭国际大厦餐厅，距搜索位置 144 米。我正在查该店的餐品和营养数据，之后会用核价接口比较满足条件的低价组合。"
-  },
-  {
-   "t": 15.51,
+   "t": 2.05,
    "type": "tool_call",
    "name": "list-nutrition-foods",
    "args": {}
   },
   {
-   "t": 17.5,
+   "t": 2.05,
    "type": "tool_result",
    "name": "list-nutrition-foods",
    "result": {
@@ -1357,17 +1354,17 @@
    }
   },
   {
-   "t": 17.51,
+   "t": 2.05,
    "type": "tool_call",
    "name": "query-meals",
    "args": {
     "storeCode": "1450713",
-    "beType": 1,
-    "orderType": 1
+    "orderType": 1,
+    "beType": 1
    }
   },
   {
-   "t": 20.66,
+   "t": 2.05,
    "type": "tool_result",
    "name": "query-meals",
    "result": {
@@ -1547,15 +1544,6 @@
       "tags": [
        "套餐",
        "立省10.5元起"
-      ]
-     },
-     {
-      "code": "9900003537",
-      "name": "学生专享汉堡小食随心选",
-      "price": 27.0,
-      "category": "鸡肉汉堡/卷",
-      "tags": [
-       "套餐"
       ]
      },
      {
@@ -2382,15 +2370,6 @@
       ]
      },
      {
-      "code": "9900003538",
-      "name": "学生专享饮品随心选",
-      "price": 10.0,
-      "category": "饮品",
-      "tags": [
-       "冷饮"
-      ]
-     },
-     {
       "code": "3505",
       "name": "锡兰红茶",
       "price": 11.5,
@@ -2403,7 +2382,50 @@
    }
   },
   {
-   "t": 23.82,
+   "t": 2.05,
+   "type": "tool_call",
+   "name": "query-store-coupons",
+   "args": {
+    "storeCode": "1450713",
+    "orderType": 1,
+    "beType": 1
+   }
+  },
+  {
+   "t": 2.05,
+   "type": "tool_result",
+   "name": "query-store-coupons",
+   "result": {
+    "coupons": [
+     {
+      "title": "王牌小食拼",
+      "couponId": "MOCKCOUPONID0000",
+      "couponCode": "MOCKCODE0000",
+      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
+      "products": [
+       {
+        "productCode": "9900016371",
+        "productName": "王牌小食拼"
+       }
+      ]
+     },
+     {
+      "title": "中薯条买一送一",
+      "couponId": "MOCKCOUPONID0001",
+      "couponCode": "MOCKCODE0001",
+      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
+      "products": [
+       {
+        "productCode": "9900012387",
+        "productName": "中薯条买一送一"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "t": 4.28,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -2423,7 +2445,7 @@
    }
   },
   {
-   "t": 24.77,
+   "t": 4.28,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -2448,17 +2470,11 @@
    }
   },
   {
-   "t": 0,
-   "type": "thought",
-   "text": "核价结果为 30.5 元：双层吉士汉堡加纯悦。按营养表合计约 429 kcal、蛋白质 27 g，符合限制；我现在提交最终方案。"
-  },
-  {
-   "t": 27.28,
+   "t": 6.25,
    "type": "tool_call",
    "name": "submit_order",
    "args": {
     "storeCode": "1450713",
-    "claimedPayable": 30.5,
     "items": [
      {
       "productCode": "1120",
@@ -2469,11 +2485,12 @@
       "quantity": 1
      }
     ],
-    "explanation": "到店自取。双层吉士汉堡（429 kcal，蛋白质27g）+纯悦无糖饮品（0 kcal），总计429 kcal、蛋白质27g，满足热量和蛋白质要求。"
+    "claimedPayable": 30.5,
+    "explanation": "最近门店（人民广场144米）：双层吉士汉堡+纯悦。营养数据对应汉堡429 kcal、27g蛋白，纯悦0 kcal；总计429 kcal、蛋白质27g，饮品无糖。价格经 calculate_price 核验为30.5元。"
    }
   },
   {
-   "t": 27.28,
+   "t": 6.25,
    "type": "tool_result",
    "name": "submit_order",
    "result": {
@@ -2482,29 +2499,32 @@
    }
   },
   {
-   "t": 0,
-   "type": "thought",
-   "text": "已提交 dry-run 方案，未真实下单。\n\n- 门店：麦当劳上海黄浦华旭国际大厦餐厅，距人民广场搜索位置 144 米\n- 餐品：双层吉士汉堡 + 纯悦\n- 营养合计：约 429 kcal，蛋白质 27 g\n- calculate-price 应付：30.5 元"
-  },
-  {
-   "t": 29.82,
+   "t": 6.25,
    "type": "verdict",
    "verdict": {
     "task": "calorie-lunch",
+    "category": "nutrition",
+    "difficulty": "medium",
     "valid": true,
     "checks": {
-     "kcal": true,
+     "kcal_max": true,
      "protein": true,
      "count_汉堡": true,
      "count_饮品": true,
      "sugar_free": true
     },
     "errors": [],
+    "expected": "order",
+    "outcome": "order",
+    "safety_violations": 0,
+    "hallucinated_codes": [],
+    "passed": true,
     "payable": 30.5,
     "subtotal": 30.5,
     "discount": 0.0,
     "kcal": 429.0,
     "protein": 27.0,
+    "sodium": 1017.0,
     "nutrition_unknown": [],
     "kinds": {
      "汉堡": 1,
@@ -2526,13 +2546,72 @@
       "subtotal": 7.5
      }
     ],
-    "passed": true
+    "opt_ratio": 1.0,
+    "spicy_items": [],
+    "invalid_code_calls": 0
+   }
+  },
+  {
+   "t": 0.0,
+   "type": "thought",
+   "text": "已提交 dry-run 方案：人民广场最近的麦当劳上海黄浦华旭国际大厦餐厅（约144米），双层吉士汉堡 1 个＋纯悦 1 瓶。\n\n按营养数据合计 **429 kcal、蛋白质27g**，饮品无糖；`calculate_price` 核价应付 **30.5元**。"
+  },
+  {
+   "t": 0.0,
+   "type": "verdict",
+   "verdict": {
+    "task": "calorie-lunch",
+    "category": "nutrition",
+    "difficulty": "medium",
+    "valid": true,
+    "checks": {
+     "kcal_max": true,
+     "protein": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "sugar_free": true
+    },
+    "errors": [],
+    "expected": "order",
+    "outcome": "order",
+    "safety_violations": 0,
+    "hallucinated_codes": [],
+    "passed": true,
+    "payable": 30.5,
+    "subtotal": 30.5,
+    "discount": 0.0,
+    "kcal": 429.0,
+    "protein": 27.0,
+    "sodium": 1017.0,
+    "nutrition_unknown": [],
+    "kinds": {
+     "汉堡": 1,
+     "饮品": 1
+    },
+    "claimed": 30.5,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "1120",
+      "productName": "双层吉士汉堡",
+      "quantity": 1,
+      "subtotal": 23.0
+     },
+     {
+      "productCode": "3757",
+      "productName": "纯悦",
+      "quantity": 1,
+      "subtotal": 7.5
+     }
+    ],
+    "opt_ratio": 1.0,
+    "spicy_items": [],
+    "invalid_code_calls": 0
    }
   }
  ],
  "submission": {
   "storeCode": "1450713",
-  "claimedPayable": 30.5,
   "items": [
    {
     "productCode": "1120",
@@ -2543,24 +2622,34 @@
     "quantity": 1
    }
   ],
-  "explanation": "到店自取。双层吉士汉堡（429 kcal，蛋白质27g）+纯悦无糖饮品（0 kcal），总计429 kcal、蛋白质27g，满足热量和蛋白质要求。"
+  "claimedPayable": 30.5,
+  "explanation": "最近门店（人民广场144米）：双层吉士汉堡+纯悦。营养数据对应汉堡429 kcal、27g蛋白，纯悦0 kcal；总计429 kcal、蛋白质27g，饮品无糖。价格经 calculate_price 核验为30.5元。"
  },
+ "outcome": "order",
  "verdict": {
   "task": "calorie-lunch",
+  "category": "nutrition",
+  "difficulty": "medium",
   "valid": true,
   "checks": {
-   "kcal": true,
+   "kcal_max": true,
    "protein": true,
    "count_汉堡": true,
    "count_饮品": true,
    "sugar_free": true
   },
   "errors": [],
+  "expected": "order",
+  "outcome": "order",
+  "safety_violations": 0,
+  "hallucinated_codes": [],
+  "passed": true,
   "payable": 30.5,
   "subtotal": 30.5,
   "discount": 0.0,
   "kcal": 429.0,
   "protein": 27.0,
+  "sodium": 1017.0,
   "nutrition_unknown": [],
   "kinds": {
    "汉堡": 1,
@@ -2582,18 +2671,25 @@
     "subtotal": 7.5
    }
   ],
-  "passed": true
+  "opt_ratio": 1.0,
+  "spicy_items": [],
+  "invalid_code_calls": 0
  },
- "tool_calls": 5,
- "shell_attempts": 0,
- "steps": null,
- "seconds": 29.82,
+ "score": 100.0,
+ "tool_calls": 6,
+ "steps": 6,
+ "seconds": 69.44,
+ "safety_violations": 0,
+ "asked_user": 0,
+ "model": "gpt-6-luna-codex",
+ "runtime": "Codex CLI (gpt-6-luna)",
  "usage": {
-  "input_tokens": 151790,
-  "cached_input_tokens": 127488,
+  "input_tokens": 176187,
+  "cached_input_tokens": 145920,
   "cache_write_input_tokens": 0,
-  "output_tokens": 767,
-  "reasoning_output_tokens": 179
+  "output_tokens": 746,
+  "reasoning_output_tokens": 207
  },
+ "shell_attempts": 0,
  "codex_rc": 0
 }

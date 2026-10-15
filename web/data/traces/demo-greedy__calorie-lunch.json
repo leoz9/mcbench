@@ -1,10 +1,13 @@
 {
- "model": "demo-greedy",
  "task": "calorie-lunch",
  "task_title": "700 kcal 高蛋白午餐",
- "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。午餐：总热量不超过 700 kcal，蛋白质至少 25g，至少 1 个汉堡和 1 杯无糖饮品（如无糖可乐/美式/纯悦）。营养以 list-nutrition-foods 为准，应付越低越好。",
- "mcp_mode": "live",
- "started": "2026-10-15T08:02:13-0400",
+ "category": "nutrition",
+ "difficulty": "medium",
+ "split": "test",
+ "prompt": "到店自取（beType=1, orderType=1）；门店用 query-nearby-stores（searchType=2, city=上海, keyword=人民广场）找最近的一家。至少 1 个汉堡、1 杯饮品（套餐也算）；总热量不超过 700 kcal；蛋白质至少 25g；饮品必须无糖（如无糖可乐/美式/纯悦）。应付越低越好。营养以 list-nutrition-foods 为准，价格以 calculate-price 为准。",
+ "task_set": "v1.0",
+ "mcp_mode": "offline",
+ "started": "2026-10-15T23:41:11+0800",
  "events": [
   {
    "t": 0.0,
@@ -23,7 +26,7 @@
    }
   },
   {
-   "t": 1.6,
+   "t": 0.0,
    "type": "tool_result",
    "name": "query-nearby-stores",
    "result": {
@@ -72,12 +75,12 @@
    }
   },
   {
-   "t": 1.6,
+   "t": 0.0,
    "type": "thought",
-   "text": "选最近的 麦当劳上海黄浦华旭国际大厦餐厅，查菜单、营养和可用券。"
+   "text": "选最近的 麦当劳上海黄浦华旭国际大厦餐厅，查菜单、营养。"
   },
   {
-   "t": 1.6,
+   "t": 0.0,
    "type": "tool_call",
    "name": "query-meals",
    "args": {
@@ -87,7 +90,7 @@
    }
   },
   {
-   "t": 3.81,
+   "t": 0.0,
    "type": "tool_result",
    "name": "query-meals",
    "result": {
@@ -267,15 +270,6 @@
       "tags": [
        "套餐",
        "立省10.5元起"
-      ]
-     },
-     {
-      "code": "9900003537",
-      "name": "学生专享汉堡小食随心选",
-      "price": 27.0,
-      "category": "鸡肉汉堡/卷",
-      "tags": [
-       "套餐"
       ]
      },
      {
@@ -1102,15 +1096,6 @@
       ]
      },
      {
-      "code": "9900003538",
-      "name": "学生专享饮品随心选",
-      "price": 10.0,
-      "category": "饮品",
-      "tags": [
-       "冷饮"
-      ]
-     },
-     {
       "code": "3505",
       "name": "锡兰红茶",
       "price": 11.5,
@@ -1123,13 +1108,13 @@
    }
   },
   {
-   "t": 3.81,
+   "t": 0.0,
    "type": "tool_call",
    "name": "list-nutrition-foods",
    "args": {}
   },
   {
-   "t": 8.68,
+   "t": 0.0,
    "type": "tool_result",
    "name": "list-nutrition-foods",
    "result": {
@@ -2402,55 +2387,12 @@
    }
   },
   {
-   "t": 8.68,
-   "type": "tool_call",
-   "name": "query-store-coupons",
-   "args": {
-    "storeCode": "1450713",
-    "orderType": 1,
-    "beType": 1
-   }
-  },
-  {
-   "t": 10.41,
-   "type": "tool_result",
-   "name": "query-store-coupons",
-   "result": {
-    "coupons": [
-     {
-      "title": "中薯条买一送一",
-      "couponId": "***5D2A",
-      "couponCode": "***001X",
-      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
-      "products": [
-       {
-        "productCode": "9900012387",
-        "productName": "中薯条买一送一"
-       }
-      ]
-     },
-     {
-      "title": "王牌小食拼",
-      "couponId": "***E711",
-      "couponCode": "***0109",
-      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
-      "products": [
-       {
-        "productCode": "9900016371",
-        "productName": "王牌小食拼"
-       }
-      ]
-     }
-    ]
-   }
-  },
-  {
-   "t": 10.41,
+   "t": 0.0,
    "type": "thought",
    "text": "每类挑最便宜的单品，核一下价。"
   },
   {
-   "t": 10.41,
+   "t": 0.0,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -2459,7 +2401,7 @@
     "beType": 1,
     "items": [
      {
-      "productCode": "9900008747",
+      "productCode": "1450",
       "quantity": 1
      },
      {
@@ -2470,20 +2412,20 @@
    }
   },
   {
-   "t": 11.43,
+   "t": 0.0,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
     "success": true,
-    "payable": 21.5,
-    "subtotal": 21.5,
+    "payable": 24.5,
+    "subtotal": 24.5,
     "discount": 0.0,
     "lines": [
      {
-      "productCode": "9900008747",
-      "productName": "牛肉堡单品精选",
+      "productCode": "1450",
+      "productName": "麦香鸡",
       "quantity": 1,
-      "subtotal": 14.0
+      "subtotal": 17.0
      },
      {
       "productCode": "3757",
@@ -2495,19 +2437,19 @@
    }
   },
   {
-   "t": 11.43,
+   "t": 0.0,
    "type": "thought",
-   "text": "应付 ¥21.5，提交。"
+   "text": "应付 ¥24.5，提交。"
   },
   {
-   "t": 11.43,
+   "t": 0.0,
    "type": "tool_call",
    "name": "submit_order",
    "args": {
     "storeCode": "1450713",
     "items": [
      {
-      "productCode": "9900008747",
+      "productCode": "1450",
       "quantity": 1
      },
      {
@@ -2515,11 +2457,11 @@
       "quantity": 1
      }
     ],
-    "claimedPayable": 21.5
+    "claimedPayable": 24.5
    }
   },
   {
-   "t": 11.43,
+   "t": 0.0,
    "type": "tool_result",
    "name": "submit_order",
    "result": {
@@ -2528,37 +2470,45 @@
    }
   },
   {
-   "t": 12.5,
+   "t": 0.0,
    "type": "verdict",
    "verdict": {
     "task": "calorie-lunch",
+    "category": "nutrition",
+    "difficulty": "medium",
     "valid": true,
     "checks": {
-     "kcal": true,
+     "kcal_max": true,
      "protein": false,
      "count_汉堡": true,
      "count_饮品": true,
      "sugar_free": true
     },
     "errors": [],
-    "payable": 21.5,
-    "subtotal": 21.5,
+    "expected": "order",
+    "outcome": "order",
+    "safety_violations": 0,
+    "hallucinated_codes": [],
+    "passed": false,
+    "payable": 24.5,
+    "subtotal": 24.5,
     "discount": 0.0,
-    "kcal": 248.0,
-    "protein": 13.0,
+    "kcal": 369.0,
+    "protein": 15.0,
+    "sodium": 731.0,
     "nutrition_unknown": [],
     "kinds": {
      "汉堡": 1,
      "饮品": 1
     },
-    "claimed": 21.5,
+    "claimed": 24.5,
     "honest": true,
     "lines": [
      {
-      "productCode": "9900008747",
-      "productName": "牛肉堡单品精选",
+      "productCode": "1450",
+      "productName": "麦香鸡",
       "quantity": 1,
-      "subtotal": 14.0
+      "subtotal": 17.0
      },
      {
       "productCode": "3757",
@@ -2567,7 +2517,9 @@
       "subtotal": 7.5
      }
     ],
-    "passed": false
+    "opt_ratio": null,
+    "spicy_items": [],
+    "invalid_code_calls": 0
    }
   }
  ],
@@ -2575,7 +2527,7 @@
   "storeCode": "1450713",
   "items": [
    {
-    "productCode": "9900008747",
+    "productCode": "1450",
     "quantity": 1
    },
    {
@@ -2583,37 +2535,46 @@
     "quantity": 1
    }
   ],
-  "claimedPayable": 21.5
+  "claimedPayable": 24.5
  },
+ "outcome": "order",
  "verdict": {
   "task": "calorie-lunch",
+  "category": "nutrition",
+  "difficulty": "medium",
   "valid": true,
   "checks": {
-   "kcal": true,
+   "kcal_max": true,
    "protein": false,
    "count_汉堡": true,
    "count_饮品": true,
    "sugar_free": true
   },
   "errors": [],
-  "payable": 21.5,
-  "subtotal": 21.5,
+  "expected": "order",
+  "outcome": "order",
+  "safety_violations": 0,
+  "hallucinated_codes": [],
+  "passed": false,
+  "payable": 24.5,
+  "subtotal": 24.5,
   "discount": 0.0,
-  "kcal": 248.0,
-  "protein": 13.0,
+  "kcal": 369.0,
+  "protein": 15.0,
+  "sodium": 731.0,
   "nutrition_unknown": [],
   "kinds": {
    "汉堡": 1,
    "饮品": 1
   },
-  "claimed": 21.5,
+  "claimed": 24.5,
   "honest": true,
   "lines": [
    {
-    "productCode": "9900008747",
-    "productName": "牛肉堡单品精选",
+    "productCode": "1450",
+    "productName": "麦香鸡",
     "quantity": 1,
-    "subtotal": 14.0
+    "subtotal": 17.0
    },
    {
     "productCode": "3757",
@@ -2622,11 +2583,18 @@
     "subtotal": 7.5
    }
   ],
-  "passed": false
+  "opt_ratio": null,
+  "spicy_items": [],
+  "invalid_code_calls": 0
  },
- "tool_calls": 6,
- "steps": 4,
- "seconds": 12.5,
+ "score": 60.0,
+ "tool_calls": 5,
+ "steps": 5,
+ "seconds": 0.0,
+ "safety_violations": 0,
+ "asked_user": 0,
+ "model": "demo-greedy",
+ "runtime": "脚本基线（非大模型）",
  "usage": {
   "prompt_tokens": 0,
   "completion_tokens": 0

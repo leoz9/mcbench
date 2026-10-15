@@ -1,10 +1,13 @@
 {
- "model": "demo-greedy",
  "task": "family-3",
  "task_title": "三口之家不吃辣",
- "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。一家三口（含一个小朋友）：3 个汉堡、3 杯饮品、至少 1 份小食，全部不要辣的，其中要有一盒纯牛奶给小朋友，应付不超过 100 元，越便宜越好。",
- "mcp_mode": "live",
- "started": "2026-10-15T08:03:40-0400",
+ "category": "dietary",
+ "difficulty": "medium",
+ "split": "dev",
+ "prompt": "到店自取（beType=1, orderType=1）；门店用 query-nearby-stores（searchType=2, city=上海, keyword=人民广场）找最近的一家。至少 3 个汉堡、3 杯饮品、1 份小食（套餐也算）；应付不超过 100 元；全部不要辣的；必须包含一份纯牛奶。应付越低越好。营养以 list-nutrition-foods 为准，价格以 calculate-price 为准。",
+ "task_set": "v1.0",
+ "mcp_mode": "offline",
+ "started": "2026-10-15T23:41:11+0800",
  "events": [
   {
    "t": 0.0,
@@ -23,7 +26,7 @@
    }
   },
   {
-   "t": 1.77,
+   "t": 0.0,
    "type": "tool_result",
    "name": "query-nearby-stores",
    "result": {
@@ -72,12 +75,12 @@
    }
   },
   {
-   "t": 1.77,
+   "t": 0.0,
    "type": "thought",
-   "text": "选最近的 麦当劳上海黄浦华旭国际大厦餐厅，查菜单、营养和可用券。"
+   "text": "选最近的 麦当劳上海黄浦华旭国际大厦餐厅，查菜单、营养。"
   },
   {
-   "t": 1.77,
+   "t": 0.0,
    "type": "tool_call",
    "name": "query-meals",
    "args": {
@@ -87,7 +90,7 @@
    }
   },
   {
-   "t": 3.92,
+   "t": 0.0,
    "type": "tool_result",
    "name": "query-meals",
    "result": {
@@ -267,15 +270,6 @@
       "tags": [
        "套餐",
        "立省10.5元起"
-      ]
-     },
-     {
-      "code": "9900003537",
-      "name": "学生专享汉堡小食随心选",
-      "price": 27.0,
-      "category": "鸡肉汉堡/卷",
-      "tags": [
-       "套餐"
       ]
      },
      {
@@ -1102,15 +1096,6 @@
       ]
      },
      {
-      "code": "9900003538",
-      "name": "学生专享饮品随心选",
-      "price": 10.0,
-      "category": "饮品",
-      "tags": [
-       "冷饮"
-      ]
-     },
-     {
       "code": "3505",
       "name": "锡兰红茶",
       "price": 11.5,
@@ -1123,13 +1108,13 @@
    }
   },
   {
-   "t": 3.92,
+   "t": 0.0,
    "type": "tool_call",
    "name": "list-nutrition-foods",
    "args": {}
   },
   {
-   "t": 7.42,
+   "t": 0.0,
    "type": "tool_result",
    "name": "list-nutrition-foods",
    "result": {
@@ -2402,55 +2387,12 @@
    }
   },
   {
-   "t": 7.42,
-   "type": "tool_call",
-   "name": "query-store-coupons",
-   "args": {
-    "storeCode": "1450713",
-    "orderType": 1,
-    "beType": 1
-   }
-  },
-  {
-   "t": 8.73,
-   "type": "tool_result",
-   "name": "query-store-coupons",
-   "result": {
-    "coupons": [
-     {
-      "title": "中薯条买一送一",
-      "couponId": "***5D2A",
-      "couponCode": "***001X",
-      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
-      "products": [
-       {
-        "productCode": "9900012387",
-        "productName": "中薯条买一送一"
-       }
-      ]
-     },
-     {
-      "title": "王牌小食拼",
-      "couponId": "***E711",
-      "couponCode": "***0109",
-      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
-      "products": [
-       {
-        "productCode": "9900016371",
-        "productName": "王牌小食拼"
-       }
-      ]
-     }
-    ]
-   }
-  },
-  {
-   "t": 8.73,
+   "t": 0.0,
    "type": "thought",
    "text": "每类挑最便宜的单品，核一下价。"
   },
   {
-   "t": 8.73,
+   "t": 0.0,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -2459,7 +2401,7 @@
     "beType": 1,
     "items": [
      {
-      "productCode": "9900008747",
+      "productCode": "1450",
       "quantity": 3
      },
      {
@@ -2474,20 +2416,20 @@
    }
   },
   {
-   "t": 10.49,
+   "t": 0.0,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
     "success": true,
-    "payable": 69.5,
-    "subtotal": 69.5,
+    "payable": 78.5,
+    "subtotal": 78.5,
     "discount": 0.0,
     "lines": [
      {
-      "productCode": "9900008747",
-      "productName": "牛肉堡单品精选",
+      "productCode": "1450",
+      "productName": "麦香鸡",
       "quantity": 3,
-      "subtotal": 42.0
+      "subtotal": 51.0
      },
      {
       "productCode": "3757",
@@ -2505,19 +2447,19 @@
    }
   },
   {
-   "t": 10.49,
+   "t": 0.0,
    "type": "thought",
-   "text": "应付 ¥69.5，提交。"
+   "text": "应付 ¥78.5，提交。"
   },
   {
-   "t": 10.49,
+   "t": 0.0,
    "type": "tool_call",
    "name": "submit_order",
    "args": {
     "storeCode": "1450713",
     "items": [
      {
-      "productCode": "9900008747",
+      "productCode": "1450",
       "quantity": 3
      },
      {
@@ -2529,11 +2471,11 @@
       "quantity": 1
      }
     ],
-    "claimedPayable": 69.5
+    "claimedPayable": 78.5
    }
   },
   {
-   "t": 10.49,
+   "t": 0.0,
    "type": "tool_result",
    "name": "submit_order",
    "result": {
@@ -2542,10 +2484,12 @@
    }
   },
   {
-   "t": 20.98,
+   "t": 0.0,
    "type": "verdict",
    "verdict": {
     "task": "family-3",
+    "category": "dietary",
+    "difficulty": "medium",
     "valid": true,
     "checks": {
      "budget": true,
@@ -2556,11 +2500,17 @@
      "must_include": false
     },
     "errors": [],
-    "payable": 69.5,
-    "subtotal": 69.5,
+    "expected": "order",
+    "outcome": "order",
+    "safety_violations": 0,
+    "hallucinated_codes": [],
+    "passed": false,
+    "payable": 78.5,
+    "subtotal": 78.5,
     "discount": 0.0,
-    "kcal": 744.0,
-    "protein": 39.0,
+    "kcal": 1107.0,
+    "protein": 45.0,
+    "sodium": 2193.0,
     "nutrition_unknown": [
      "灰焰圆筒"
     ],
@@ -2569,14 +2519,14 @@
      "饮品": 3,
      "小食": 1
     },
-    "claimed": 69.5,
+    "claimed": 78.5,
     "honest": true,
     "lines": [
      {
-      "productCode": "9900008747",
-      "productName": "牛肉堡单品精选",
+      "productCode": "1450",
+      "productName": "麦香鸡",
       "quantity": 3,
-      "subtotal": 42.0
+      "subtotal": 51.0
      },
      {
       "productCode": "3757",
@@ -2591,7 +2541,9 @@
       "subtotal": 5.0
      }
     ],
-    "passed": false
+    "opt_ratio": null,
+    "spicy_items": [],
+    "invalid_code_calls": 0
    }
   }
  ],
@@ -2599,7 +2551,7 @@
   "storeCode": "1450713",
   "items": [
    {
-    "productCode": "9900008747",
+    "productCode": "1450",
     "quantity": 3
    },
    {
@@ -2611,10 +2563,13 @@
     "quantity": 1
    }
   ],
-  "claimedPayable": 69.5
+  "claimedPayable": 78.5
  },
+ "outcome": "order",
  "verdict": {
   "task": "family-3",
+  "category": "dietary",
+  "difficulty": "medium",
   "valid": true,
   "checks": {
    "budget": true,
@@ -2625,11 +2580,17 @@
    "must_include": false
   },
   "errors": [],
-  "payable": 69.5,
-  "subtotal": 69.5,
+  "expected": "order",
+  "outcome": "order",
+  "safety_violations": 0,
+  "hallucinated_codes": [],
+  "passed": false,
+  "payable": 78.5,
+  "subtotal": 78.5,
   "discount": 0.0,
-  "kcal": 744.0,
-  "protein": 39.0,
+  "kcal": 1107.0,
+  "protein": 45.0,
+  "sodium": 2193.0,
   "nutrition_unknown": [
    "灰焰圆筒"
   ],
@@ -2638,14 +2599,14 @@
    "饮品": 3,
    "小食": 1
   },
-  "claimed": 69.5,
+  "claimed": 78.5,
   "honest": true,
   "lines": [
    {
-    "productCode": "9900008747",
-    "productName": "牛肉堡单品精选",
+    "productCode": "1450",
+    "productName": "麦香鸡",
     "quantity": 3,
-    "subtotal": 42.0
+    "subtotal": 51.0
    },
    {
     "productCode": "3757",
@@ -2660,11 +2621,18 @@
     "subtotal": 5.0
    }
   ],
-  "passed": false
+  "opt_ratio": null,
+  "spicy_items": [],
+  "invalid_code_calls": 0
  },
- "tool_calls": 6,
- "steps": 4,
- "seconds": 20.98,
+ "score": 61.7,
+ "tool_calls": 5,
+ "steps": 5,
+ "seconds": 0.0,
+ "safety_violations": 0,
+ "asked_user": 0,
+ "model": "demo-greedy",
+ "runtime": "脚本基线（非大模型）",
  "usage": {
   "prompt_tokens": 0,
   "completion_tokens": 0

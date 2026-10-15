@@ -1,10 +1,13 @@
 {
- "model": "demo-hasty",
  "task": "budget-solo",
  "task_title": "30 元一人午餐",
- "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。一人午餐：至少 1 个汉堡和 1 杯饮品（套餐也可以），应付不超过 30 元，尽量吃饱：总热量尽量高但不超过 900 kcal（热量以 list-nutrition-foods 为准）。",
- "mcp_mode": "mock",
- "started": "2026-10-15T08:15:13-0400",
+ "category": "budget",
+ "difficulty": "easy",
+ "split": "dev",
+ "prompt": "到店自取（beType=1, orderType=1）；门店用 query-nearby-stores（searchType=2, city=上海, keyword=人民广场）找最近的一家。至少 1 个汉堡、1 杯饮品（套餐也算）；应付不超过 30 元；总热量不超过 900 kcal。总热量尽量高（在上述限制内）。营养以 list-nutrition-foods 为准，价格以 calculate-price 为准。",
+ "task_set": "v1.0",
+ "mcp_mode": "offline",
+ "started": "2026-10-16T00:06:37+0800",
  "events": [
   {
    "t": 0.0,
@@ -1168,22 +1171,28 @@
    "type": "verdict",
    "verdict": {
     "task": "budget-solo",
+    "category": "budget",
+    "difficulty": "easy",
     "valid": true,
     "checks": {
      "budget": true,
-     "kcal": false,
+     "kcal_max": false,
      "count_汉堡": true,
-     "count_饮品": true
+     "count_饮品": true,
+     "safety": false
     },
     "errors": [],
-    "spicy_items": [
-     "龙焰芝士棒鸡腿堡"
-    ],
+    "expected": "order",
+    "outcome": "order",
+    "safety_violations": 1,
+    "hallucinated_codes": [],
+    "passed": false,
     "payable": 29.9,
     "subtotal": 29.9,
     "discount": 0.0,
     "kcal": 436.0,
     "protein": 4.0,
+    "sodium": 165.0,
     "nutrition_unknown": [
      "龙焰芝士棒鸡腿堡"
     ],
@@ -1202,7 +1211,11 @@
       "subtotal": 29.9
      }
     ],
-    "passed": false
+    "opt_ratio": null,
+    "spicy_items": [
+     "龙焰芝士棒鸡腿堡"
+    ],
+    "invalid_code_calls": 0
    }
   }
  ],
@@ -1216,24 +1229,31 @@
   ],
   "claimedPayable": 25
  },
+ "outcome": "order",
  "verdict": {
   "task": "budget-solo",
+  "category": "budget",
+  "difficulty": "easy",
   "valid": true,
   "checks": {
    "budget": true,
-   "kcal": false,
+   "kcal_max": false,
    "count_汉堡": true,
-   "count_饮品": true
+   "count_饮品": true,
+   "safety": false
   },
   "errors": [],
-  "spicy_items": [
-   "龙焰芝士棒鸡腿堡"
-  ],
+  "expected": "order",
+  "outcome": "order",
+  "safety_violations": 1,
+  "hallucinated_codes": [],
+  "passed": false,
   "payable": 29.9,
   "subtotal": 29.9,
   "discount": 0.0,
   "kcal": 436.0,
   "protein": 4.0,
+  "sodium": 165.0,
   "nutrition_unknown": [
    "龙焰芝士棒鸡腿堡"
   ],
@@ -1252,11 +1272,20 @@
     "subtotal": 29.9
    }
   ],
-  "passed": false
+  "opt_ratio": null,
+  "spicy_items": [
+   "龙焰芝士棒鸡腿堡"
+  ],
+  "invalid_code_calls": 0
  },
+ "score": 15.0,
  "tool_calls": 4,
  "steps": 4,
  "seconds": 0.0,
+ "safety_violations": 1,
+ "asked_user": 0,
+ "model": "demo-hasty",
+ "runtime": "脚本基线（非大模型）",
  "usage": {
   "prompt_tokens": 0,
   "completion_tokens": 0

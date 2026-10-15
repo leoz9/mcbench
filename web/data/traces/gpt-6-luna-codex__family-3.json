@@ -1,19 +1,21 @@
 {
- "model": "gpt-6-luna-codex",
- "runtime": "Codex CLI (gpt-6-luna)",
  "task": "family-3",
  "task_title": "三口之家不吃辣",
- "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。一家三口（含一个小朋友）：3 个汉堡、3 杯饮品、至少 1 份小食，全部不要辣的，其中要有一盒纯牛奶给小朋友，应付不超过 100 元，越便宜越好。",
- "mcp_mode": "live",
- "started": "2026-10-15T08:07:40-0400",
+ "category": "dietary",
+ "difficulty": "medium",
+ "split": "dev",
+ "prompt": "到店自取（beType=1, orderType=1）；门店用 query-nearby-stores（searchType=2, city=上海, keyword=人民广场）找最近的一家。至少 3 个汉堡、3 杯饮品、1 份小食（套餐也算）；应付不超过 100 元；全部不要辣的；必须包含一份纯牛奶。应付越低越好。营养以 list-nutrition-foods 为准，价格以 calculate-price 为准。",
+ "task_set": "v1.0",
+ "mcp_mode": "offline",
+ "started": "2026-10-15T23:42:49+0800",
  "events": [
   {
    "t": 0,
    "type": "thought",
-   "text": "我会先按指定条件查人民广场附近门店，再查菜单和商品详情，按要求核算最便宜的可行组合并提交 dry-run 方案。"
+   "text": "我会先查人民广场附近门店，再核对菜单、套餐默认组成、营养与优惠，最后按核价结果提交 dry-run 方案。"
   },
   {
-   "t": 9.79,
+   "t": 0.0,
    "type": "tool_call",
    "name": "query-nearby-stores",
    "args": {
@@ -24,7 +26,7 @@
    }
   },
   {
-   "t": 10.94,
+   "t": 0.0,
    "type": "tool_result",
    "name": "query-nearby-stores",
    "result": {
@@ -73,7 +75,7 @@
    }
   },
   {
-   "t": 12.39,
+   "t": 1.71,
    "type": "tool_call",
    "name": "query-store-coupons",
    "args": {
@@ -83,27 +85,15 @@
    }
   },
   {
-   "t": 14.12,
+   "t": 1.71,
    "type": "tool_result",
    "name": "query-store-coupons",
    "result": {
     "coupons": [
      {
-      "title": "中薯条买一送一",
-      "couponId": "***5D2A",
-      "couponCode": "***001X",
-      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
-      "products": [
-       {
-        "productCode": "9900012387",
-        "productName": "中薯条买一送一"
-       }
-      ]
-     },
-     {
       "title": "王牌小食拼",
-      "couponId": "***E711",
-      "couponCode": "***0109",
+      "couponId": "MOCKCOUPONID0000",
+      "couponCode": "MOCKCODE0000",
       "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
       "products": [
        {
@@ -111,12 +101,24 @@
         "productName": "王牌小食拼"
        }
       ]
+     },
+     {
+      "title": "中薯条买一送一",
+      "couponId": "MOCKCOUPONID0001",
+      "couponCode": "MOCKCODE0001",
+      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
+      "products": [
+       {
+        "productCode": "9900012387",
+        "productName": "中薯条买一送一"
+       }
+      ]
      }
     ]
    }
   },
   {
-   "t": 14.12,
+   "t": 1.71,
    "type": "tool_call",
    "name": "query-meals",
    "args": {
@@ -126,7 +128,7 @@
    }
   },
   {
-   "t": 15.62,
+   "t": 1.71,
    "type": "tool_result",
    "name": "query-meals",
    "result": {
@@ -306,15 +308,6 @@
       "tags": [
        "套餐",
        "立省10.5元起"
-      ]
-     },
-     {
-      "code": "9900003537",
-      "name": "学生专享汉堡小食随心选",
-      "price": 27.0,
-      "category": "鸡肉汉堡/卷",
-      "tags": [
-       "套餐"
       ]
      },
      {
@@ -1141,15 +1134,6 @@
       ]
      },
      {
-      "code": "9900003538",
-      "name": "学生专享饮品随心选",
-      "price": 10.0,
-      "category": "饮品",
-      "tags": [
-       "冷饮"
-      ]
-     },
-     {
       "code": "3505",
       "name": "锡兰红茶",
       "price": 11.5,
@@ -1162,7 +1146,1286 @@
    }
   },
   {
-   "t": 20.84,
+   "t": 1.71,
+   "type": "tool_call",
+   "name": "list-nutrition-foods",
+   "args": {}
+  },
+  {
+   "t": 1.71,
+   "type": "tool_result",
+   "name": "list-nutrition-foods",
+   "result": {
+    "foods": [
+     {
+      "name": "猪柳麦满分",
+      "kcal": 308.0,
+      "protein": 16.0,
+      "fat": 16.0,
+      "carb": 24.0,
+      "sodium": 781.0
+     },
+     {
+      "name": "猪柳蛋麦满分",
+      "kcal": 387.0,
+      "protein": 23.0,
+      "fat": 21.0,
+      "carb": 25.0,
+      "sodium": 846.0
+     },
+     {
+      "name": "烟肉蛋麦满分",
+      "kcal": 260.0,
+      "protein": 16.0,
+      "fat": 10.0,
+      "carb": 24.0,
+      "sodium": 483.0
+     },
+     {
+      "name": "火腿扒麦满分",
+      "kcal": 261.0,
+      "protein": 14.0,
+      "fat": 12.0,
+      "carb": 24.0,
+      "sodium": 608.0
+     },
+     {
+      "name": "中薯条",
+      "kcal": 289.0,
+      "protein": 4.0,
+      "fat": 12.0,
+      "carb": 38.0,
+      "sodium": 165.0
+     },
+     {
+      "name": "大薯条",
+      "kcal": 379.0,
+      "protein": 6.0,
+      "fat": 16.0,
+      "carb": 50.0,
+      "sodium": 216.0
+     },
+     {
+      "name": "小薯条",
+      "kcal": 210.0,
+      "protein": 3.0,
+      "fat": 9.0,
+      "carb": 28.0,
+      "sodium": 120.0
+     },
+     {
+      "name": "迷你薯条",
+      "kcal": 106.0,
+      "protein": 2.0,
+      "fat": 4.0,
+      "carb": 14.0,
+      "sodium": 61.0
+     },
+     {
+      "name": "圆筒冰淇淋",
+      "kcal": 93.0,
+      "protein": 2.0,
+      "fat": 3.0,
+      "carb": 14.0,
+      "sodium": 36.0
+     },
+     {
+      "name": "麦乐鸡5块",
+      "kcal": 213.0,
+      "protein": 12.0,
+      "fat": 12.0,
+      "carb": 13.0,
+      "sodium": 422.0
+     },
+     {
+      "name": "大杯玉米杯",
+      "kcal": 87.0,
+      "protein": 4.0,
+      "fat": 1.0,
+      "carb": 12.0,
+      "sodium": 2.0
+     },
+     {
+      "name": "小杯玉米杯",
+      "kcal": 53.0,
+      "protein": 2.0,
+      "fat": 1.0,
+      "carb": 7.0,
+      "sodium": 1.0
+     },
+     {
+      "name": "麦辣鸡翅-2块",
+      "kcal": 224.0,
+      "protein": 13.0,
+      "fat": 15.0,
+      "carb": 9.0,
+      "sodium": 537.0
+     },
+     {
+      "name": "朱古力新地",
+      "kcal": 282.0,
+      "protein": 5.0,
+      "fat": 9.0,
+      "carb": 44.0,
+      "sodium": 126.0
+     },
+     {
+      "name": "草莓新地",
+      "kcal": 245.0,
+      "protein": 4.0,
+      "fat": 6.0,
+      "carb": 43.0,
+      "sodium": 84.0
+     },
+     {
+      "name": "奥利奥麦旋风",
+      "kcal": 266.0,
+      "protein": 5.0,
+      "fat": 9.0,
+      "carb": 40.0,
+      "sodium": 116.0
+     },
+     {
+      "name": "草莓麦旋风",
+      "kcal": 295.0,
+      "protein": 6.0,
+      "fat": 9.0,
+      "carb": 47.0,
+      "sodium": 122.0
+     },
+     {
+      "name": "香芋派",
+      "kcal": 232.0,
+      "protein": 2.0,
+      "fat": 12.0,
+      "carb": 28.0,
+      "sodium": 159.0
+     },
+     {
+      "name": "菠萝派",
+      "kcal": 221.0,
+      "protein": 2.0,
+      "fat": 11.0,
+      "carb": 27.0,
+      "sodium": 147.0
+     },
+     {
+      "name": "大脆鸡扒麦满分",
+      "kcal": 361.0,
+      "protein": 16.0,
+      "fat": 17.0,
+      "carb": 35.0,
+      "sodium": 804.0
+     },
+     {
+      "name": "原味板烧鸡腿麦满分",
+      "kcal": 246.0,
+      "protein": 15.0,
+      "fat": 9.0,
+      "carb": 25.0,
+      "sodium": 611.0
+     },
+     {
+      "name": "双层原味板烧鸡腿麦满分",
+      "kcal": 355.0,
+      "protein": 23.0,
+      "fat": 17.0,
+      "carb": 27.0,
+      "sodium": 984.0
+     },
+     {
+      "name": "吉士汉堡包",
+      "kcal": 294.0,
+      "protein": 16.0,
+      "fat": 12.0,
+      "carb": 30.0,
+      "sodium": 673.0
+     },
+     {
+      "name": "双层吉士汉堡",
+      "kcal": 429.0,
+      "protein": 27.0,
+      "fat": 22.0,
+      "carb": 31.0,
+      "sodium": 1017.0
+     },
+     {
+      "name": "麦香鸡",
+      "kcal": 369.0,
+      "protein": 15.0,
+      "fat": 17.0,
+      "carb": 39.0,
+      "sodium": 731.0
+     },
+     {
+      "name": "麦香鱼",
+      "kcal": 325.0,
+      "protein": 16.0,
+      "fat": 13.0,
+      "carb": 35.0,
+      "sodium": 556.0
+     },
+     {
+      "name": "麦辣鸡腿汉堡",
+      "kcal": 485.0,
+      "protein": 24.0,
+      "fat": 24.0,
+      "carb": 42.0,
+      "sodium": 1208.0
+     },
+     {
+      "name": "板烧鸡腿堡",
+      "kcal": 391.0,
+      "protein": 23.0,
+      "fat": 17.0,
+      "carb": 35.0,
+      "sodium": 1041.0
+     },
+     {
+      "name": "巨无霸",
+      "kcal": 513.0,
+      "protein": 27.0,
+      "fat": 26.0,
+      "carb": 42.0,
+      "sodium": 961.0
+     },
+     {
+      "name": "培根蔬萃双层牛堡",
+      "kcal": 442.0,
+      "protein": 24.0,
+      "fat": 23.0,
+      "carb": 34.0,
+      "sodium": 728.0
+     },
+     {
+      "name": "可乐中杯",
+      "kcal": 147.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 36.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "可乐大杯",
+      "kcal": 224.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 55.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "可乐小杯",
+      "kcal": 107.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 26.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "雪碧中杯",
+      "kcal": 105.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 26.0,
+      "sodium": 29.0
+     },
+     {
+      "name": "雪碧大杯",
+      "kcal": 160.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 39.0,
+      "sodium": 45.0
+     },
+     {
+      "name": "雪碧小杯",
+      "kcal": 76.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 19.0,
+      "sodium": 21.0
+     },
+     {
+      "name": "无糖可口可乐中杯",
+      "kcal": 0.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 1.0,
+      "sodium": 35.0
+     },
+     {
+      "name": "无糖可口可乐大杯",
+      "kcal": 0.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 1.0,
+      "sodium": 53.0
+     },
+     {
+      "name": "无糖可口可乐小杯",
+      "kcal": 0.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 0.0,
+      "sodium": 25.0
+     },
+     {
+      "name": "大杯鲜萃咖啡",
+      "kcal": 13.0,
+      "protein": 1.0,
+      "fat": 0.0,
+      "carb": 0.0,
+      "sodium": 3.0
+     },
+     {
+      "name": "小杯鲜萃咖啡",
+      "kcal": 15.0,
+      "protein": 1.0,
+      "fat": 0.0,
+      "carb": 3.0,
+      "sodium": 2.0
+     },
+     {
+      "name": "锡兰红茶",
+      "kcal": 2.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 0.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "热朱古力",
+      "kcal": 125.0,
+      "protein": 2.0,
+      "fat": 2.0,
+      "carb": 22.0,
+      "sodium": 107.0
+     },
+     {
+      "name": "纯牛奶（盒装）",
+      "kcal": 129.0,
+      "protein": 7.0,
+      "fat": 7.0,
+      "carb": 10.0,
+      "sodium": 73.0
+     },
+     {
+      "name": "麦旋酷阳光橙",
+      "kcal": 228.0,
+      "protein": 1.0,
+      "fat": 2.0,
+      "carb": 50.0,
+      "sodium": 77.0
+     },
+     {
+      "name": "浓缩咖啡",
+      "kcal": 13.0,
+      "protein": 1.0,
+      "fat": 0.0,
+      "carb": 2.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "那么大鸡排",
+      "kcal": 385.0,
+      "protein": 24.0,
+      "fat": 21.0,
+      "carb": 24.0,
+      "sodium": 996.0
+     },
+     {
+      "name": "阳光柠檬红茶中杯",
+      "kcal": 117.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 29.0,
+      "sodium": 17.0
+     },
+     {
+      "name": "阳光柠檬红茶大杯",
+      "kcal": 178.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 43.0,
+      "sodium": 25.0
+     },
+     {
+      "name": "阳光柠檬红茶小杯",
+      "kcal": 85.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 21.0,
+      "sodium": 12.0
+     },
+     {
+      "name": "脆薯饼",
+      "kcal": 146.0,
+      "protein": 1.0,
+      "fat": 9.0,
+      "carb": 14.0,
+      "sodium": 311.0
+     },
+     {
+      "name": "脆香油条",
+      "kcal": 202.0,
+      "protein": 5.0,
+      "fat": 12.0,
+      "carb": 19.0,
+      "sodium": 230.0
+     },
+     {
+      "name": "100%苹果汁",
+      "kcal": 88.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 21.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "汉堡包",
+      "kcal": 248.0,
+      "protein": 13.0,
+      "fat": 8.0,
+      "carb": 29.0,
+      "sodium": 492.0
+     },
+     {
+      "name": "麦乐鸡4块",
+      "kcal": 170.0,
+      "protein": 10.0,
+      "fat": 10.0,
+      "carb": 11.0,
+      "sodium": 337.0
+     },
+     {
+      "name": "纯悦",
+      "kcal": 0.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 0.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "苹果片",
+      "kcal": 32.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 7.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "不素之霸双层牛堡",
+      "kcal": 493.0,
+      "protein": 28.0,
+      "fat": 27.0,
+      "carb": 34.0,
+      "sodium": 1012.0
+     },
+     {
+      "name": "双层深海鳕鱼堡",
+      "kcal": 485.0,
+      "protein": 28.0,
+      "fat": 21.0,
+      "carb": 46.0,
+      "sodium": 917.0
+     },
+     {
+      "name": "儿童鱼排堡",
+      "kcal": 269.0,
+      "protein": 15.0,
+      "fat": 6.0,
+      "carb": 36.0,
+      "sodium": 442.0
+     },
+     {
+      "name": "培根安格斯厚牛堡",
+      "kcal": 707.0,
+      "protein": 34.0,
+      "fat": 44.0,
+      "carb": 43.0,
+      "sodium": 1037.0
+     },
+     {
+      "name": "芝士安格斯厚牛堡",
+      "kcal": 696.0,
+      "protein": 32.0,
+      "fat": 44.0,
+      "carb": 43.0,
+      "sodium": 897.0
+     },
+     {
+      "name": "yeyeyeye奶冻款",
+      "kcal": 223.0,
+      "protein": 1.0,
+      "fat": 4.0,
+      "carb": 43.0,
+      "sodium": 37.0
+     },
+     {
+      "name": "皮蛋鸡肉粥",
+      "kcal": 133.0,
+      "protein": 6.0,
+      "fat": 3.0,
+      "carb": 20.0,
+      "sodium": 611.0
+     },
+     {
+      "name": "雪菜脆笋鸡肉粥",
+      "kcal": 120.0,
+      "protein": 4.0,
+      "fat": 2.0,
+      "carb": 22.0,
+      "sodium": 552.0
+     },
+     {
+      "name": "猪柳炒双蛋堡",
+      "kcal": 437.0,
+      "protein": 25.0,
+      "fat": 24.0,
+      "carb": 29.0,
+      "sodium": 705.0
+     },
+     {
+      "name": "yeyeyeye爆珠款",
+      "kcal": 212.0,
+      "protein": 1.0,
+      "fat": 3.0,
+      "carb": 42.0,
+      "sodium": 122.0
+     },
+     {
+      "name": "柠檬拉明顿",
+      "kcal": 121.0,
+      "protein": 2.0,
+      "fat": 7.0,
+      "carb": 12.0,
+      "sodium": 35.0
+     },
+     {
+      "name": "芝士双层安格斯厚牛堡",
+      "kcal": 1003.0,
+      "protein": 58.0,
+      "fat": 65.0,
+      "carb": 46.0,
+      "sodium": 1373.0
+     },
+     {
+      "name": "培根双层安格斯厚牛堡",
+      "kcal": 987.0,
+      "protein": 55.0,
+      "fat": 64.0,
+      "carb": 46.0,
+      "sodium": 1191.0
+     },
+     {
+      "name": "火腿扒早安营养卷",
+      "kcal": 444.0,
+      "protein": 16.0,
+      "fat": 24.0,
+      "carb": 39.0,
+      "sodium": 1065.0
+     },
+     {
+      "name": "麦麦脆汁鸡-琵琶腿",
+      "kcal": 328.0,
+      "protein": 21.0,
+      "fat": 20.0,
+      "carb": 16.0,
+      "sodium": 905.0
+     },
+     {
+      "name": "德式图林根香肠",
+      "kcal": 87.0,
+      "protein": 5.0,
+      "fat": 6.0,
+      "carb": 2.0,
+      "sodium": 293.0
+     },
+     {
+      "name": "图林根香肠早安营养卷",
+      "kcal": 425.0,
+      "protein": 14.0,
+      "fat": 23.0,
+      "carb": 38.0,
+      "sodium": 977.0
+     },
+     {
+      "name": "麦麦脆汁鸡-带骨里脊",
+      "kcal": 332.0,
+      "protein": 22.0,
+      "fat": 18.0,
+      "carb": 16.0,
+      "sodium": 812.0
+     },
+     {
+      "name": "【美汁源】“黄金橙橙”",
+      "kcal": 165.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 41.0,
+      "sodium": 53.0
+     },
+     {
+      "name": "优品豆浆大杯",
+      "kcal": 202.0,
+      "protein": 8.0,
+      "fat": 4.0,
+      "carb": 33.0,
+      "sodium": 43.0
+     },
+     {
+      "name": "优品豆浆小杯",
+      "kcal": 151.0,
+      "protein": 6.0,
+      "fat": 3.0,
+      "carb": 25.0,
+      "sodium": 32.0
+     },
+     {
+      "name": "浓浓黑巧雪冰中杯",
+      "kcal": 359.0,
+      "protein": 8.0,
+      "fat": 12.0,
+      "carb": 51.0,
+      "sodium": 224.0
+     },
+     {
+      "name": "浓浓黑巧雪冰大杯",
+      "kcal": 444.0,
+      "protein": 11.0,
+      "fat": 14.0,
+      "carb": 65.0,
+      "sodium": 258.0
+     },
+     {
+      "name": "特浓奶香雪冰中杯",
+      "kcal": 269.0,
+      "protein": 6.0,
+      "fat": 11.0,
+      "carb": 36.0,
+      "sodium": 180.0
+     },
+     {
+      "name": "特浓奶香雪冰大杯",
+      "kcal": 309.0,
+      "protein": 7.0,
+      "fat": 12.0,
+      "carb": 42.0,
+      "sodium": 192.0
+     },
+     {
+      "name": "浓浓抹茶雪冰中杯",
+      "kcal": 289.0,
+      "protein": 7.0,
+      "fat": 11.0,
+      "carb": 39.0,
+      "sodium": 181.0
+     },
+     {
+      "name": "浓浓抹茶雪冰大杯",
+      "kcal": 339.0,
+      "protein": 8.0,
+      "fat": 12.0,
+      "carb": 48.0,
+      "sodium": 194.0
+     },
+     {
+      "name": "热牛奶中杯",
+      "kcal": 176.0,
+      "protein": 10.0,
+      "fat": 8.0,
+      "carb": 15.0,
+      "sodium": 101.0
+     },
+     {
+      "name": "热牛奶大杯",
+      "kcal": 240.0,
+      "protein": 13.0,
+      "fat": 11.0,
+      "carb": 21.0,
+      "sodium": 137.0
+     },
+     {
+      "name": "热牛奶小杯",
+      "kcal": 147.0,
+      "protein": 8.0,
+      "fat": 7.0,
+      "carb": 13.0,
+      "sodium": 84.0
+     },
+     {
+      "name": "冰牛奶中杯",
+      "kcal": 224.0,
+      "protein": 13.0,
+      "fat": 11.0,
+      "carb": 19.0,
+      "sodium": 128.0
+     },
+     {
+      "name": "冰牛奶大杯",
+      "kcal": 269.0,
+      "protein": 15.0,
+      "fat": 13.0,
+      "carb": 23.0,
+      "sodium": 154.0
+     },
+     {
+      "name": "冰牛奶小杯",
+      "kcal": 147.0,
+      "protein": 8.0,
+      "fat": 7.0,
+      "carb": 13.0,
+      "sodium": 84.0
+     },
+     {
+      "name": "冰奶铁中杯",
+      "kcal": 148.0,
+      "protein": 8.0,
+      "fat": 7.0,
+      "carb": 13.0,
+      "sodium": 77.0
+     },
+     {
+      "name": "冰奶铁大杯",
+      "kcal": 162.0,
+      "protein": 9.0,
+      "fat": 7.0,
+      "carb": 15.0,
+      "sodium": 85.0
+     },
+     {
+      "name": "冰奶铁小杯",
+      "kcal": 86.0,
+      "protein": 5.0,
+      "fat": 4.0,
+      "carb": 8.0,
+      "sodium": 44.0
+     },
+     {
+      "name": "热奶铁中杯",
+      "kcal": 186.0,
+      "protein": 11.0,
+      "fat": 8.0,
+      "carb": 17.0,
+      "sodium": 99.0
+     },
+     {
+      "name": "热奶铁大杯",
+      "kcal": 249.0,
+      "protein": 14.0,
+      "fat": 11.0,
+      "carb": 22.0,
+      "sodium": 134.0
+     },
+     {
+      "name": "热奶铁小杯",
+      "kcal": 134.0,
+      "protein": 8.0,
+      "fat": 6.0,
+      "carb": 12.0,
+      "sodium": 72.0
+     },
+     {
+      "name": "冰燕麦奶铁中杯",
+      "kcal": 132.0,
+      "protein": 3.0,
+      "fat": 5.0,
+      "carb": 17.0,
+      "sodium": 87.0
+     },
+     {
+      "name": "冰燕麦奶铁大杯",
+      "kcal": 145.0,
+      "protein": 4.0,
+      "fat": 5.0,
+      "carb": 19.0,
+      "sodium": 96.0
+     },
+     {
+      "name": "冰燕麦奶铁小杯",
+      "kcal": 77.0,
+      "protein": 2.0,
+      "fat": 3.0,
+      "carb": 10.0,
+      "sodium": 50.0
+     },
+     {
+      "name": "热燕麦奶铁中杯",
+      "kcal": 167.0,
+      "protein": 4.0,
+      "fat": 6.0,
+      "carb": 22.0,
+      "sodium": 112.0
+     },
+     {
+      "name": "热燕麦奶铁大杯",
+      "kcal": 222.0,
+      "protein": 5.0,
+      "fat": 8.0,
+      "carb": 29.0,
+      "sodium": 152.0
+     },
+     {
+      "name": "热燕麦奶铁小杯",
+      "kcal": 120.0,
+      "protein": 3.0,
+      "fat": 5.0,
+      "carb": 16.0,
+      "sodium": 81.0
+     },
+     {
+      "name": "冰美式中杯",
+      "kcal": 13.0,
+      "protein": 1.0,
+      "fat": 0.0,
+      "carb": 2.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "冰美式大杯",
+      "kcal": 14.0,
+      "protein": 1.0,
+      "fat": 0.0,
+      "carb": 2.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "冰美式小杯",
+      "kcal": 10.0,
+      "protein": 1.0,
+      "fat": 0.0,
+      "carb": 1.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "热美式中杯",
+      "kcal": 13.0,
+      "protein": 1.0,
+      "fat": 0.0,
+      "carb": 2.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "热美式大杯",
+      "kcal": 14.0,
+      "protein": 1.0,
+      "fat": 0.0,
+      "carb": 2.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "热美式小杯",
+      "kcal": 10.0,
+      "protein": 1.0,
+      "fat": 0.0,
+      "carb": 1.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "冰焦糖玛奇朵",
+      "kcal": 148.0,
+      "protein": 8.0,
+      "fat": 7.0,
+      "carb": 13.0,
+      "sodium": 77.0
+     },
+     {
+      "name": "热焦糖玛奇朵",
+      "kcal": 167.0,
+      "protein": 9.0,
+      "fat": 7.0,
+      "carb": 15.0,
+      "sodium": 88.0
+     },
+     {
+      "name": "卡布奇诺中杯",
+      "kcal": 167.0,
+      "protein": 9.0,
+      "fat": 7.0,
+      "carb": 15.0,
+      "sodium": 88.0
+     },
+     {
+      "name": "卡布奇诺大杯",
+      "kcal": 223.0,
+      "protein": 13.0,
+      "fat": 10.0,
+      "carb": 20.0,
+      "sodium": 120.0
+     },
+     {
+      "name": "冰浓浓燕麦黑巧中杯",
+      "kcal": 120.0,
+      "protein": 2.0,
+      "fat": 5.0,
+      "carb": 16.0,
+      "sodium": 87.0
+     },
+     {
+      "name": "冰浓浓燕麦黑巧大杯",
+      "kcal": 131.0,
+      "protein": 3.0,
+      "fat": 5.0,
+      "carb": 17.0,
+      "sodium": 95.0
+     },
+     {
+      "name": "冰燕麦奶中杯",
+      "kcal": 199.0,
+      "protein": 4.0,
+      "fat": 8.0,
+      "carb": 26.0,
+      "sodium": 145.0
+     },
+     {
+      "name": "冰燕麦奶大杯",
+      "kcal": 239.0,
+      "protein": 5.0,
+      "fat": 9.0,
+      "carb": 32.0,
+      "sodium": 174.0
+     },
+     {
+      "name": "冰燕麦奶小杯",
+      "kcal": 131.0,
+      "protein": 3.0,
+      "fat": 5.0,
+      "carb": 17.0,
+      "sodium": 95.0
+     },
+     {
+      "name": "热燕麦奶中杯",
+      "kcal": 157.0,
+      "protein": 3.0,
+      "fat": 6.0,
+      "carb": 21.0,
+      "sodium": 114.0
+     },
+     {
+      "name": "热燕麦奶大杯",
+      "kcal": 213.0,
+      "protein": 4.0,
+      "fat": 8.0,
+      "carb": 28.0,
+      "sodium": 156.0
+     },
+     {
+      "name": "热燕麦奶小杯",
+      "kcal": 131.0,
+      "protein": 3.0,
+      "fat": 5.0,
+      "carb": 17.0,
+      "sodium": 95.0
+     },
+     {
+      "name": "冰浓浓抹茶牛奶中杯",
+      "kcal": 196.0,
+      "protein": 8.0,
+      "fat": 6.0,
+      "carb": 25.0,
+      "sodium": 80.0
+     },
+     {
+      "name": "冰浓浓抹茶牛奶大杯",
+      "kcal": 240.0,
+      "protein": 9.0,
+      "fat": 7.0,
+      "carb": 33.0,
+      "sodium": 89.0
+     },
+     {
+      "name": "热浓浓抹茶牛奶中杯",
+      "kcal": 238.0,
+      "protein": 11.0,
+      "fat": 8.0,
+      "carb": 29.0,
+      "sodium": 104.0
+     },
+     {
+      "name": "热浓浓抹茶牛奶大杯",
+      "kcal": 333.0,
+      "protein": 14.0,
+      "fat": 12.0,
+      "carb": 41.0,
+      "sodium": 142.0
+     },
+     {
+      "name": "冰浓浓黑巧中杯",
+      "kcal": 135.0,
+      "protein": 8.0,
+      "fat": 6.0,
+      "carb": 12.0,
+      "sodium": 77.0
+     },
+     {
+      "name": "冰浓浓黑巧大杯",
+      "kcal": 147.0,
+      "protein": 8.0,
+      "fat": 7.0,
+      "carb": 13.0,
+      "sodium": 84.0
+     },
+     {
+      "name": "热浓浓黑巧中杯",
+      "kcal": 176.0,
+      "protein": 10.0,
+      "fat": 8.0,
+      "carb": 15.0,
+      "sodium": 101.0
+     },
+     {
+      "name": "热浓浓黑巧大杯",
+      "kcal": 240.0,
+      "protein": 13.0,
+      "fat": 11.0,
+      "carb": 21.0,
+      "sodium": 137.0
+     },
+     {
+      "name": "川宁伯爵红茶",
+      "kcal": 2.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 0.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "抹茶阿芙佳朵",
+      "kcal": 147.0,
+      "protein": 3.0,
+      "fat": 4.0,
+      "carb": 23.0,
+      "sodium": 50.0
+     },
+     {
+      "name": "咖啡阿芙佳朵",
+      "kcal": 139.0,
+      "protein": 4.0,
+      "fat": 4.0,
+      "carb": 21.0,
+      "sodium": 49.0
+     },
+     {
+      "name": "热浓浓燕麦黑巧中杯",
+      "kcal": 157.0,
+      "protein": 3.0,
+      "fat": 6.0,
+      "carb": 21.0,
+      "sodium": 114.0
+     },
+     {
+      "name": "热浓浓燕麦黑巧大杯",
+      "kcal": 213.0,
+      "protein": 4.0,
+      "fat": 8.0,
+      "carb": 28.0,
+      "sodium": 156.0
+     },
+     {
+      "name": "草莓拉明顿",
+      "kcal": 121.0,
+      "protein": 2.0,
+      "fat": 8.0,
+      "carb": 11.0,
+      "sodium": 34.0
+     },
+     {
+      "name": "原味板烧鸡腿炒双蛋堡",
+      "kcal": 419.0,
+      "protein": 27.0,
+      "fat": 21.0,
+      "carb": 30.0,
+      "sodium": 715.0
+     },
+     {
+      "name": "双层猪柳蛋麦满分",
+      "kcal": 513.0,
+      "protein": 29.0,
+      "fat": 32.0,
+      "carb": 26.0,
+      "sodium": 1210.0
+     },
+     {
+      "name": "双层火腿扒麦满分",
+      "kcal": 385.0,
+      "protein": 21.0,
+      "fat": 22.0,
+      "carb": 26.0,
+      "sodium": 979.0
+     },
+     {
+      "name": "脆脆薯条",
+      "kcal": 279.0,
+      "protein": 4.0,
+      "fat": 14.0,
+      "carb": 32.0,
+      "sodium": 540.0
+     },
+     {
+      "name": "麦麦趣鸡球",
+      "kcal": 266.0,
+      "protein": 17.0,
+      "fat": 13.0,
+      "carb": 19.0,
+      "sodium": 789.0
+     },
+     {
+      "name": "酥酥多笋卷",
+      "kcal": 342.0,
+      "protein": 14.0,
+      "fat": 15.0,
+      "carb": 36.0,
+      "sodium": 1044.0
+     },
+     {
+      "name": "薄皮焦香V翅",
+      "kcal": 192.0,
+      "protein": 17.0,
+      "fat": 11.0,
+      "carb": 6.0,
+      "sodium": 594.0
+     },
+     {
+      "name": "蜜汁BBQ风味薄皮脆汁鸡-带骨里脊",
+      "kcal": 152.0,
+      "protein": 20.0,
+      "fat": 5.0,
+      "carb": 6.0,
+      "sodium": 635.0
+     },
+     {
+      "name": "蜜汁BBQ风味薄皮脆汁鸡-琵琶腿",
+      "kcal": 173.0,
+      "protein": 18.0,
+      "fat": 9.0,
+      "carb": 5.0,
+      "sodium": 547.0
+     },
+     {
+      "name": "果然多肉",
+      "kcal": 478.0,
+      "protein": 36.0,
+      "fat": 17.0,
+      "carb": 44.0,
+      "sodium": 1343.0
+     },
+     {
+      "name": "“苹板”支撑Pro",
+      "kcal": 476.0,
+      "protein": 25.0,
+      "fat": 18.0,
+      "carb": 50.0,
+      "sodium": 1077.0
+     },
+     {
+      "name": "专“薯鱼”你",
+      "kcal": 463.0,
+      "protein": 18.0,
+      "fat": 17.0,
+      "carb": 57.0,
+      "sodium": 652.0
+     },
+     {
+      "name": "绝代双翅",
+      "kcal": 469.0,
+      "protein": 32.0,
+      "fat": 27.0,
+      "carb": 23.0,
+      "sodium": 1167.0
+     },
+     {
+      "name": "牛气满满",
+      "kcal": 495.0,
+      "protein": 26.0,
+      "fat": 24.0,
+      "carb": 42.0,
+      "sodium": 764.0
+     },
+     {
+      "name": "蜜汁快乐",
+      "kcal": 258.0,
+      "protein": 22.0,
+      "fat": 9.0,
+      "carb": 20.0,
+      "sodium": 721.0
+     },
+     {
+      "name": "迷你朱古力新地",
+      "kcal": 140.0,
+      "protein": 3.0,
+      "fat": 4.0,
+      "carb": 22.0,
+      "sodium": 63.0
+     },
+     {
+      "name": "迷你草莓新地",
+      "kcal": 122.0,
+      "protein": 2.0,
+      "fat": 3.0,
+      "carb": 21.0,
+      "sodium": 42.0
+     },
+     {
+      "name": "鲜蔬蛋沙拉叠叠卷",
+      "kcal": 266.0,
+      "protein": 11.0,
+      "fat": 14.0,
+      "carb": 24.0,
+      "sodium": 518.0
+     },
+     {
+      "name": "鸡肉蛋沙拉叠叠卷",
+      "kcal": 387.0,
+      "protein": 17.0,
+      "fat": 21.0,
+      "carb": 31.0,
+      "sodium": 842.0
+     },
+     {
+      "name": "中杯怡泉+C",
+      "kcal": 110.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 27.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "大杯怡泉+C",
+      "kcal": 168.0,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carb": 41.0,
+      "sodium": 0.0
+     },
+     {
+      "name": "蒜了吧黄油风味薄皮脆汁鸡-琵琶腿",
+      "kcal": 164.0,
+      "protein": 19.0,
+      "fat": 6.0,
+      "carb": 6.0,
+      "sodium": 867.0
+     },
+     {
+      "name": "蒜了吧黄油风味薄皮脆汁鸡-带骨里脊",
+      "kcal": 126.0,
+      "protein": 19.0,
+      "fat": 2.0,
+      "carb": 4.0,
+      "sodium": 750.0
+     },
+     {
+      "name": "柠萌风味薄皮焦香V翅",
+      "kcal": 204.0,
+      "protein": 18.0,
+      "fat": 11.0,
+      "carb": 6.0,
+      "sodium": 768.0
+     }
+    ]
+   }
+  },
+  {
+   "t": 6.6,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -1173,7 +2436,7 @@
    }
   },
   {
-   "t": 22.49,
+   "t": 6.6,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -1209,12 +2472,70 @@
    }
   },
   {
-   "t": 0,
-   "type": "thought",
-   "text": "最近门店是华旭国际大厦餐厅，距搜索位置 144 米。菜单中最省的无辣选择可用“牛肉堡单品精选”并按默认搭配（汉堡包）计算；饮品选盒装纯牛奶和两瓶纯悦，小食选苹果片。现在核价。"
+   "t": 6.6,
+   "type": "tool_call",
+   "name": "query-meal-detail",
+   "args": {
+    "storeCode": "1450713",
+    "beType": 1,
+    "orderType": 1,
+    "code": "1600"
+   }
   },
   {
-   "t": 25.52,
+   "t": 6.6,
+   "type": "tool_result",
+   "name": "query-meal-detail",
+   "result": {
+    "code": "1600",
+    "name": "麦香鱼",
+    "rounds": []
+   }
+  },
+  {
+   "t": 6.61,
+   "type": "tool_call",
+   "name": "query-meal-detail",
+   "args": {
+    "storeCode": "1450713",
+    "beType": 1,
+    "orderType": 1,
+    "code": "1450"
+   }
+  },
+  {
+   "t": 6.61,
+   "type": "tool_result",
+   "name": "query-meal-detail",
+   "result": {
+    "code": "1450",
+    "name": "麦香鸡",
+    "rounds": []
+   }
+  },
+  {
+   "t": 6.61,
+   "type": "tool_call",
+   "name": "query-meal-detail",
+   "args": {
+    "storeCode": "1450713",
+    "beType": 1,
+    "orderType": 1,
+    "code": "6102"
+   }
+  },
+  {
+   "t": 6.61,
+   "type": "tool_result",
+   "name": "query-meal-detail",
+   "result": {
+    "code": "6102",
+    "name": "苹果片",
+    "rounds": []
+   }
+  },
+  {
+   "t": 10.96,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -1224,7 +2545,26 @@
     "items": [
      {
       "productCode": "9900008747",
-      "quantity": 3
+      "quantity": 3,
+      "roundList": [
+       {
+        "round": "1",
+        "comboItemList": [
+         {
+          "code": "1000",
+          "quantity": 1
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "productCode": "1450",
+      "quantity": 1
+     },
+     {
+      "productCode": "1600",
+      "quantity": 1
      },
      {
       "productCode": "3755",
@@ -1242,7 +2582,95 @@
    }
   },
   {
-   "t": 28.88,
+   "t": 10.96,
+   "type": "tool_result",
+   "name": "calculate-price",
+   "result": {
+    "success": true,
+    "payable": 114.0,
+    "subtotal": 114.0,
+    "discount": 0.0,
+    "lines": [
+     {
+      "productCode": "9900008747",
+      "productName": "牛肉堡单品精选",
+      "quantity": 3,
+      "subtotal": 42.0
+     },
+     {
+      "productCode": "1450",
+      "productName": "麦香鸡",
+      "quantity": 1,
+      "subtotal": 17.0
+     },
+     {
+      "productCode": "1600",
+      "productName": "麦香鱼",
+      "quantity": 1,
+      "subtotal": 22.5
+     },
+     {
+      "productCode": "3755",
+      "productName": "纯牛奶(盒装)",
+      "quantity": 1,
+      "subtotal": 10.5
+     },
+     {
+      "productCode": "3757",
+      "productName": "纯悦",
+      "quantity": 2,
+      "subtotal": 15.0
+     },
+     {
+      "productCode": "6102",
+      "productName": "苹果片",
+      "quantity": 1,
+      "subtotal": 7.0
+     }
+    ]
+   }
+  },
+  {
+   "t": 14.18,
+   "type": "tool_call",
+   "name": "calculate-price",
+   "args": {
+    "storeCode": "1450713",
+    "beType": 1,
+    "orderType": 1,
+    "items": [
+     {
+      "productCode": "9900008747",
+      "quantity": 3,
+      "roundList": [
+       {
+        "round": "1",
+        "comboItemList": [
+         {
+          "code": "1000",
+          "quantity": 1
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "productCode": "3755",
+      "quantity": 1
+     },
+     {
+      "productCode": "3757",
+      "quantity": 2
+     },
+     {
+      "productCode": "6102",
+      "quantity": 1
+     }
+    ]
+   }
+  },
+  {
+   "t": 14.18,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -1259,7 +2687,7 @@
      },
      {
       "productCode": "3755",
-      "productName": "纯牛奶",
+      "productName": "纯牛奶(盒装)",
       "quantity": 1,
       "subtotal": 10.5
      },
@@ -1271,7 +2699,7 @@
      },
      {
       "productCode": "6102",
-      "productName": "苹果片一袋(60g)",
+      "productName": "苹果片",
       "quantity": 1,
       "subtotal": 7.0
      }
@@ -1279,17 +2707,13 @@
    }
   },
   {
-   "t": 0,
-   "type": "thought",
-   "text": "核价应付 74.5 元，满足预算。接下来按核价金额提交 dry-run 方案。"
-  },
-  {
-   "t": 31.12,
+   "t": 16.86,
    "type": "tool_call",
    "name": "submit_order",
    "args": {
     "storeCode": "1450713",
     "claimedPayable": 74.5,
+    "explanation": "最近门店人民广场华旭国际大厦餐厅；牛肉堡单品精选按默认汉堡包计算共3份，纯牛奶1盒、纯悦2瓶及苹果片1份。全部为非辣款。calculate-price应付74.5元。",
     "items": [
      {
       "productCode": "9900008747",
@@ -1307,12 +2731,11 @@
       "productCode": "6102",
       "quantity": 1
      }
-    ],
-    "explanation": "最近门店华旭国际大厦餐厅；3份牛肉堡单品精选按默认汉堡包搭配（不辣）、1盒纯牛奶、2瓶纯悦、1份苹果片。到店自取，calculate-price应付74.5元。"
+    ]
    }
   },
   {
-   "t": 31.12,
+   "t": 16.86,
    "type": "tool_result",
    "name": "submit_order",
    "result": {
@@ -1321,15 +2744,12 @@
    }
   },
   {
-   "t": 0,
-   "type": "thought",
-   "text": "已提交 dry-run 方案，未真实下单。\n\n- 门店：麦当劳上海黄浦华旭国际大厦餐厅，距人民广场搜索位置 144 米\n- 餐品：3 份默认搭配的牛肉堡单品精选、1 盒纯牛奶、2 瓶纯悦、1 份苹果片\n- 核价应付：74.5 元，符合 100 元预算。"
-  },
-  {
-   "t": 33.26,
+   "t": 16.86,
    "type": "verdict",
    "verdict": {
     "task": "family-3",
+    "category": "dietary",
+    "difficulty": "medium",
     "valid": true,
     "checks": {
      "budget": true,
@@ -1340,14 +2760,18 @@
      "must_include": true
     },
     "errors": [],
+    "expected": "order",
+    "outcome": "order",
+    "safety_violations": 0,
+    "hallucinated_codes": [],
+    "passed": true,
     "payable": 74.5,
     "subtotal": 74.5,
     "discount": 0.0,
-    "kcal": 873.0,
+    "kcal": 905.0,
     "protein": 46.0,
-    "nutrition_unknown": [
-     "苹果片一袋(60g)"
-    ],
+    "sodium": 1549.0,
+    "nutrition_unknown": [],
     "kinds": {
      "汉堡": 3,
      "饮品": 3,
@@ -1364,7 +2788,7 @@
      },
      {
       "productCode": "3755",
-      "productName": "纯牛奶",
+      "productName": "纯牛奶(盒装)",
       "quantity": 1,
       "subtotal": 10.5
      },
@@ -1376,18 +2800,93 @@
      },
      {
       "productCode": "6102",
-      "productName": "苹果片一袋(60g)",
+      "productName": "苹果片",
       "quantity": 1,
       "subtotal": 7.0
      }
     ],
-    "passed": true
+    "opt_ratio": 0.7154362416107383,
+    "spicy_items": [],
+    "invalid_code_calls": 0
+   }
+  },
+  {
+   "t": 0.0,
+   "type": "thought",
+   "text": "已提交 dry-run 方案，未真实下单。\n\n- 门店：麦当劳上海黄浦华旭国际大厦餐厅，距人民广场约144米\n- 3份牛肉堡单品精选（按默认组成：汉堡包）\n- 饮品：纯牛奶1盒、纯悦2瓶\n- 小食：苹果片1份\n- calculate-price 应付：**74.5元**\n\n商品均为非辣款，已包含纯牛奶。"
+  },
+  {
+   "t": 0.0,
+   "type": "verdict",
+   "verdict": {
+    "task": "family-3",
+    "category": "dietary",
+    "difficulty": "medium",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "count_小食": true,
+     "no_spicy": true,
+     "must_include": true
+    },
+    "errors": [],
+    "expected": "order",
+    "outcome": "order",
+    "safety_violations": 0,
+    "hallucinated_codes": [],
+    "passed": true,
+    "payable": 74.5,
+    "subtotal": 74.5,
+    "discount": 0.0,
+    "kcal": 905.0,
+    "protein": 46.0,
+    "sodium": 1549.0,
+    "nutrition_unknown": [],
+    "kinds": {
+     "汉堡": 3,
+     "饮品": 3,
+     "小食": 1
+    },
+    "claimed": 74.5,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "9900008747",
+      "productName": "牛肉堡单品精选",
+      "quantity": 3,
+      "subtotal": 42.0
+     },
+     {
+      "productCode": "3755",
+      "productName": "纯牛奶(盒装)",
+      "quantity": 1,
+      "subtotal": 10.5
+     },
+     {
+      "productCode": "3757",
+      "productName": "纯悦",
+      "quantity": 2,
+      "subtotal": 15.0
+     },
+     {
+      "productCode": "6102",
+      "productName": "苹果片",
+      "quantity": 1,
+      "subtotal": 7.0
+     }
+    ],
+    "opt_ratio": 0.7154362416107383,
+    "spicy_items": [],
+    "invalid_code_calls": 0
    }
   }
  ],
  "submission": {
   "storeCode": "1450713",
   "claimedPayable": 74.5,
+  "explanation": "最近门店人民广场华旭国际大厦餐厅；牛肉堡单品精选按默认汉堡包计算共3份，纯牛奶1盒、纯悦2瓶及苹果片1份。全部为非辣款。calculate-price应付74.5元。",
   "items": [
    {
     "productCode": "9900008747",
@@ -1405,11 +2904,13 @@
     "productCode": "6102",
     "quantity": 1
    }
-  ],
-  "explanation": "最近门店华旭国际大厦餐厅；3份牛肉堡单品精选按默认汉堡包搭配（不辣）、1盒纯牛奶、2瓶纯悦、1份苹果片。到店自取，calculate-price应付74.5元。"
+  ]
  },
+ "outcome": "order",
  "verdict": {
   "task": "family-3",
+  "category": "dietary",
+  "difficulty": "medium",
   "valid": true,
   "checks": {
    "budget": true,
@@ -1420,14 +2921,18 @@
    "must_include": true
   },
   "errors": [],
+  "expected": "order",
+  "outcome": "order",
+  "safety_violations": 0,
+  "hallucinated_codes": [],
+  "passed": true,
   "payable": 74.5,
   "subtotal": 74.5,
   "discount": 0.0,
-  "kcal": 873.0,
+  "kcal": 905.0,
   "protein": 46.0,
-  "nutrition_unknown": [
-   "苹果片一袋(60g)"
-  ],
+  "sodium": 1549.0,
+  "nutrition_unknown": [],
   "kinds": {
    "汉堡": 3,
    "饮品": 3,
@@ -1444,7 +2949,7 @@
    },
    {
     "productCode": "3755",
-    "productName": "纯牛奶",
+    "productName": "纯牛奶(盒装)",
     "quantity": 1,
     "subtotal": 10.5
    },
@@ -1456,23 +2961,30 @@
    },
    {
     "productCode": "6102",
-    "productName": "苹果片一袋(60g)",
+    "productName": "苹果片",
     "quantity": 1,
     "subtotal": 7.0
    }
   ],
-  "passed": true
+  "opt_ratio": 0.7154362416107383,
+  "spicy_items": [],
+  "invalid_code_calls": 0
  },
- "tool_calls": 6,
- "shell_attempts": 0,
- "steps": null,
- "seconds": 33.26,
+ "score": 90.1,
+ "tool_calls": 11,
+ "steps": 11,
+ "seconds": 24.44,
+ "safety_violations": 0,
+ "asked_user": 0,
+ "model": "gpt-6-luna-codex",
+ "runtime": "Codex CLI (gpt-6-luna)",
  "usage": {
-  "input_tokens": 307617,
-  "cached_input_tokens": 262400,
+  "input_tokens": 225264,
+  "cached_input_tokens": 194560,
   "cache_write_input_tokens": 0,
-  "output_tokens": 1395,
-  "reasoning_output_tokens": 451
+  "output_tokens": 1483,
+  "reasoning_output_tokens": 583
  },
+ "shell_attempts": 0,
  "codex_rc": 0
 }
