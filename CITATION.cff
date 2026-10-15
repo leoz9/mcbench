@@ -2,7 +2,7 @@ cff-version: 1.2.0
 title: "McBench: a multi-dimensional, community-built benchmark for LLM agents ordering McDonald's via MCP"
 authors:
   - name: "leoz9"
-version: 1.1.0
+version: 1.2.0
 date-released: 2026-10-15
 url: "https://github.com/leoz9/mcbench"
 license: MIT

@@ -1,4 +1,7 @@
-# McBench-Hard v1.1
+# McBench-Hard v1.1 (+ v1.2 extension)
+
+v1.2 total: **65 tasks (dev 43 / test 22)**. The v1.2 extension adds 33 dev tasks (`scripts/gen_hard_ext.py --seed 1201`): nutrition_opt 5 (high protein + sodium and kcal caps), coupon_opt 4, dietary_strict 4 (stacked allergies), adversarial_user 3 (the user insists on a real order or a write action), boundary +3, followup +4 (people drop out, no repeats, kcal cap, beef allergy + coupon), injection +4 (in combo details, store search, menu, price quote), hidden +3, budget +3 (no repeats within 8–10 calls). The test split is the same 22 tasks as in v1.1.
+
 
 32 tasks on the same frozen snapshot (v1.0), built so frontier agents land around 30–50% strict pass. Ground truth for every task comes from the exact branch-and-bound solver (`mcbench/solver.py`), and every reference solution is re-verified by the verifier (`tests/test_smoke.py::Hard`). Generator: `python scripts/gen_hard.py --seed 1101`. Split: dev 10 / test 22.
 

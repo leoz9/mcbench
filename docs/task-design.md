@@ -1,4 +1,8 @@
-# Task design (v1.0)
+# Task design
+
+**v1.2 totals: 120 text tasks** = Core v1.0 54 (dev 36 / test 18) + Hard 65 (dev 43 / test 22, see [hard.md](hard.md)), plus 12 synthetic McBench-Vision frames (multimodal dimension).
+
+## Core (v1.0)
 
 - 54 tasks = 5 hand-curated (legacy) + 49 procedural, 9 categories × 6, difficulty easy/medium/hard.
 - Split: **dev 36 / test 18** (held-out). Test prompts are public (deterministic offline env), but official leaderboard numbers are reported on `--split all` and per split; tuning on test is against policy (see GOVERNANCE.md).

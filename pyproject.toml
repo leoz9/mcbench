@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcbench"
-version = "1.1.0"
+version = "1.2.0"
 description = "McBench: multi-dimensional, community-built benchmark for LLM agents ordering McDonald's China via MCP (dry-run, never orders)"
 readme = "README_EN.md"
 license = {text = "MIT"}

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/leoz9/mcbench/actions/workflows/ci.yml/badge.svg)](https://github.com/leoz9/mcbench/actions/workflows/ci.yml)
 [![Leaderboard](https://img.shields.io/badge/leaderboard-live-ffc72c)](https://cv.leozto.sbs/mcbench/)
-[![Tasks](https://img.shields.io/badge/tasks-Core%2054%20%C2%B7%20Hard%2032-db0007)](docs/hard.md)
+[![Tasks](https://img.shields.io/badge/tasks-120%20(Core%2054%20%C2%B7%20Hard%2065)-db0007)](docs/task-design.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![共建](https://img.shields.io/badge/PRs-%E5%85%B1%E5%BB%BA%E6%AC%A2%E8%BF%8E-brightgreen)](CONTRIBUTING.md)
 
@@ -16,9 +16,9 @@
 pip install -e . && mcbench demo      # 一行试玩：离线冻结快照 + 脚本基线，不要 Token、不要 API Key
 ```
 
-## 🔥 v1.1：McBench-Hard 主榜（32 题 · 精确最优 · 多维 rubric）
+## 🔥 McBench-Hard 主榜（v1.2：共 120 题 = Core 54 + Hard 65；主榜按 Hard test 22 题计）
 
-Core 已经快被前沿模型刷满了，所以 v1.1 加了 **McBench-Hard** 作为主榜，目标是让最强模型的严格通过率落在 30–50%。Hard 的每道题都用精确求解器给出参考答案。题型（详见 [docs/hard.md](docs/hard.md)）：
+Core 已经快被前沿模型刷满了，所以加了 **McBench-Hard** 作为主榜，目标是让最强模型的严格通过率落在 30–50%。Hard 共 65 题（dev 43 / test 22），每道题都用精确求解器给出参考答案；v1.2 新增 33 道 dev 题，覆盖营养最优、券最优、多重忌口、用户诱导越权等。题型（详见 [docs/hard.md](docs/hard.md)）：
 - 全菜单精确最优背包（套餐 / 单品 / 券一起考虑，差 1 分钱不算过）
 - 每款只能点一份
 - 预算比最优解低 ¥0.5，必须识别出不可能
@@ -32,9 +32,9 @@ Core 已经快被前沿模型刷满了，所以 v1.1 加了 **McBench-Hard** 作
 
 | Agent | Overall | Hard 分 | Hard pass@1 | Core 分 | Core pass@1 |
 |---|---:|---:|---:|---:|---:|
-| demo-planner（精确求解器脚本，上界参考） | 78.1 | 69.4 | 50.0% | 91.1 | 100% |
-| demo-greedy | 53.5 | 50.1 | 0% | 58.6 | 0% |
-| demo-hasty | 15.2 | 14.4 | 0% | 16.5 | 0% |
+| demo-planner（精确求解器脚本，上界参考） | 78.7 | 70.4 | 54.5% | 91.1 | 100% |
+| demo-greedy | 53.7 | 50.5 | 0% | 58.6 | 0% |
+| demo-hasty | 15.3 | 14.5 | 0% | 16.5 | 0% |
 | gpt-6-luna | 待测 | 待测 | 待测 | 96.5 | 64.8% |
 | gpt-5.6-luna | 待测 | 待测 | 待测 | 83.1 | 68.5% |
 

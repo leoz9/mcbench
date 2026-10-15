@@ -51,11 +51,12 @@ def export_web(run_dir, web_dir, sub="data"):
     return dst
 
 
-def combine(hard_dir, core_dir, web_dir, core_split="test", w_hard=0.6, note=""):
+def combine(hard_dir, core_dir, web_dir, core_split="test", w_hard=0.6, note="", hard_split="test"):
     """Headline board: McBench-Hard (v1.1) + Core (v1.0, held-out test split for comparability).
     Overall = 0.6·Hard + 0.4·Core (avg rubric score)."""
     from .tasks import get_tasks
-    hard = load_traces(hard_dir)
+    hard_ids = {t["id"] for t in get_tasks("hard-v1.1", hard_split)}
+    hard = [t for t in load_traces(hard_dir) if t["task"] in hard_ids]
     core_ids = {t["id"] for t in get_tasks("v1.0", core_split)}
     core = [t for t in load_traces(core_dir) if t["task"] in core_ids]
     hrows = {r["model"]: r for r in aggregate(hard)}
@@ -83,7 +84,7 @@ def combine(hard_dir, core_dir, web_dir, core_split="test", w_hard=0.6, note="")
                               | {"model": c["model"], "by_task": c["by_task"]}) if c else None})
     rows.sort(key=lambda r: (r["overall"] is None, -(r["overall"] or 0), -((r["core"] or {}).get("avg_score") or 0)))
     board = {"schema_version": "1.1", "headline": "McBench-Hard v1.1", "mcp_mode": "offline", "is_mock": False,
-             "task_set": "hard-v1.1 + v1.0", "core_split": core_split, "weights": {"hard": w_hard, "core": 1 - w_hard},
+             "task_set": "hard-v1.1 + v1.0", "core_split": core_split, "hard_split": hard_split, "weights": {"hard": w_hard, "core": 1 - w_hard},
              "rows": rows, "note": note}
     dst = Path(web_dir, "data")
     if dst.exists():
