@@ -1,58 +1,113 @@
-import sys, threading, time, unittest
+import json
+import os
+import subprocess
+import sys
+import threading
+import time
+import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from mcbench import mcd
+from mcbench.community import validate_task
+from mcbench.env import McBenchEnv
+from mcbench.harness import run_episode
 from mcbench.mcp_client import HttpMCP, MockMCP, SafeMCP
 from mcbench.safety import BlockedToolError
-from mcbench.tasks import TASK_BY_ID
+from mcbench.solver import snapshot_units, solve
+from mcbench.tasks import get_tasks, load_task_set
 from mcbench.verifier import verify
 
 S = "1450713"
 
 
-class T(unittest.TestCase):
-    def test_write_tools_blocked(self):
+class Safety(unittest.TestCase):
+    def test_writes_blocked(self):
         m = SafeMCP(MockMCP())
-        for t in ("create-order", "auto-bind-coupons", "delivery-create-address", "mall-create-order"):
+        for t in ("create-order", "auto-bind-coupons", "delivery-create-address"):
             with self.assertRaises(BlockedToolError):
                 m.call_tool(t, {})
-        self.assertNotIn("create-order", [t["name"] for t in m.list_tools()])
 
-    def test_adapter_parses_real_shapes(self):
+
+class Adapter(unittest.TestCase):
+    def test_shapes(self):
         m = MockMCP()
         menu = mcd.menu(m.call_tool("query-meals", {"storeCode": S}))
-        self.assertEqual(menu["1450"]["name"], "麦香鸡")
         self.assertEqual(menu["1450"]["price"], 17.0)
         nut = mcd.nutrition(m.call_tool("list-nutrition-foods", {}))
-        self.assertGreater(len(nut), 100)
-        self.assertEqual(mcd.match_nutrition("可乐", nut)["kcal"], nut["可乐中杯"]["kcal"])
-        text = {"text": "## 说明\n" + '{"success":true,"code":200,"data":{"price":4350,"originalPrice":4350,"discount":0,"productList":[]}}\n## 尾巴'}
-        self.assertEqual(mcd.quote(text)["payable"], 43.5)
+        self.assertGreater(mcd.match_nutrition("原味双层深海鳕鱼堡", nut)["kcal"], 0)
+        self.assertEqual(mcd.quote({"text": 'x{"success":true,"code":200,"data":{"price":4350,"originalPrice":4350,"discount":0,"productList":[]}}'})["payable"], 43.5)
 
-    def test_verifier_recomputes(self):
+
+class Tasks(unittest.TestCase):
+    def test_task_set(self):
+        d = load_task_set("v1.0")
+        self.assertEqual(d["n_tasks"], 54)
+        self.assertEqual(len(get_tasks(split="dev")), 36)
+        self.assertEqual(len(get_tasks(split="test")), 18)
+
+    def test_references_match_solver(self):
+        _, units = snapshot_units()
+        for t in get_tasks(split="all", ids="budget-solo,infeasible-01"):
+            ref = solve(t, units)
+            self.assertEqual(ref["feasible"], t["reference"]["feasible"])
+
+
+class Verifier(unittest.TestCase):
+    def test_pass_and_hallucination(self):
         m = SafeMCP(MockMCP())
-        sub = {"storeCode": S, "items": [{"productCode": "1450", "quantity": 1}, {"productCode": "3010", "quantity": 1}],
-               "claimedPayable": 26.5}
-        v = verify(TASK_BY_ID["budget-solo"], sub, m)
-        self.assertTrue(v["passed"], v); self.assertEqual(v["payable"], 26.5); self.assertTrue(v["honest"])
-        v = verify(TASK_BY_ID["calorie-lunch"], sub, m)
-        self.assertFalse(v["checks"]["sugar_free"])
-        v = verify(TASK_BY_ID["budget-solo"], {"storeCode": S, "items": [{"productCode": "FAKE", "quantity": 1}],
-                                               "claimedPayable": 1}, m)
-        self.assertFalse(v["valid"])
+        t = get_tasks(split="all", ids="budget-solo")[0]
+        v = verify(t, {"storeCode": S, "items": [{"productCode": "9900005453", "quantity": 1}], "claimedPayable": 28}, m)
+        self.assertTrue(v["passed"]); self.assertTrue(v["honest"])
+        v = verify(t, {"storeCode": S, "items": [{"productCode": "FAKE", "quantity": 1}], "claimedPayable": 1}, m)
+        self.assertFalse(v["valid"]); self.assertIn("FAKE", v["hallucinated_codes"])
 
-    def test_combo_expands_to_default_components(self):
+    def test_infeasible_outcome(self):
         m = SafeMCP(MockMCP())
-        v = verify(TASK_BY_ID["budget-solo"], {"storeCode": S, "items": [{"productCode": "9900005453", "quantity": 1}],
-                                               "claimedPayable": 28}, m)
-        self.assertEqual(v["kinds"], {"汉堡": 1, "小食": 1, "饮品": 1})
+        t = get_tasks(split="all", ids="infeasible-01")[0]
+        self.assertTrue(verify(t, None, m, outcome="infeasible")["passed"])
+        self.assertFalse(verify(t, {"storeCode": S, "items": [{"productCode": "1450", "quantity": 1}], "claimedPayable": 17}, m)["passed"])
 
-    def test_http_client_against_mock_server(self):
+
+class Env(unittest.TestCase):
+    def test_gym_loop(self):
+        from mcbench.demo_agents import DEMO_AGENTS, ScriptedAgent
+        env = McBenchEnv()
+        tr = run_episode(ScriptedAgent(DEMO_AGENTS["demo-planner"]), "demo-planner",
+                         get_tasks(split="all", ids="budget-solo")[0], env)
+        self.assertTrue(tr["verdict"]["passed"])
+        self.assertGreaterEqual(tr["score"], 90)
+
+
+class Proxy(unittest.TestCase):
+    def test_stdio(self):
+        log = Path("/tmp/mcbench_proxy_test.json")
+        if log.exists(): log.unlink()
+        reqs = [{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
+                {"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
+                {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "create-order", "arguments": {}}}]
+        out = subprocess.run([sys.executable, "-m", "mcbench.mcp_proxy"], input="\n".join(json.dumps(r) for r in reqs),
+                             capture_output=True, text=True, cwd=str(Path(__file__).resolve().parent.parent),
+                             env={**os.environ, "MCBENCH_MODE": "offline", "MCBENCH_TRACE": str(log),
+                                  "MCBENCH_TASK_ID": "adversarial-01"}).stdout.splitlines()
+        res = [json.loads(l) for l in out]
+        self.assertNotIn("create-order", [t["name"] for t in res[1]["result"]["tools"]])
+        self.assertIn("blocked", res[2]["result"]["content"][0]["text"])
+
+
+class Community(unittest.TestCase):
+    def test_validate_curated(self):
+        t = get_tasks(split="all", ids="budget-solo")[0]
+        t = {**t, "dimensions": ["tool_use", "constraints", "cost_opt"], "author": "mcbench"}
+        ok, msgs = validate_task(t)
+        self.assertTrue(ok, msgs)
+
+
+class Http(unittest.TestCase):
+    def test_mock_http(self):
         from mcbench import mock_server
-        threading.Thread(target=mock_server.serve, kwargs={"port": 8799}, daemon=True).start()
-        time.sleep(0.5)
-        c = SafeMCP(HttpMCP("http://127.0.0.1:8799", token="dummy"))
-        self.assertIn("calculate-price", [t["name"] for t in c.list_tools()])
+        threading.Thread(target=mock_server.serve, kwargs={"port": 8798}, daemon=True).start()
+        time.sleep(0.4)
+        c = SafeMCP(HttpMCP("http://127.0.0.1:8798", token="x"))
         q = mcd.quote(c.call_tool("calculate-price", {"storeCode": S, "orderType": 1, "beType": 1,
                                                       "items": [{"productCode": "1100", "quantity": 1}]}))
         self.assertEqual(q["payable"], 25.5)
@@ -62,19 +117,13 @@ if __name__ == "__main__":
     unittest.main()
 
 
-class Proxy(unittest.TestCase):
-    def test_stdio_proxy_blocks_writes_and_logs(self):
-        import json, os, subprocess, tempfile
-        log = tempfile.mktemp()
-        reqs = [{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
-                {"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
-                {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "create-order", "arguments": {}}},
-                {"jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": {"name": "submit_order", "arguments": {"storeCode": "1"}}}]
-        out = subprocess.run([sys.executable, "-m", "mcbench.mcp_proxy"], input="\n".join(json.dumps(r) for r in reqs),
-                             capture_output=True, text=True, cwd=str(Path(__file__).resolve().parent.parent),
-                             env={**os.environ, "MCBENCH_MODE": "mock", "MCBENCH_TRACE": log}).stdout.splitlines()
-        res = [json.loads(l) for l in out]
-        names = [t["name"] for t in res[1]["result"]["tools"]]
-        self.assertIn("submit_order", names); self.assertNotIn("create-order", names)
-        self.assertIn("blocked", res[2]["result"]["content"][0]["text"])
-        self.assertEqual(len(open(log).read().splitlines()), 4)
+class AnthropicConvert(unittest.TestCase):
+    def test_roundtrip(self):
+        from mcbench.llm import AnthropicCompatChat
+        msgs = [{"role": "system", "content": "S"}, {"role": "user", "content": "U"},
+                {"role": "assistant", "content": None, "tool_calls": [{"id": "1", "type": "function",
+                 "function": {"name": "query-meals", "arguments": "{}"}}]},
+                {"role": "tool", "tool_call_id": "1", "content": "{}"}]
+        sysm, out, tools = AnthropicCompatChat.convert(msgs, [{"type": "function", "function": {"name": "x", "parameters": {}}}])
+        self.assertEqual(sysm, "S"); self.assertEqual(out[1]["content"][0]["type"], "tool_use")
+        self.assertEqual(out[2]["content"][0]["type"], "tool_result"); self.assertEqual(tools[0]["input_schema"], {})

@@ -12,8 +12,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 MOCK_LABEL = "MOCK（录制数据回放，非麦当劳官方实时数据）"
 
 
-def _fixture(name):
-    return json.loads(resources.files("mcbench").joinpath(f"fixtures/{name}").read_text("utf-8"))
+SNAPSHOT_VERSION = "v1.0"
+
+
+def _fixture(name, version=None):
+    v = version or SNAPSHOT_VERSION
+    fn = {"mock_data.json": "snapshot.json"}.get(name, name)
+    return json.loads(resources.files("mcbench").joinpath(f"data/snapshots/{v}/{fn}").read_text("utf-8"))
 
 
 def ok(data):
@@ -25,9 +30,10 @@ def err(code, msg):
 
 
 class MockBackend:
-    def __init__(self):
-        self.d = _fixture("mock_data.json")
-        self.schemas = _fixture("tool_schemas.json")
+    def __init__(self, version=None):
+        self.version = version or SNAPSHOT_VERSION
+        self.d = _fixture("snapshot.json", self.version)
+        self.schemas = _fixture("tool_schemas.json", self.version)
         self.store_codes = {s["storeCode"] for s in self.d["stores"]}
 
     def list_tools(self):
@@ -63,7 +69,8 @@ class MockBackend:
     def call(self, name, args):
         d = self.d
         if name == "now-time-info":
-            return ok({"formatted": "2026-10-15 12:00:00", "_note": "mock time"})
+            return ok({"date": "2026-10-15", "formatted": "2026-10-15 12:00:00", "dayOfWeek": "星期四",
+                       "_note": "frozen snapshot time"})
         if name == "query-nearby-stores":
             return ok(d["stores"])
         if name in ("query-meals", "query-meal-detail", "query-store-coupons", "calculate-price") and \

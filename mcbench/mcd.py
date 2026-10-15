@@ -151,8 +151,13 @@ SUGAR_FREE = re.compile(r"无糖|零度|美式|纯悦|矿泉水|浓缩咖啡|鲜
 SPICY = re.compile(r"辣|龙焰")
 
 
+OTHER = re.compile(r"酱$|徽章|水手帽|周边|玩具")
+
+
 def kind(name):
     name = name or ""
+    if OTHER.search(name):
+        return "其他"
     if DRINK.search(name) and not re.search(r"套餐|阿芙佳朵|麦旋风|新地", name):
         return "饮品"
     if BURGER.search(name):
@@ -182,4 +187,5 @@ def match_nutrition(name, table):
         for k in cands:
             if tag in k:
                 return idx[k]
-    return None
+    sub = sorted([k for k in idx if len(k) >= 3 and k in nn], key=len, reverse=True)
+    return idx[sub[0]] if sub else None

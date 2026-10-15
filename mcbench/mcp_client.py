@@ -91,9 +91,9 @@ class HttpMCP:
 
 
 class MockMCP:
-    def __init__(self):
+    def __init__(self, version=None):
         from .mock_server import MockBackend
-        self.backend = MockBackend()
+        self.backend = MockBackend(version)
         self.mode = "mock"
 
     def list_tools(self):

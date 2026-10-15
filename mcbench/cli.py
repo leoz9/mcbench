@@ -1,122 +1,233 @@
+"""McBench CLI."""
 import argparse
 import json
-import os
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from . import leaderboard as lb
+from .demo_agents import DEMO_AGENTS, ScriptedAgent
+from .env import McBenchEnv, make_mcp
 from .harness import run_episode
-from .mcp_client import HttpMCP, MockMCP, SafeMCP
-from .tasks import TASKS, TASK_BY_ID
+from .tasks import get_tasks
 
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def make_mcp(live):
-    if live:
-        tok = os.environ.get("MCD_MCP_TOKEN")
-        if not tok:
-            sys.exit("缺少 MCD_MCP_TOKEN 环境变量（在 open.mcd.cn/mcp 申请）。不想用 Token？用 `mcbench demo`。")
-        return SafeMCP(HttpMCP(os.environ.get("MCD_MCP_URL", "https://mcp.mcd.cn"), tok))
-    return SafeMCP(MockMCP())
-
-
-def run_all(agents, tasks, mcp, out_dir, max_steps=12, codex=None):
-    (Path(out_dir) / "traces").mkdir(parents=True, exist_ok=True)
-    cache = {}
-    jobs = [(n, f, None) for n, f in agents.items()] + [(m["name"], None, m) for m in (codex or [])]
-    for name, factory, cm in jobs:
-        for t in tasks:
-            dst = Path(out_dir, "traces", f"{name}__{t['id']}.json")
-            if dst.exists():
-                print(f"  {name:<16} {t['id']:<14} (已有轨迹，跳过)")
-                continue
-            if cm:
-                from .codex_agent import run_codex_episode
-                tr = run_codex_episode(cm["model"], name, t, mcp, live=mcp.mode == "live", catalog_cache=cache)
-            else:
-                tr = run_episode(factory(), name, t, mcp, max_steps=max_steps, catalog_cache=cache)
-            Path(out_dir, "traces", f"{name}__{t['id']}.json").write_text(json.dumps(tr, ensure_ascii=False, indent=1), "utf-8")
-            v = tr["verdict"]
-            print(f"  {name:<16} {t['id']:<14} {'PASS' if v.get('passed') else 'FAIL'}  ¥{v.get('payable', '-')}  calls={tr['tool_calls']}")
-    board = lb.build(out_dir)
-    lb.print_board(board)
-    return board
+def save_trace(out_dir, tr):
+    Path(out_dir, "traces").mkdir(parents=True, exist_ok=True)
+    safe = tr["model"].replace("/", "_").replace(" ", "_")
+    seed = tr.get("seed")
+    name = f"{safe}__{tr['task']}" + (f"__r{seed}" if seed is not None else "") + ".json"
+    Path(out_dir, "traces", name).write_text(json.dumps(tr, ensure_ascii=False, indent=1), "utf-8")
+    return name
 
 
 def cmd_demo(a):
-    from .demo_agents import DEMO_AGENTS, ScriptedAgent
-    print("🍔 McBench DEMO —— 模拟 MCP（MOCK 数据）+ 脚本示例 Agent，无需 Token / API Key，绝不下单\n")
-    agents = {n: (lambda p=p: ScriptedAgent(p)) for n, p in DEMO_AGENTS.items()}
+    print("🍔 McBench DEMO —— 冻结快照（OFFLINE）+ 脚本基线，无需 Token / API Key，绝不下单\n")
+    env = McBenchEnv(mode="offline", max_steps=150)
     out = Path(a.out)
-    board = run_all(agents, TASKS, make_mcp(False), out)
-    web = ROOT / "web" if (ROOT / "web" / "index.html").exists() else None
-    if web:
-        lb.export_web(out, web, "data-demo")
-    from .replay import replay
-    replay(out / "traces" / "demo-hasty__best-coupon.json")
-    replay(out / "traces" / "demo-planner__best-coupon.json")
+    for name, pol in DEMO_AGENTS.items():
+        for t in get_tasks(split="dev" if a.dev else "all", ids=a.tasks):
+            dst = out / "traces" / f"{name}__{t['id']}.json"
+            if a.resume and dst.exists():
+                print(f"  {name:<16} {t['id']:<18} (skip)")
+                continue
+            tr = run_episode(ScriptedAgent(pol), name, t, env)
+            save_trace(out, tr)
+            v = tr["verdict"]
+            print(f"  {name:<16} {t['id']:<18} {'PASS' if v.get('passed') else 'FAIL'}  ¥{v.get('payable', '-')}  score={tr['score']}")
+    board = lb.build(out, note="OFFLINE demo · 脚本基线（非大模型）")
+    lb.print_board(board)
+    lb.export_web(out, ROOT / "web", "data-demo")
     if not a.no_video:
         try:
-            from .mccut import render
-            scores = {r["model"]: r["score"] for r in board["runs"] if r["task"] == "best-coupon"}
-            v = render(out / "traces/demo-planner__best-coupon.json", out / "traces/demo-hasty__best-coupon.json",
-                       out / "battle_best-coupon.mp4", scores, mock=True)
-            print(f"🎬 对决视频：{v}")
+            from .video import render_battle
+            rows = board["rows"]
+            a_m, b_m = rows[0]["model"], rows[-1]["model"]
+            task = next(iter(rows[0]["by_task"]))
+            v = render_battle(out / f"traces/{a_m}__{task}.json", out / f"traces/{b_m}__{task}.json",
+                              out / f"battle_{task}.mp4", mock=True)
+            print(f"🎬 {v}")
         except Exception as e:  # noqa
-            print(f"(跳过视频渲染：{e})")
-    if web:
-        print(f"📊 网页版：python -m http.server -d {web} 8000 → http://localhost:8000/?demo （真实榜单：去掉 ?demo）")
+            print(f"(跳过视频：{e})")
+    print(f"📊 python -m http.server -d {ROOT / 'web'} 8000 → http://localhost:8000/?demo")
+
+
+def _agent_jobs(a):
+    jobs = []
+    if a.demo_agents:
+        for n, p in DEMO_AGENTS.items():
+            jobs.append({"kind": "scripted", "name": n, "policy": p})
+    if a.config:
+        cfg = json.load(open(a.config, encoding="utf-8"))
+        for m in cfg["models"]:
+            if m.get("provider") == "codex":
+                jobs.append({"kind": "codex", "name": m["name"], "model": m["model"]})
+            elif m.get("provider") == "anthropic":
+                from .llm import AnthropicCompatChat
+                jobs.append({"kind": "openai", "name": m["name"],
+                             "factory": (lambda m=m: AnthropicCompatChat(m["model"], m["base_url"],
+                                                                         m.get("api_key_env", "ANTHROPIC_API_KEY"),
+                                                                         m.get("temperature", 0.0), extra=m.get("extra")))})
+            else:
+                from .llm import OpenAICompatChat
+                jobs.append({"kind": "openai", "name": m["name"],
+                             "factory": (lambda m=m: OpenAICompatChat(m["model"], m["base_url"],
+                                                                      m.get("api_key_env", "OPENAI_API_KEY"),
+                                                                      m.get("temperature", 0.0), extra=m.get("extra")))})
+    return jobs
 
 
 def cmd_run(a):
-    from .llm import OpenAICompatChat
-    agents = {}
-    if a.demo_agents:
-        from .demo_agents import DEMO_AGENTS, ScriptedAgent
-        agents = {n: (lambda p=p: ScriptedAgent(p)) for n, p in DEMO_AGENTS.items()}
-    cfg = json.load(open(a.config, encoding="utf-8")) if a.config else {"models": []}
-    codex = [m for m in cfg["models"] if m.get("provider") == "codex"]
-    for m in [m for m in cfg["models"] if m.get("provider") != "codex"]:
-        agents[m["name"]] = (lambda m=m: OpenAICompatChat(m["model"], m["base_url"], m.get("api_key_env", "OPENAI_API_KEY"),
-                                                         m.get("temperature", 0.0), extra=m.get("extra")))
-    tasks = [TASK_BY_ID[t] for t in a.tasks.split(",")] if a.tasks else TASKS
-    run_all(agents, tasks, make_mcp(a.live), a.out, a.max_steps, codex)
-    lb.export_web(a.out, ROOT / "web") if a.export else None
+    mode = "live" if a.live else "offline"
+    tasks = get_tasks(a.task_set, a.split, a.categories, a.difficulty, a.tasks)
+    jobs = _agent_jobs(a)
+    if not jobs:
+        sys.exit("指定 --demo-agents 和/或 --config")
+    out = Path(a.out)
+    seeds = [int(x) for x in a.seeds.split(",")] if a.seeds else (list(range(a.k)) if a.k > 1 else [None])
+    work = []
+    for j in jobs:
+        for t in tasks:
+            for seed in seeds:
+                safe = j["name"].replace("/", "_").replace(" ", "_")
+                stamp = f"{safe}__{t['id']}" + (f"__r{seed}" if seed is not None else "")
+                if a.resume and (out / "traces" / f"{stamp}.json").exists():
+                    print(f"  {j['name']:<20} {t['id']:<18} (skip)")
+                    continue
+                work.append((j, t, seed))
+
+    def one(item):
+        j, t, seed = item
+        env = McBenchEnv(mode=mode, task_set=a.task_set, mcp=make_mcp(mode), max_steps=a.max_steps)
+        if j["kind"] == "scripted":
+            tr = run_episode(ScriptedAgent(j["policy"]), j["name"], t, env)
+        elif j["kind"] == "codex":
+            from .codex_agent import run_codex_episode
+            tr = run_codex_episode(j["model"], j["name"], t, env, task_set=a.task_set)
+        else:
+            tr = run_episode(j["factory"](), j["name"], t, env)
+        if seed is not None:
+            tr["seed"] = seed
+        return tr
+
+    if a.jobs > 1:
+        with ThreadPoolExecutor(max_workers=a.jobs) as ex:
+            futs = [ex.submit(one, w) for w in work]
+            for f in as_completed(futs):
+                tr = f.result()
+                save_trace(out, tr)
+                v = tr["verdict"]
+                print(f"  {tr['model']:<20} {tr['task']:<18} {'PASS' if v.get('passed') else 'FAIL'}  ¥{v.get('payable', '-')}  score={tr['score']}")
+    else:
+        for w in work:
+            tr = one(w)
+            save_trace(out, tr)
+            v = tr["verdict"]
+            print(f"  {tr['model']:<20} {tr['task']:<18} {'PASS' if v.get('passed') else 'FAIL'}  ¥{v.get('payable', '-')}  score={tr['score']}")
+    board = lb.build(out)
+    lb.print_board(board)
+    if a.export:
+        lb.export_web(out, ROOT / "web", "data")
+
+
+def cmd_tasks(a):
+    if a.sub == "list":
+        for t in get_tasks(a.task_set, a.split or "all", a.categories, a.difficulty):
+            print(f"{t['id']:<22} {t['difficulty']:<7} {t['category']:<18} {t['split']:<5} {t['title']}")
+    elif a.sub == "new":
+        from .community import new_task
+        print(new_task(a.id, a.category, a.difficulty))
+    elif a.sub == "validate":
+        from .community import validate_path
+        ok, msgs = validate_path(a.path or "tasks/community")
+        print("\n".join(msgs))
+        sys.exit(0 if ok else 1)
+
+
+def cmd_leaderboard(a):
+    lb.print_board(lb.build(a.run_dir, a.note))
+
+
+def cmd_export(a):
+    print(lb.export_web(a.run_dir, ROOT / "web", a.sub))
 
 
 def cmd_cut(a):
-    from .mccut import render
+    from .video import render_battle
     board = json.load(open(Path(a.trace_a).parent.parent / "leaderboard.json", encoding="utf-8"))
     ta = json.load(open(a.trace_a, encoding="utf-8"))
-    scores = {r["model"]: r["score"] for r in board["runs"] if r["task"] == ta["task"]}
-    print(render(a.trace_a, a.trace_b, a.out, scores, mock=board["is_mock"]))
+    scores = {r["model"]: r["by_task"].get(ta["task"], {}).get("score", 0) for r in board["rows"]}
+    print(render_battle(a.trace_a, a.trace_b, a.out, scores, mock=board.get("is_mock", False)))
+
+
+def cmd_video(a):
+    from .video import render_explainer
+    print(render_explainer(a.run_dir, a.out, tts=a.tts))
+
+
+def cmd_vision(a):
+    from .vision import run_models, run_vision_track
+    if a.codex_models:
+        for r in run_models(a.codex_models.split(","), out=a.out):
+            print(f"{r['model']:<16} F1={r['f1']}  exact={r['exact']}  price MAE=¥{r['price_mae']}")
+    else:
+        run_vision_track(a)
 
 
 def main():
-    p = argparse.ArgumentParser(prog="mcbench", description="McBench：大模型点麦当劳擂台")
+    if len(sys.argv) > 1 and sys.argv[1] == "task":  # alias: mcbench task new/validate
+        sys.argv[1] = "tasks"
+    p = argparse.ArgumentParser(prog="mcbench", description="McBench：多维度大模型点麦当劳基准（社区共建）")
     s = p.add_subparsers(dest="cmd", required=True)
-    d = s.add_parser("demo", help="一键演示（MOCK，无需 Token/Key）"); d.add_argument("--out", default="runs/demo"); d.add_argument("--no-video", action="store_true")
-    r = s.add_parser("run", help="用真实大模型跑分"); r.add_argument("--config")
-    r.add_argument("--live", action="store_true", help="连接真实 https://mcp.mcd.cn（需 MCD_MCP_TOKEN）")
-    r.add_argument("--tasks"); r.add_argument("--out", default="runs/latest"); r.add_argument("--export", action="store_true")
-    r.add_argument("--demo-agents", action="store_true", help="用脚本示例 Agent 代替大模型（测试 live 链路）")
-    r.add_argument("--max-steps", type=int, default=12)
-    b = s.add_parser("leaderboard"); b.add_argument("run_dir")
+    d = s.add_parser("demo"); d.add_argument("--out", default="runs/demo"); d.add_argument("--no-video", action="store_true")
+    d.add_argument("--dev", action="store_true"); d.add_argument("--tasks"); d.add_argument("--resume", action="store_true")
+    r = s.add_parser("run"); r.add_argument("--config"); r.add_argument("--live", action="store_true")
+    r.add_argument("--demo-agents", action="store_true"); r.add_argument("--task-set", default="v1.0")
+    r.add_argument("--split", default="dev", choices=["dev", "test", "all"])
+    r.add_argument("--categories"); r.add_argument("--difficulty"); r.add_argument("--tasks")
+    r.add_argument("--k", type=int, default=1, help="pass^k 重复次数")
+    r.add_argument("--seeds", help="显式 run 编号，如 1,2（与已有 k=1 结果合并计算 pass^k）"); r.add_argument("--jobs", type=int, default=1)
+    r.add_argument("--max-steps", type=int, default=30); r.add_argument("--out", default="runs/latest")
+    r.add_argument("--export", action="store_true"); r.add_argument("--resume", action="store_true")
+    t = s.add_parser("tasks"); ts = t.add_subparsers(dest="sub", required=True)
+    tl = ts.add_parser("list"); tl.add_argument("--task-set", default="v1.0"); tl.add_argument("--split")
+    tl.add_argument("--categories"); tl.add_argument("--difficulty")
+    tn = ts.add_parser("new"); tn.add_argument("--id", required=True); tn.add_argument("--category", default="budget")
+    tn.add_argument("--difficulty", default="medium")
+    tv = ts.add_parser("validate"); tv.add_argument("path", nargs="?")
+    b = s.add_parser("leaderboard"); b.add_argument("run_dir"); b.add_argument("--note", default="")
+    e = s.add_parser("export-web"); e.add_argument("run_dir"); e.add_argument("--sub", default="data")
     rp = s.add_parser("replay"); rp.add_argument("trace"); rp.add_argument("--speed", type=float, default=0.0)
-    c = s.add_parser("cut", help="McCut：渲染竖屏对决视频"); c.add_argument("trace_a"); c.add_argument("trace_b"); c.add_argument("-o", "--out", default="battle.mp4")
-    e = s.add_parser("export-web"); e.add_argument("run_dir")
-    s.add_parser("tasks")
-    m = s.add_parser("mock-server"); m.add_argument("--port", type=int, default=8765)
+    c = s.add_parser("cut"); c.add_argument("trace_a"); c.add_argument("trace_b"); c.add_argument("-o", "--out", default="battle.mp4")
+    v = s.add_parser("video"); v.add_argument("run_dir"); v.add_argument("-o", "--out", default="docs/media/explainer.mp4")
+    v.add_argument("--tts", action="store_true")
+    vi = s.add_parser("vision"); vi.add_argument("--out", default="runs/vision"); vi.add_argument("--demo", action="store_true")
+    vi.add_argument("--codex-models", help="逗号分隔，如 gpt-6-luna,gpt-5.6-luna（经 codex exec -i 传图）")
+    s.add_parser("mock-server").add_argument("--port", type=int, default=8765)
     a = p.parse_args()
-    if a.cmd == "demo": cmd_demo(a)
-    elif a.cmd == "run": cmd_run(a)
-    elif a.cmd == "leaderboard": lb.print_board(lb.build(a.run_dir))
+    if a.cmd == "demo":
+        cmd_demo(a)
+    elif a.cmd == "run":
+        cmd_run(a)
+    elif a.cmd == "tasks":
+        cmd_tasks(a)
+    elif a.cmd == "leaderboard":
+        cmd_leaderboard(a)
+    elif a.cmd == "export-web":
+        cmd_export(a)
     elif a.cmd == "replay":
         from .replay import replay; replay(a.trace, a.speed)
-    elif a.cmd == "cut": cmd_cut(a)
-    elif a.cmd == "export-web": print(lb.export_web(a.run_dir, ROOT / "web"))
-    elif a.cmd == "tasks":
-        for t in TASKS: print(f"{t['id']:<14} {t['title']}：{t['prompt']}")
+    elif a.cmd == "cut":
+        cmd_cut(a)
+    elif a.cmd == "video":
+        cmd_video(a)
+    elif a.cmd == "vision":
+        cmd_vision(a)
     elif a.cmd == "mock-server":
         from .mock_server import serve; serve(a.port)
+
+
+if __name__ == "__main__":
+    main()

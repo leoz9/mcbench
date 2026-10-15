@@ -4,12 +4,20 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcbench"
-version = "0.1.0"
-description = "McBench：大模型点麦当劳擂台 —— LLM agent benchmark on McDonald's China MCP (dry-run, never orders)"
-readme = "README.md"
+version = "1.0.0"
+description = "McBench: multi-dimensional, community-built benchmark for LLM agents ordering McDonald's China via MCP (dry-run, never orders)"
+readme = "README_EN.md"
 license = {text = "MIT"}
-requires-python = ">=3.9"
-dependencies = ["Pillow>=9"]
+requires-python = ">=3.10"
+dependencies = ["Pillow>=9", "pyyaml>=6"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.5"]
+tts = ["edge-tts"]
+
+[project.urls]
+Homepage = "https://github.com/leoz9/mcbench"
+Leaderboard = "https://cv.leozto.sbs/mcbench/"
 
 [project.scripts]
 mcbench = "mcbench.cli:main"
@@ -18,4 +26,14 @@ mcbench = "mcbench.cli:main"
 packages = ["mcbench"]
 
 [tool.setuptools.package-data]
-mcbench = ["fixtures/*.json"]
+mcbench = ["data/snapshots/*/*.json", "data/tasks/*.json", "data/vision/*/*.json", "data/vision/*/frames/*.png"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["E501", "E701", "E702", "E731", "E741", "E402"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

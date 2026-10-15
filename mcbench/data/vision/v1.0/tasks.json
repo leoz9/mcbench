@@ -1,0 +1,248 @@
+{
+ "schema_version": "1.0",
+ "snapshot": "v1.0",
+ "synthetic": true,
+ "notice": "Frames are Pillow-rendered placeholders using menu names from the frozen MCP snapshot; not official product photography. Replace with licensed photos under the same schema.",
+ "tasks": [
+  {
+   "id": "vision-00",
+   "frame": "frames/task_00.png",
+   "labels": [
+    {
+     "code": "521316",
+     "name": "高达吉士双牛堡"
+    },
+    {
+     "code": "9900008751",
+     "name": "可乐"
+    }
+   ],
+   "payable": 32.0,
+   "kcal": 147.0,
+   "split": "dev"
+  },
+  {
+   "id": "vision-01",
+   "frame": "frames/task_01.png",
+   "labels": [
+    {
+     "code": "9900016077",
+     "name": "蘸酱炸鸡"
+    },
+    {
+     "code": "521952",
+     "name": "龙焰鸡腿堡"
+    },
+    {
+     "code": "9900014092",
+     "name": "麦当劳奶昔"
+    }
+   ],
+   "payable": 50.9,
+   "kcal": 0,
+   "split": "dev"
+  },
+  {
+   "id": "vision-02",
+   "frame": "frames/task_02.png",
+   "labels": [
+    {
+     "code": "1120",
+     "name": "双层吉士汉堡"
+    },
+    {
+     "code": "510489",
+     "name": "燕麦奶"
+    },
+    {
+     "code": "514851",
+     "name": "咖啡阿芙佳朵"
+    },
+    {
+     "code": "1401",
+     "name": "麦乐鸡"
+    }
+   ],
+   "payable": 73.0,
+   "kcal": 938.0,
+   "split": "dev"
+  },
+  {
+   "id": "vision-03",
+   "frame": "frames/task_03.png",
+   "labels": [
+    {
+     "code": "1450",
+     "name": "麦香鸡"
+    },
+    {
+     "code": "1401",
+     "name": "麦乐鸡"
+    },
+    {
+     "code": "1106",
+     "name": "培根蔬萃双层牛堡"
+    }
+   ],
+   "payable": 55.5,
+   "kcal": 1024.0,
+   "split": "dev"
+  },
+  {
+   "id": "vision-04",
+   "frame": "frames/task_04.png",
+   "labels": [
+    {
+     "code": "521951",
+     "name": "灰焰圆筒"
+    },
+    {
+     "code": "9900008746",
+     "name": "鸡肉堡单品精选"
+    }
+   ],
+   "payable": 28.5,
+   "kcal": 0,
+   "split": "dev"
+  },
+  {
+   "id": "vision-05",
+   "frame": "frames/task_05.png",
+   "labels": [
+    {
+     "code": "521156",
+     "name": "那么大鸡排（椒盐风味）"
+    },
+    {
+     "code": "521951",
+     "name": "灰焰圆筒"
+    },
+    {
+     "code": "514851",
+     "name": "咖啡阿芙佳朵"
+    }
+   ],
+   "payable": 34.0,
+   "kcal": 524.0,
+   "split": "dev"
+  },
+  {
+   "id": "vision-06",
+   "frame": "frames/task_06.png",
+   "labels": [
+    {
+     "code": "9900014092",
+     "name": "麦当劳奶昔"
+    },
+    {
+     "code": "521952",
+     "name": "龙焰鸡腿堡"
+    }
+   ],
+   "payable": 39.0,
+   "kcal": 0,
+   "split": "dev"
+  },
+  {
+   "id": "vision-07",
+   "frame": "frames/task_07.png",
+   "labels": [
+    {
+     "code": "9900016076",
+     "name": "“我就喜欢”鸡薯双全盒"
+    },
+    {
+     "code": "9900008751",
+     "name": "可乐"
+    },
+    {
+     "code": "510489",
+     "name": "燕麦奶"
+    },
+    {
+     "code": "1600",
+     "name": "麦香鱼"
+    }
+   ],
+   "payable": 68.9,
+   "kcal": 629.0,
+   "split": "dev"
+  },
+  {
+   "id": "vision-08",
+   "frame": "frames/task_08.png",
+   "labels": [
+    {
+     "code": "3010",
+     "name": "雪碧"
+    },
+    {
+     "code": "3757",
+     "name": "纯悦"
+    }
+   ],
+   "payable": 17.0,
+   "kcal": 105.0,
+   "split": "dev"
+  },
+  {
+   "id": "vision-09",
+   "frame": "frames/task_09.png",
+   "labels": [
+    {
+     "code": "9900016096",
+     "name": "蘸酱韩式甜辣酱鸡块"
+    },
+    {
+     "code": "9900008746",
+     "name": "鸡肉堡单品精选"
+    }
+   ],
+   "payable": 35.4,
+   "kcal": 0,
+   "split": "test"
+  },
+  {
+   "id": "vision-10",
+   "frame": "frames/task_10.png",
+   "labels": [
+    {
+     "code": "521953",
+     "name": "龙焰芝士棒鸡腿堡"
+    },
+    {
+     "code": "9900008751",
+     "name": "可乐"
+    }
+   ],
+   "payable": 36.5,
+   "kcal": 147.0,
+   "split": "test"
+  },
+  {
+   "id": "vision-11",
+   "frame": "frames/task_11.png",
+   "labels": [
+    {
+     "code": "9900008747",
+     "name": "牛肉堡单品精选"
+    },
+    {
+     "code": "515280",
+     "name": "阳光柠檬红茶"
+    },
+    {
+     "code": "521950",
+     "name": "蓝莓爆爆珠麦旋风"
+    },
+    {
+     "code": "2430",
+     "name": "【美汁源】“黄金橙橙”"
+    }
+   ],
+   "payable": 53.0,
+   "kcal": 282.0,
+   "split": "test"
+  }
+ ]
+}

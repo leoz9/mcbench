@@ -56,13 +56,13 @@ def panel(img, d, y0, h, trace, n_show, score, final, f):
             s1, s2 = "无效方案", "; ".join(v["errors"])[:24]
         d.text((44, y0 + h - 100), s1, font=f["b"], fill=WHITE)
         d.text((44, y0 + h - 62), s2, font=f["b"], fill=(120, 220, 120) if v.get("passed") else RED)
-        d.text((W - 200, y0 + 14), f"{score:.0f}分", font=f["big"], fill=YEL)
+        d.text((W - 200, y0 + 14), f"{float(score or 0):.0f}分", font=f["big"], fill=YEL)
 
 
-def render(trace_a, trace_b, out, scores=None, mock=True):
+def render(trace_a, trace_b, out, scores=None, mock=True, foot=None):  # aka render_battle
     ta, tb = (json.load(open(p, encoding="utf-8")) for p in (trace_a, trace_b))
     scores = scores or {}
-    sa, sb = scores.get(ta["model"], 0), scores.get(tb["model"], 0)
+    sa, sb = (scores or {}).get(ta["model"], 0) or 0, (scores or {}).get(tb["model"], 0) or 0
     f = {"h": font(34, True), "b": font(24), "big": font(56, True), "t": font(40, True), "s": font(20)}
     la, lb = len(lines_for(ta)), len(lines_for(tb))
     per = int(FPS * 0.8)
@@ -82,7 +82,7 @@ def render(trace_a, trace_b, out, scores=None, mock=True):
         final = k > n_steps
         panel(img, d, 170, ph, ta, k, sa, final, f)
         panel(img, d, 190 + ph, ph, tb, k, sb, final, f)
-        foot = "MOCK 演示数据 · 脚本示例 Agent，非真实模型成绩" if mock else "数据来自麦当劳官方 MCP · dry-run 不下单"
+        foot = foot or ("MOCK 演示数据 · 脚本示例 Agent，非真实模型成绩" if mock else "数据来自麦当劳官方 MCP · dry-run 不下单")
         d.text((30, H - 45), foot, font=f["s"], fill=GREY)
         if final:
             win = ta["model"] if sa >= sb else tb["model"]

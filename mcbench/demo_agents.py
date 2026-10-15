@@ -1,28 +1,43 @@
-"""Scripted DEMO agents (NOT real LLMs). They speak the same OpenAI tool-calling
-protocol so the harness/verifier/replay path is exercised end to end without an
-API key (against the mock or the live MCP). Never present them as model results."""
-import itertools
+"""Scripted baseline agents (NOT LLMs). Same OpenAI tool-calling protocol as real models.
+
+- demo-planner: reads the task's *structured* constraints (oracle access to the spec, not
+  to answers), fetches menu/nutrition/coupons/set-meal details via MCP tools, then runs the
+  exact solver; reports infeasible / asks the user when appropriate.
+- demo-greedy: cheapest single item per required kind; ignores coupons, diet, feasibility.
+- demo-hasty: grabs a set meal, tries create-order (a safety violation), guesses the price.
+"""
 import json
+import re
 
 from . import mcd
-from .tasks import TASKS
+from .solver import solve
+from .tasks import load_task_set
+from .units import default_leaves, make_unit
 
-DEMO_LABEL = "脚本示例 Agent（非真实大模型）"
+DEMO_LABEL = "脚本基线（非大模型）"
 B = {"orderType": 1, "beType": 1}
 STORE_Q = {"searchType": 2, "city": "上海", "keyword": "人民广场", "beType": 1}
+SETMEAL = re.compile(r"套|餐|拼|随心|精选|件|盒|分享")
+_ALL = None
+
+
+def _task_for(prompt):
+    global _ALL
+    if _ALL is None:
+        _ALL = load_task_set("v1.0")["tasks"]
+    return next(t for t in _ALL if t["prompt"] == prompt)
 
 
 class ScriptedAgent:
     scripted = True
 
-    def __init__(self, policy):
-        self.policy, self.gen, self.n = policy, None, 0
+    def __init__(self, policy, runtime=DEMO_LABEL):
+        self.policy, self.gen, self.n, self.runtime = policy, None, 0, runtime
 
     def chat(self, messages, tools):
         if self.gen is None:
             prompt = next(m["content"] for m in messages if m["role"] == "user")
-            task = next(t for t in TASKS if t["prompt"] == prompt)
-            self.gen = self.policy(task)
+            self.gen = self.policy(_task_for(prompt))
             step = next(self.gen)
         else:
             results = []
@@ -43,179 +58,71 @@ class ScriptedAgent:
         return {"role": "assistant", "content": text, "tool_calls": tcs}, None
 
 
-def _unit(code, name, price, leaves, nut, extra=None):
-    kinds, kcal, prot, unknown, spicy, sugar_ok = {}, 0.0, 0.0, False, 0, True
-    for leaf, q in leaves:
-        k = mcd.kind(leaf)
-        kinds[k] = kinds.get(k, 0) + q
-        n = mcd.match_nutrition(leaf, nut)
-        if n and n.get("kcal") is not None:
-            kcal += n["kcal"] * q
-            prot += (n.get("protein") or 0) * q
-        else:
-            unknown = True
-        if mcd.SPICY.search(leaf) or (k == "汉堡" and mcd.SPICY.search(name)):
-            spicy += q if k == "汉堡" else 0
-            if k != "汉堡":
-                spicy += 0
-        if k == "饮品" and not mcd.SUGAR_FREE.search(leaf):
-            sugar_ok = False
-    any_spicy = any(mcd.SPICY.search(l) for l, _ in leaves) or bool(mcd.SPICY.search(name))
-    return {"code": code, "name": name, "price": price, "kinds": kinds, "kcal": kcal, "protein": prot,
-            "unknown": unknown, "spicy_burgers": spicy, "any_spicy": any_spicy, "sugar_ok": sugar_ok,
-            "names": [l for l, _ in leaves], "extra": extra or {}}
-
-
-def _feasible(task, units):
-    c = task["constraints"]
-    kinds = {}
-    for u in units:
-        for k, v in u["kinds"].items():
-            kinds[k] = kinds.get(k, 0) + v
-    if any(kinds.get(k, 0) < v for k, v in c.get("min_kind", {}).items()):
-        return False
-    price = sum(u["price"] for u in units)
-    if price > c.get("max_payable", 1e9):
-        return False
-    if ("max_kcal" in c or "min_protein" in c) and any(u["unknown"] for u in units):
-        return False
-    if sum(u["kcal"] for u in units) > c.get("max_kcal", 1e9) or sum(u["protein"] for u in units) < c.get("min_protein", 0):
-        return False
-    if c.get("sugar_free_drinks") and not all(u["sugar_ok"] for u in units):
-        return False
-    if c.get("no_spicy") and any(u["any_spicy"] for u in units):
-        return False
-    if "min_non_spicy_burgers" in c:
-        nb = sum(u["kinds"].get("汉堡", 0) - u["spicy_burgers"] for u in units)
-        if nb < c["min_non_spicy_burgers"]:
-            return False
-    if c.get("must_include_name") and not any(c["must_include_name"] in n for u in units for n in u["names"]):
-        return False
-    if c.get("use_coupon") and not any(u["extra"].get("couponId") for u in units):
-        return False
-    return True
-
-
-def _items(units):
-    out = {}
-    for u in units:
-        key = u["code"]
-        if key not in out:
-            out[key] = {"productCode": key, "quantity": 0, **u["extra"]}
-        out[key]["quantity"] += 1
-    return list(out.values())
-
-
-def _basics():
+def _basics(coupons=True):
     r = yield ("先按位置搜索门店。", [("query-nearby-stores", STORE_Q)])
     st = r[0]["stores"][0]
     store = st["storeCode"]
-    r = yield (f"选最近的 {st['storeName']}，查菜单、营养和可用券。",
-               [("query-meals", {"storeCode": store, **B}), ("list-nutrition-foods", {}),
-                ("query-store-coupons", {"storeCode": store, **B})])
+    calls = [("query-meals", {"storeCode": store, **B}), ("list-nutrition-foods", {})]
+    if coupons:
+        calls.append(("query-store-coupons", {"storeCode": store, **B}))
+    r = yield (f"选最近的 {st['storeName']}，查菜单、营养" + ("和可用券。" if coupons else "。"), calls)
     menu = {m["code"]: m for m in r[0]["meals"]}
     nut = {f["name"]: f for f in r[1]["foods"]}
-    return store, menu, nut, r[2].get("coupons", [])
+    return store, menu, nut, (r[2].get("coupons", []) if coupons else [])
 
 
 def planner(task):
-    """Strong script: expands cheap combos via query-meal-detail, quotes coupon items,
-    enumerates combinations, then verifies the best two with calculate-price."""
+    if task.get("requires_clarification"):
+        yield ("信息不全，先问清楚。", [("ask_user", {"question": "请问几个人、预算多少、有什么忌口？"})])
     store, menu, nut, coupons = yield from _basics()
-    c = task["constraints"]
-    singles = [m for m in menu.values() if m["price"] and "套" not in m["name"] and "餐" not in m["name"]
-               and m["category"] not in ("小食拼盘/多人餐",) and "徽章" not in m["name"] and "帽" not in m["name"]]
-    combos = sorted([m for m in menu.values() if m["price"] and ("套" in m["name"] or "餐" in m["name"])
-                     and m["category"] not in ("小食拼盘/多人餐",) and m["price"] <= c.get("max_payable", 60)],
-                    key=lambda m: m["price"])[:6]
-    calls = [("query-meal-detail", {"storeCode": store, **B, "code": m["code"]}) for m in combos]
-    calls += [("calculate-price", {"storeCode": store, **B, "items": [
-        {"productCode": cp["products"][0]["productCode"], "quantity": 1, "couponId": cp["couponId"], "couponCode": cp["couponCode"]}]})
-        for cp in coupons if c.get("use_coupon")]
-    res = yield (f"展开 {len(combos)} 个便宜套餐的组成" + ("，并逐张试算优惠券价格。" if c.get("use_coupon") else "。"), calls)
-    units = [_unit(m["code"], m["name"], m["price"], [(m["name"], 1)], nut) for m in singles]
-    for m, d in zip(combos, res[:len(combos)]):
-        leaves = []
-        for r in d.get("rounds", []):
-            ch = next((x for x in r["choices"] if x.get("isDefault") == 1), None)
-            if ch:
-                leaves.append((ch["name"], r.get("quantity") or 1))
-        if leaves:
-            units.append(_unit(m["code"], m["name"], m["price"], leaves, nut))
-    cdet = []
-    for cp, q in zip([cp for cp in coupons if c.get("use_coupon")], res[len(combos):]):
+    nutd = {k: v for k, v in nut.items()}
+    sm = list(menu)  # fetch every item detail (some singles have a pick-one round)
+    calls = [("query-meal-detail", {"storeCode": store, **B, "code": c}) for c in sm]
+    cps = coupons if task["constraints"].get("use_coupon") else []
+    calls += [("query-meal-detail", {"storeCode": store, **B, "code": cp["products"][0]["productCode"]}) for cp in cps]
+    calls += [("calculate-price", {"storeCode": store, **B, "items": [{"productCode": cp["products"][0]["productCode"], "quantity": 1,
+                                                                     "couponId": cp["couponId"], "couponCode": cp["couponCode"]}]}) for cp in cps]
+    res = yield (f"查询全部 {len(sm)} 个餐品的组成" + ("，试算优惠券。" if cps else "。"), calls)
+    dets = dict(zip(sm, res[:len(sm)]))
+    units = []
+    for c, m in menu.items():
+        units.append(make_unit(c, m["name"], m["price"], default_leaves(dets.get(c), m["name"]), nutd, m.get("tags")))
+    for i, cp in enumerate(cps):
+        d, q = res[len(sm) + i], res[len(sm) + len(cps) + i]
         if q.get("success"):
-            cdet.append((cp, q["payable"]))
-    if cdet:
-        dets = yield ("查看券商品的组成。", [("query-meal-detail", {"storeCode": store, **B, "code": cp["products"][0]["productCode"]}) for cp, _ in cdet])
-        for (cp, price), d in zip(cdet, dets):
-            leaves = [(next((x for x in r["choices"] if x.get("isDefault") == 1), r["choices"][0])["name"], r.get("quantity") or 1)
-                      for r in d.get("rounds", []) if r["choices"]] or [(cp["title"], 1)]
-            units.append(_unit(cp["products"][0]["productCode"], cp["title"], price, leaves, nut,
-                               {"couponId": cp["couponId"], "couponCode": cp["couponCode"]}))
-    need = sum(c.get("min_kind", {}).values())
-    size = min(max(2, need), 6)
-    pool = []
-    for k in c.get("min_kind", {}):
-        pool += sorted([u for u in units if list(u["kinds"]) == [k] and _feasible(
-            {"constraints": {x: y for x, y in c.items() if x in ("no_spicy", "sugar_free_drinks")}}, [u])
-            and (not ("max_kcal" in c or "min_protein" in c) or not u["unknown"])], key=lambda u: u["price"])[:4]
-    pool += [u for u in units if len(u["kinds"]) > 1 and u not in pool]
-    if c.get("must_include_name"):
-        pool += [u for u in units if any(c["must_include_name"] in n for n in u["names"]) and u not in pool][:1]
-    if c.get("use_coupon"):
-        pool += [u for u in units if u["extra"] and u not in pool]
-    if task["objective"] == "max_kcal":
-        pool += sorted([u for u in units if list(u["kinds"]) == ["小食"] and not u["unknown"]], key=lambda u: u["price"])[:3]
-    best = []
-    for n in range(1, size + 1):
-        for combo in itertools.combinations_with_replacement(pool, n):
-            if _feasible(task, combo):
-                best.append(combo)
-    if task["objective"] == "max_kcal":
-        best.sort(key=lambda cb: -sum(u["kcal"] for u in cb))
-    else:
-        best.sort(key=lambda cb: sum(u["price"] for u in cb))
-    best = best[:2]
-    if not best:
-        yield ("没有找到满足条件的组合。", [])
+            units.append(make_unit(cp["products"][0]["productCode"], cp["title"], q["payable"], default_leaves(d, cp["title"]),
+                                   nutd, coupon={"couponId": cp["couponId"], "couponCode": cp["couponCode"]}))
+    ref = solve(task, units, time_limit=8)
+    if not ref["feasible"]:
+        yield ("穷举后没有任何组合能同时满足所有约束。", [("report_infeasible", {"reason": "在该门店菜单与价格下，无法同时满足全部约束"})])
         return
-    calls = [("calculate-price", {"storeCode": store, **B, "items": _items(cb)}) for cb in best]
-    quotes = yield (f"本地筛出 {len(best)} 个候选，用 calculate-price 核价。", calls)
-    ok = [i for i, q in enumerate(quotes) if q.get("success")]
-    if not ok:
-        yield ("核价失败。", [])
-        return
-    i = ok[0] if task["objective"] == "max_kcal" else min(ok, key=lambda j: quotes[j]["payable"])
-    pay = quotes[i]["payable"]
-    items = calls[i][1]["items"]
-    names = {u["code"]: u["name"] for u in units}
-    desc = "、".join(f"{names.get(x['productCode'], x['productCode'])}×{x['quantity']}" for x in items)
-    yield (f"最终方案：{desc}，应付 ¥{pay}。", [("submit_order", {"storeCode": store, "items": items,
-                                                              "claimedPayable": pay, "explanation": desc})])
+    by = {u.code: u for u in units}
+    items = [{"productCode": x["productCode"], "quantity": x["quantity"], **by[x["productCode"]].coupon} for x in ref["items"]]
+    q = (yield ("求解出最优组合，核价。", [("calculate-price", {"storeCode": store, **B, "items": items})]))[0]
+    desc = "、".join(f"{x['name']}×{x['quantity']}" for x in ref["items"])
+    yield (f"最终方案：{desc}，应付 ¥{q.get('payable')}。", [("submit_order", {"storeCode": store, "items": items,
+                                                                       "claimedPayable": q.get("payable"), "explanation": desc})])
 
 
 def greedy(task):
-    """Medium script: cheapest single item per required kind; ignores coupons, nutrition and dietary rules."""
-    store, menu, nut, coupons = yield from _basics()
+    store, menu, nut, _ = yield from _basics(coupons=False)
     items = []
-    for k, n in task["constraints"].get("min_kind", {}).items():
-        cands = [m for m in menu.values() if m["price"] and mcd.kind(m["name"]) == k and "套" not in m["name"]
-                 and "餐" not in m["name"] and m["category"] not in ("小食拼盘/多人餐", "蘸酱炸鸡")]
-        m = min(cands, key=lambda m: m["price"])
-        items.append({"productCode": m["code"], "quantity": n})
+    for k, n in (task["constraints"].get("min_kind") or {"汉堡": 1, "饮品": 1}).items():
+        cands = [m for m in menu.values() if m["price"] and mcd.kind(m["name"]) == k and not SETMEAL.search(m["name"])]
+        if cands:
+            m = min(cands, key=lambda m: m["price"])
+            items.append({"productCode": m["code"], "quantity": n})
     q = (yield ("每类挑最便宜的单品，核一下价。", [("calculate-price", {"storeCode": store, **B, "items": items})]))[0]
     yield (f"应付 ¥{q.get('payable')}，提交。", [("submit_order", {"storeCode": store, "items": items,
                                                                  "claimedPayable": q.get("payable")})])
 
 
 def hasty(task):
-    """Weak script: grabs the first set meal, tries create-order (blocked), claims a guessed price."""
     r = yield ("直接点个套餐吧。", [("query-nearby-stores", STORE_Q)])
     store = r[0]["stores"][0]["storeCode"]
     menu = (yield ("看看菜单。", [("query-meals", {"storeCode": store, **B})]))[0]["meals"]
     m = next(x for x in menu if "三件套" in (x["name"] or ""))
-    n = task["constraints"].get("min_kind", {}).get("汉堡", 1)
+    n = (task["constraints"].get("min_kind") or {}).get("汉堡", 1)
     items = [{"productCode": m["code"], "quantity": n}]
     yield ("顺手下个单。", [("create-order", {"storeCode": store, **B, "items": items})])
     yield ("下单被拦截了，那就提交方案（价格凭印象）。", [("submit_order", {"storeCode": store, "items": items,
