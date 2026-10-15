@@ -1,0 +1,36 @@
+{
+  "_notice": "MOCK FIXTURE DATA — 模拟数据，仅用于 demo 模式。餐品、价格、营养数值为示意，非麦当劳官方实时数据；以麦当劳官方渠道为准。",
+  "stores": [
+    {"storeCode": "MOCK001", "storeName": "（模拟）人民广场餐厅", "address": "上海市黄浦区（模拟地址）", "distance": 320},
+    {"storeCode": "MOCK002", "storeName": "（模拟）南京东路餐厅", "address": "上海市黄浦区（模拟地址）", "distance": 780}
+  ],
+  "meals": [
+    {"code": "B001", "name": "巨无霸", "category": "汉堡", "price": 24.0, "tags": ["牛肉"], "kcal": 535, "protein": 26.0, "fat": 28.0, "carb": 45.0, "sodium": 960},
+    {"code": "B002", "name": "麦辣鸡腿堡", "category": "汉堡", "price": 22.0, "tags": ["鸡肉", "辣"], "kcal": 510, "protein": 24.0, "fat": 26.0, "carb": 46.0, "sodium": 1050},
+    {"code": "B003", "name": "板烧鸡腿堡", "category": "汉堡", "price": 23.0, "tags": ["鸡肉"], "kcal": 400, "protein": 27.0, "fat": 15.0, "carb": 39.0, "sodium": 900},
+    {"code": "B004", "name": "麦香鱼", "category": "汉堡", "price": 17.0, "tags": ["鱼肉"], "kcal": 330, "protein": 15.0, "fat": 14.0, "carb": 37.0, "sodium": 590},
+    {"code": "B005", "name": "双层吉士汉堡", "category": "汉堡", "price": 19.0, "tags": ["牛肉"], "kcal": 450, "protein": 25.0, "fat": 23.0, "carb": 35.0, "sodium": 1100},
+    {"code": "B006", "name": "吉士汉堡", "category": "汉堡", "price": 12.0, "tags": ["牛肉"], "kcal": 300, "protein": 15.0, "fat": 12.0, "carb": 32.0, "sodium": 720},
+    {"code": "S001", "name": "麦辣鸡翅(2块)", "category": "小食", "price": 13.0, "tags": ["鸡肉", "辣"], "kcal": 230, "protein": 18.0, "fat": 15.0, "carb": 8.0, "sodium": 600},
+    {"code": "S002", "name": "麦乐鸡(5块)", "category": "小食", "price": 12.5, "tags": ["鸡肉"], "kcal": 220, "protein": 12.0, "fat": 13.0, "carb": 13.0, "sodium": 430},
+    {"code": "S003", "name": "中薯条", "category": "小食", "price": 12.0, "tags": ["素"], "kcal": 330, "protein": 4.0, "fat": 16.0, "carb": 42.0, "sodium": 190},
+    {"code": "S004", "name": "小薯条", "category": "小食", "price": 9.0, "tags": ["素"], "kcal": 220, "protein": 3.0, "fat": 11.0, "carb": 28.0, "sodium": 130},
+    {"code": "S005", "name": "玉米杯", "category": "小食", "price": 9.5, "tags": ["素"], "kcal": 90, "protein": 3.0, "fat": 1.5, "carb": 17.0, "sodium": 10},
+    {"code": "S006", "name": "苹果片", "category": "小食", "price": 6.0, "tags": ["素"], "kcal": 30, "protein": 0.0, "fat": 0.0, "carb": 8.0, "sodium": 0},
+    {"code": "D001", "name": "中杯可口可乐", "category": "饮品", "price": 9.0, "tags": ["含糖"], "kcal": 150, "protein": 0.0, "fat": 0.0, "carb": 38.0, "sodium": 10},
+    {"code": "D002", "name": "中杯零度可口可乐", "category": "饮品", "price": 9.0, "tags": ["无糖"], "kcal": 0, "protein": 0.0, "fat": 0.0, "carb": 0.0, "sodium": 20},
+    {"code": "D003", "name": "美式咖啡(中)", "category": "饮品", "price": 11.0, "tags": ["无糖"], "kcal": 10, "protein": 0.5, "fat": 0.0, "carb": 1.0, "sodium": 5},
+    {"code": "D004", "name": "纯牛奶", "category": "饮品", "price": 8.0, "tags": [], "kcal": 130, "protein": 7.0, "fat": 7.5, "carb": 10.0, "sodium": 110},
+    {"code": "D005", "name": "矿泉水", "category": "饮品", "price": 5.0, "tags": ["无糖"], "kcal": 0, "protein": 0.0, "fat": 0.0, "carb": 0.0, "sodium": 0},
+    {"code": "C001", "name": "巨无霸套餐(中薯+中可乐)", "category": "套餐", "price": 38.0, "tags": ["套餐", "牛肉"], "components": ["B001", "S003", "D001"]},
+    {"code": "C002", "name": "麦辣鸡腿堡套餐(中薯+中可乐)", "category": "套餐", "price": 36.0, "tags": ["套餐", "鸡肉", "辣"], "components": ["B002", "S003", "D001"]},
+    {"code": "C003", "name": "板烧鸡腿堡套餐(中薯+中可乐)", "category": "套餐", "price": 37.0, "tags": ["套餐", "鸡肉"], "components": ["B003", "S003", "D001"]},
+    {"code": "C004", "name": "麦香鱼套餐(中薯+中可乐)", "category": "套餐", "price": 30.0, "tags": ["套餐", "鱼肉"], "components": ["B004", "S003", "D001"]},
+    {"code": "C005", "name": "吉士汉堡超值餐(小薯+中可乐)", "category": "套餐", "price": 22.0, "tags": ["套餐", "牛肉"], "components": ["B006", "S004", "D001"]}
+  ],
+  "coupons": [
+    {"couponCode": "CPN-MOCK-A", "title": "（模拟）满 60 减 10", "type": "threshold", "minSpend": 60, "discount": 10},
+    {"couponCode": "CPN-MOCK-B", "title": "（模拟）满 150 减 30", "type": "threshold", "minSpend": 150, "discount": 30},
+    {"couponCode": "CPN-MOCK-C", "title": "（模拟）麦辣鸡翅立减 5 元", "type": "item", "itemCode": "S001", "discount": 5}
+  ]
+}

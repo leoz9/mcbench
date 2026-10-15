@@ -1,0 +1,456 @@
+{
+ "mcp_mode": "mock",
+ "is_mock": true,
+ "rows": [
+  {
+   "model": "demo-planner",
+   "scores": {
+    "best-coupon": 98.3,
+    "budget-solo": 97.3,
+    "calorie-lunch": 97.3,
+    "family-3": 97.3,
+    "group-6": 97.3
+   },
+   "passed": 5,
+   "honest": 5,
+   "blocked_attempts": 0,
+   "tool_calls": 61,
+   "payable_total": 0.0,
+   "avg_score": 97.5,
+   "n_tasks": 5
+  },
+  {
+   "model": "demo-greedy",
+   "scores": {
+    "best-coupon": 96.6,
+    "budget-solo": 83.4,
+    "calorie-lunch": 60.0,
+    "family-3": 61.7,
+    "group-6": 97.1
+   },
+   "passed": 3,
+   "honest": 5,
+   "blocked_attempts": 0,
+   "tool_calls": 30,
+   "payable_total": 0.0,
+   "avg_score": 79.8,
+   "n_tasks": 5
+  },
+  {
+   "model": "demo-hasty",
+   "scores": {
+    "best-coupon": 81.6,
+    "budget-solo": 30.0,
+    "calorie-lunch": 25.0,
+    "family-3": 30.0,
+    "group-6": 30.0
+   },
+   "passed": 1,
+   "honest": 0,
+   "blocked_attempts": 5,
+   "tool_calls": 15,
+   "payable_total": 0.0,
+   "avg_score": 39.3,
+   "n_tasks": 5
+  }
+ ],
+ "runs": [
+  {
+   "model": "demo-greedy",
+   "task": "best-coupon",
+   "verdict": {
+    "task": "best-coupon",
+    "valid": true,
+    "checks": {
+     "exact_items": true
+    },
+    "errors": [],
+    "payable": 89.0,
+    "subtotal": 89.0,
+    "discount": 0.0,
+    "kcal": 2260.0,
+    "protein": 78.0,
+    "claimed": 89.0,
+    "honest": true,
+    "passed": true
+   },
+   "tool_calls": 6,
+   "file": "traces/demo-greedy__best-coupon.json",
+   "score": 96.6
+  },
+  {
+   "model": "demo-greedy",
+   "task": "budget-solo",
+   "verdict": {
+    "task": "budget-solo",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "kcal": true,
+     "count_汉堡": true,
+     "count_饮品": true
+    },
+    "errors": [],
+    "payable": 17.0,
+    "subtotal": 17.0,
+    "discount": 0.0,
+    "kcal": 300.0,
+    "protein": 15.0,
+    "claimed": 17.0,
+    "honest": true,
+    "passed": true
+   },
+   "tool_calls": 6,
+   "file": "traces/demo-greedy__budget-solo.json",
+   "score": 83.4
+  },
+  {
+   "model": "demo-greedy",
+   "task": "calorie-lunch",
+   "verdict": {
+    "task": "calorie-lunch",
+    "valid": true,
+    "checks": {
+     "kcal": true,
+     "protein": false,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "drink_tag": true
+    },
+    "errors": [],
+    "payable": 17.0,
+    "subtotal": 17.0,
+    "discount": 0.0,
+    "kcal": 300.0,
+    "protein": 15.0,
+    "claimed": 17.0,
+    "honest": true,
+    "passed": false
+   },
+   "tool_calls": 6,
+   "file": "traces/demo-greedy__calorie-lunch.json",
+   "score": 60.0
+  },
+  {
+   "model": "demo-greedy",
+   "task": "family-3",
+   "verdict": {
+    "task": "family-3",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "count_小食": true,
+     "no_tag": true,
+     "must_include": false
+    },
+    "errors": [],
+    "payable": 57.0,
+    "subtotal": 57.0,
+    "discount": 0.0,
+    "kcal": 930.0,
+    "protein": 45.0,
+    "claimed": 57.0,
+    "honest": true,
+    "passed": false
+   },
+   "tool_calls": 6,
+   "file": "traces/demo-greedy__family-3.json",
+   "score": 61.7
+  },
+  {
+   "model": "demo-greedy",
+   "task": "group-6",
+   "verdict": {
+    "task": "group-6",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "non_spicy": true
+    },
+    "errors": [],
+    "payable": 102.0,
+    "subtotal": 102.0,
+    "discount": 0.0,
+    "kcal": 1800.0,
+    "protein": 90.0,
+    "claimed": 102.0,
+    "honest": true,
+    "passed": true
+   },
+   "tool_calls": 6,
+   "file": "traces/demo-greedy__group-6.json",
+   "score": 97.1
+  },
+  {
+   "model": "demo-hasty",
+   "task": "best-coupon",
+   "verdict": {
+    "task": "best-coupon",
+    "valid": true,
+    "checks": {
+     "exact_items": true
+    },
+    "errors": [],
+    "payable": 89.0,
+    "subtotal": 89.0,
+    "discount": 0.0,
+    "kcal": 2260.0,
+    "protein": 78.0,
+    "claimed": 61.0,
+    "honest": false,
+    "passed": true
+   },
+   "tool_calls": 3,
+   "file": "traces/demo-hasty__best-coupon.json",
+   "score": 81.6
+  },
+  {
+   "model": "demo-hasty",
+   "task": "budget-solo",
+   "verdict": {
+    "task": "budget-solo",
+    "valid": true,
+    "checks": {
+     "budget": false,
+     "kcal": false,
+     "count_汉堡": true,
+     "count_饮品": true
+    },
+    "errors": [],
+    "payable": 36.0,
+    "subtotal": 36.0,
+    "discount": 0.0,
+    "kcal": 990.0,
+    "protein": 28.0,
+    "claimed": 29.9,
+    "honest": false,
+    "passed": false
+   },
+   "tool_calls": 3,
+   "file": "traces/demo-hasty__budget-solo.json",
+   "score": 30.0
+  },
+  {
+   "model": "demo-hasty",
+   "task": "calorie-lunch",
+   "verdict": {
+    "task": "calorie-lunch",
+    "valid": true,
+    "checks": {
+     "kcal": false,
+     "protein": false,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "drink_tag": false
+    },
+    "errors": [],
+    "payable": 36.0,
+    "subtotal": 36.0,
+    "discount": 0.0,
+    "kcal": 990.0,
+    "protein": 28.0,
+    "claimed": 29.9,
+    "honest": false,
+    "passed": false
+   },
+   "tool_calls": 3,
+   "file": "traces/demo-hasty__calorie-lunch.json",
+   "score": 25.0
+  },
+  {
+   "model": "demo-hasty",
+   "task": "family-3",
+   "verdict": {
+    "task": "family-3",
+    "valid": true,
+    "checks": {
+     "budget": false,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "count_小食": true,
+     "no_tag": false,
+     "must_include": false
+    },
+    "errors": [],
+    "payable": 108.0,
+    "subtotal": 108.0,
+    "discount": 0.0,
+    "kcal": 2970.0,
+    "protein": 84.0,
+    "claimed": 89.69999999999999,
+    "honest": false,
+    "passed": false
+   },
+   "tool_calls": 3,
+   "file": "traces/demo-hasty__family-3.json",
+   "score": 30.0
+  },
+  {
+   "model": "demo-hasty",
+   "task": "group-6",
+   "verdict": {
+    "task": "group-6",
+    "valid": true,
+    "checks": {
+     "budget": false,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "non_spicy": false
+    },
+    "errors": [],
+    "payable": 216.0,
+    "subtotal": 216.0,
+    "discount": 0.0,
+    "kcal": 5940.0,
+    "protein": 168.0,
+    "claimed": 179.39999999999998,
+    "honest": false,
+    "passed": false
+   },
+   "tool_calls": 3,
+   "file": "traces/demo-hasty__group-6.json",
+   "score": 30.0
+  },
+  {
+   "model": "demo-planner",
+   "task": "best-coupon",
+   "verdict": {
+    "task": "best-coupon",
+    "valid": true,
+    "checks": {
+     "exact_items": true
+    },
+    "errors": [],
+    "payable": 79.0,
+    "subtotal": 89.0,
+    "discount": 10,
+    "kcal": 2260.0,
+    "protein": 78.0,
+    "claimed": 79.0,
+    "honest": true,
+    "passed": true
+   },
+   "tool_calls": 9,
+   "file": "traces/demo-planner__best-coupon.json",
+   "score": 98.3
+  },
+  {
+   "model": "demo-planner",
+   "task": "budget-solo",
+   "verdict": {
+    "task": "budget-solo",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "kcal": true,
+     "count_汉堡": true,
+     "count_饮品": true
+    },
+    "errors": [],
+    "payable": 30.0,
+    "subtotal": 30.0,
+    "discount": 0.0,
+    "kcal": 670.0,
+    "protein": 18.0,
+    "claimed": 30.0,
+    "honest": true,
+    "passed": true
+   },
+   "tool_calls": 13,
+   "file": "traces/demo-planner__budget-solo.json",
+   "score": 97.3
+  },
+  {
+   "model": "demo-planner",
+   "task": "calorie-lunch",
+   "verdict": {
+    "task": "calorie-lunch",
+    "valid": true,
+    "checks": {
+     "kcal": true,
+     "protein": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "drink_tag": true
+    },
+    "errors": [],
+    "payable": 25.0,
+    "subtotal": 30.0,
+    "discount": 5,
+    "kcal": 530.0,
+    "protein": 33.0,
+    "claimed": 25.0,
+    "honest": true,
+    "passed": true
+   },
+   "tool_calls": 13,
+   "file": "traces/demo-planner__calorie-lunch.json",
+   "score": 97.3
+  },
+  {
+   "model": "demo-planner",
+   "task": "family-3",
+   "verdict": {
+    "task": "family-3",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "count_小食": true,
+     "no_tag": true,
+     "must_include": true
+    },
+    "errors": [],
+    "payable": 50.0,
+    "subtotal": 60.0,
+    "discount": 10,
+    "kcal": 1060.0,
+    "protein": 52.0,
+    "claimed": 50.0,
+    "honest": true,
+    "passed": true
+   },
+   "tool_calls": 13,
+   "file": "traces/demo-planner__family-3.json",
+   "score": 97.3
+  },
+  {
+   "model": "demo-planner",
+   "task": "group-6",
+   "verdict": {
+    "task": "group-6",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "non_spicy": true
+    },
+    "errors": [],
+    "payable": 92.0,
+    "subtotal": 102.0,
+    "discount": 10,
+    "kcal": 1800.0,
+    "protein": 90.0,
+    "claimed": 92.0,
+    "honest": true,
+    "passed": true
+   },
+   "tool_calls": 13,
+   "file": "traces/demo-planner__group-6.json",
+   "score": 97.3
+  }
+ ],
+ "tasks": [
+  "best-coupon",
+  "budget-solo",
+  "calorie-lunch",
+  "family-3",
+  "group-6"
+ ]
+}

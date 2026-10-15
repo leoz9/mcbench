@@ -1,0 +1,11 @@
+.env
+*.env
+!.env.example
+__pycache__/
+*.egg-info/
+build/
+dist/
+.venv/
+runs/latest/
+runs/live*/
+node_modules/

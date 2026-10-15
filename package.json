@@ -1,0 +1,8 @@
+{
+  "name": "mcbench",
+  "version": "0.1.0",
+  "private": true,
+  "description": "McBench demo launcher (wraps the Python package; needs python3 + Pillow, ffmpeg optional)",
+  "bin": { "mcbench": "bin/mcbench.js" },
+  "license": "MIT"
+}

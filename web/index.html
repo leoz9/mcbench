@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>McBench · 大模型点麦当劳擂台</title>
+<style>
+:root{--red:#db0007;--yel:#ffc72c;--bg:#181818;--panel:#262626;--fg:#f5f5f5;--grey:#9a9a9a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+header{background:var(--red);padding:20px 24px}header h1{margin:0;color:var(--yel);font-size:28px}header p{margin:6px 0 0}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.banner{background:#4a3500;border:1px solid var(--yel);color:var(--yel);padding:10px 14px;border-radius:10px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:12px;overflow:hidden}
+th,td{padding:10px 8px;text-align:center;border-bottom:1px solid #333}th{color:var(--yel);font-weight:600}
+td.m{text-align:left;font-weight:600}tr:hover td{background:#303030}.cell{cursor:pointer;text-decoration:underline dotted}
+.pass{color:#7bdc7b}.fail{color:#ff6b6b}
+section{margin-top:28px}h2{color:var(--yel)}
+.ctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+select,button{background:#333;color:var(--fg);border:1px solid #555;border-radius:8px;padding:6px 10px;font-size:14px}
+button.p{background:var(--yel);color:#000;border:none;font-weight:600}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:760px){.split{grid-template-columns:1fr}}
+.trace{background:var(--panel);border-radius:12px;padding:12px;min-height:320px;max-height:560px;overflow:auto;font-size:14px}
+.trace h3{margin:0 0 8px;color:var(--yel)}
+.ev{margin:6px 0;padding:6px 8px;border-radius:6px;background:#1e1e1e;white-space:pre-wrap;word-break:break-all}
+.ev.thought{background:none;color:#ddd}.ev.call{border-left:3px solid var(--yel)}.ev.blocked{border-left:3px solid var(--red);color:#ff8a8a}
+.ev.res{color:var(--grey);font-size:12px}.ev.verdict{border:1px solid var(--yel)}
+footer{color:var(--grey);font-size:12px;padding:30px 20px;text-align:center}
+</style>
+</head>
+<body>
+<header><h1>🍔 McBench · 哪个大模型最会点麦当劳？</h1>
+<p>同一个门店、同一笔预算：Agent 通过麦当劳官方 MCP 查菜单/营养/优惠券并核价，程序裁判复算打分。全程 dry-run，绝不下单。</p></header>
+<main>
+<div id="banner" class="banner" hidden></div>
+<section><h2>排行榜</h2><div id="board">加载中…（本页需通过 HTTP 访问，例如 GitHub Pages 或 <code>python -m http.server -d web</code>）</div></section>
+<section><h2>轨迹回放 · 分屏对决</h2>
+<div class="ctl">任务 <select id="task"></select> 左 <select id="ma"></select> 右 <select id="mb"></select>
+<button class="p" id="play">▶ 播放</button><button id="all">全部显示</button></div>
+<div class="split"><div class="trace" id="ta"></div><div class="trace" id="tb"></div></div></section>
+</main>
+<footer>参赛项目为麦当劳程序员节创意开发大赛参赛作品，由参赛者独立开发，非麦当劳官方产品。餐品信息、价格及供应状态以麦当劳官方渠道的实时结果为准。</footer>
+<script>
+const $=id=>document.getElementById(id);let B,timer;const cache={};
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const short=(o,n=220)=>{const s=JSON.stringify(o);return s.length>n?s.slice(0,n)+'…':s};
+async function trace(m,t){const k=m+'__'+t;if(!cache[k])cache[k]=await (await fetch('data/traces/'+k+'.json')).json();return cache[k]}
+function evHtml(e){
+ if(e.type==='thought')return `<div class="ev thought">💭 ${esc(e.text)}</div>`;
+ if(e.type==='tool_call')return `<div class="ev call">🔧 <b>${esc(e.name)}</b> ${esc(short(e.args,160))}</div>`;
+ if(e.type==='tool_result'){const b=e.result&&e.result.blocked;return `<div class="ev ${b?'blocked':'res'}">${b?'⛔ ':'↩ '}${esc(short(e.result))}</div>`}
+ if(e.type==='verdict'){const v=e.verdict;if(!v.valid)return `<div class="ev verdict">🧾 无效方案：${esc(v.errors.join('; '))}</div>`;
+  return `<div class="ev verdict">🧾 裁判复算：应付 ¥${v.payable}（声称 ¥${v.claimed}，${v.honest?'✅一致':'❌不一致'}）· ${v.kcal} kcal · 蛋白质 ${v.protein}g<br>约束：${Object.entries(v.checks).map(([k,o])=>k+(o?'✅':'❌')).join('  ')}</div>`}
+ return ''}
+async function show(animate){
+ clearInterval(timer);const t=$('task').value,[a,b]=[$('ma').value,$('mb').value];
+ const [A,Bt]=await Promise.all([trace(a,t),trace(b,t)]);
+ const sc=m=>{const r=B.runs.find(r=>r.model===m&&r.task===t);return r?r.score:'-'};
+ const head=(T,m)=>`<h3>${esc(m)} · ${sc(m)} 分</h3><div class="ev thought">📝 ${esc(T.prompt)}</div>`;
+ let i=animate?0:1e9;const draw=()=>{$('ta').innerHTML=head(A,a)+A.events.slice(0,i).map(evHtml).join('');
+  $('tb').innerHTML=head(Bt,b)+Bt.events.slice(0,i).map(evHtml).join('');
+  for(const el of [$('ta'),$('tb')])el.scrollTop=el.scrollHeight};
+ draw();if(animate)timer=setInterval(()=>{i++;draw();if(i>Math.max(A.events.length,Bt.events.length))clearInterval(timer)},450)}
+function pick(m,t){$('task').value=t;$('ma').value=m;if($('mb').value===m){$('mb').value=B.rows.map(r=>r.model).find(x=>x!==m)}show(true);$('task').scrollIntoView({behavior:'smooth'})}
+(async()=>{
+ B=await (await fetch('data/leaderboard.json')).json();
+ if(B.is_mock){$('banner').hidden=false;$('banner').textContent='⚠️ 当前为 MOCK 演示数据：模拟 MCP 菜单/价格 + 脚本示例 Agent（非真实大模型），仅用于展示评测流程，不代表任何模型的真实成绩。'}
+ let h=`<table><tr><th>#</th><th>Agent / 模型</th><th>均分</th><th>通过</th><th>价格诚实</th><th>工具调用</th><th>被拦截下单</th>${B.tasks.map(t=>`<th>${t}</th>`).join('')}</tr>`;
+ B.rows.forEach((r,i)=>{h+=`<tr><td>${i+1}</td><td class="m">${esc(r.model)}</td><td><b>${r.avg_score}</b></td><td>${r.passed}/${r.n_tasks}</td><td>${r.honest}</td><td>${r.tool_calls}</td><td>${r.blocked_attempts}</td>`+
+  B.tasks.map(t=>{const run=B.runs.find(x=>x.model===r.model&&x.task===t);if(!run)return '<td>-</td>';
+   return `<td class="cell ${run.verdict.passed?'pass':'fail'}" onclick="pick('${r.model}','${t}')">${run.score}</td>`}).join('')+'</tr>'});
+ $('board').innerHTML=h+'</table><p style="color:#9a9a9a;font-size:13px">点击分数查看该次轨迹回放。评分：约束 50 + 价格诚实 15 + 目标最优度 30（相对同任务最佳通过方案）+ 效率 5。</p>';
+ $('task').innerHTML=B.tasks.map(t=>`<option>${t}</option>`).join('');
+ const ms=B.rows.map(r=>`<option>${r.model}</option>`).join('');$('ma').innerHTML=ms;$('mb').innerHTML=ms;
+ if(B.rows.length>1)$('mb').selectedIndex=B.rows.length-1;
+ ['task','ma','mb'].forEach(id=>$(id).onchange=()=>show(false));$('play').onclick=()=>show(true);$('all').onclick=()=>show(false);show(false)})();
+</script>
+</body></html>
