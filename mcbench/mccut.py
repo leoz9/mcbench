@@ -77,7 +77,7 @@ def render(trace_a, trace_b, out, scores=None, mock=True):
         d = ImageDraw.Draw(img)
         d.rectangle([0, 0, W, 150], fill=RED)
         d.text((30, 22), "McBench · AI 点餐对决", font=f["t"], fill=YEL)
-        d.text((30, 90), textwrap.shorten(ta["task_title"] + "：" + ta["prompt"], 40, placeholder="…"), font=f["s"], fill=WHITE)
+        d.text((30, 90), textwrap.shorten(ta["task_title"] + "：" + ta["prompt"].split("选最近的门店。")[-1], 40, placeholder="…"), font=f["s"], fill=WHITE)
         k = i // per
         final = k > n_steps
         panel(img, d, 170, ph, ta, k, sa, final, f)

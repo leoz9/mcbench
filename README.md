@@ -13,7 +13,8 @@ pip install -e . && mcbench demo        # 或：python3 -m mcbench demo   /   np
 ![对决动图（MOCK 演示）](docs/media/battle.gif)
 <!-- TODO: 用真实模型跑分后替换为真实对决 GIF -->
 
-> ⚠️ 上面的动图和仓库里自带的排行榜都是 **MOCK 演示**：模拟 MCP 数据 + 3 个**脚本示例 Agent**（`demo-planner / demo-greedy / demo-hasty`，**不是真实大模型**），只用来展示评测流程。真实模型成绩以 `mcbench run --live` 实测为准。
+> ⚠️ 上面的动图和仓库里自带的排行榜都是 **MOCK 演示**：回放 2026-10-15 从真实麦当劳 MCP 录制的只读数据（上海一家门店的菜单/价格/营养，已脱敏）+ 3 个**脚本示例 Agent**（`demo-planner / demo-greedy / demo-hasty`，**不是真实大模型**），只用来展示评测流程。
+> 已用同样的脚本 Agent 连接真实 `mcp.mcd.cn` 跑通全部 5 个任务（结果见 `runs/real-mcp-scripted-20261015/`，与录制数据一致）。**真实大模型榜单待发布**（`mcbench run --live` 实测为准）。
 
 ## 它能做什么
 
@@ -62,6 +63,8 @@ mcbench mock-server --port 8765   # 以 HTTP 方式起 MOCK MCP，方便调试�
 ```
 
 不加 `--live` 时 `mcbench run` 会用 MOCK 数据跑真实模型，适合先调通提示词、不消耗 MCP 配额。
+`mcbench run --demo-agents --live` 用脚本 Agent 测试真实 MCP 链路（不需要模型 Key）。
+`python scripts/record_live.py /tmp/mcd-raw && python scripts/build_fixture.py /tmp/mcd-raw` 可重新录制并生成脱敏 MOCK 数据（原始响应含个人券码，请勿提交）。
 
 ## 目录
 

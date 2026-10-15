@@ -21,11 +21,12 @@ def make_mcp(live):
     return SafeMCP(MockMCP())
 
 
-def run_all(agents, tasks, mcp, out_dir):
+def run_all(agents, tasks, mcp, out_dir, max_steps=12):
     (Path(out_dir) / "traces").mkdir(parents=True, exist_ok=True)
+    cache = {}
     for name, factory in agents.items():
         for t in tasks:
-            tr = run_episode(factory(), name, t, mcp)
+            tr = run_episode(factory(), name, t, mcp, max_steps=max_steps, catalog_cache=cache)
             Path(out_dir, "traces", f"{name}__{t['id']}.json").write_text(json.dumps(tr, ensure_ascii=False, indent=1), "utf-8")
             v = tr["verdict"]
             print(f"  {name:<16} {t['id']:<14} {'PASS' if v.get('passed') else 'FAIL'}  ¥{v.get('payable', '-')}  calls={tr['tool_calls']}")
@@ -61,13 +62,16 @@ def cmd_demo(a):
 
 def cmd_run(a):
     from .llm import OpenAICompatChat
-    cfg = json.load(open(a.config, encoding="utf-8"))
     agents = {}
+    if a.demo_agents:
+        from .demo_agents import DEMO_AGENTS, ScriptedAgent
+        agents = {n: (lambda p=p: ScriptedAgent(p)) for n, p in DEMO_AGENTS.items()}
+    cfg = json.load(open(a.config, encoding="utf-8")) if not a.demo_agents else {"models": []}
     for m in cfg["models"]:
         agents[m["name"]] = (lambda m=m: OpenAICompatChat(m["model"], m["base_url"], m.get("api_key_env", "OPENAI_API_KEY"),
                                                          m.get("temperature", 0.0), extra=m.get("extra")))
     tasks = [TASK_BY_ID[t] for t in a.tasks.split(",")] if a.tasks else TASKS
-    run_all(agents, tasks, make_mcp(a.live), a.out)
+    run_all(agents, tasks, make_mcp(a.live), a.out, a.max_steps)
     lb.export_web(a.out, ROOT / "web") if a.export else None
 
 
@@ -86,6 +90,8 @@ def main():
     r = s.add_parser("run", help="用真实大模型跑分"); r.add_argument("--config", default="models.example.json")
     r.add_argument("--live", action="store_true", help="连接真实 https://mcp.mcd.cn（需 MCD_MCP_TOKEN）")
     r.add_argument("--tasks"); r.add_argument("--out", default="runs/latest"); r.add_argument("--export", action="store_true")
+    r.add_argument("--demo-agents", action="store_true", help="用脚本示例 Agent 代替大模型（测试 live 链路）")
+    r.add_argument("--max-steps", type=int, default=12)
     b = s.add_parser("leaderboard"); b.add_argument("run_dir")
     rp = s.add_parser("replay"); rp.add_argument("trace"); rp.add_argument("--speed", type=float, default=0.0)
     c = s.add_parser("cut", help="McCut：渲染竖屏对决视频"); c.add_argument("trace_a"); c.add_argument("trace_b"); c.add_argument("-o", "--out", default="battle.mp4")

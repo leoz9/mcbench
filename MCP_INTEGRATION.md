@@ -57,8 +57,18 @@ sequenceDiagram
 - 示范**安全接入**范式：只读 + 核价 + 下单二次确认/拦截，避免 Agent 误下单。
 - 排行榜和对决视频让更多开发者了解并接入麦当劳 MCP。
 
+## 真实响应格式（2026-10-15 实测，已据此实现 `mcbench/mcd.py`）
+
+- 鉴权 Bearer Token 正常；`tools/list` 返回 35 个工具（比文档多出 `query-promotions`、`query-survey-coupon` 等）。
+- 所有工具结果都是**一段文本**：Markdown 展示说明 + 原始 JSON `{"success":true,"code":200,"message":"请求成功","datetime":...,"traceId":...,"data":...}`，部分后面还跟 Markdown。McBench 用 `mcd.payload()` 提取 JSON，再用 `mcd.compact()` 压缩成统一的精简视图给所有模型（节省 token，对各模型公平）。
+- 到店自取：`beType=1, orderType=1`，**不传 beCode**；`query-nearby-stores` 需 `searchType=2 + city + keyword`（`searchType=1` 只查收藏门店）。
+- `query-meals` → `data.categories[].meals[]{code,tags}` + `data.meals{code:{name,currentPrice,originalPrice,discountType}}`（价格为“元”字符串）。
+- `query-meal-detail` → `data.rounds[]{name,quantity,choices[]{code,name,isDefault,diffPrice}}`；单品 `rounds=[]`。裁判按 `isDefault=1`（或 Agent 传入的 `roundList`）展开套餐组成。
+- `list-nutrition-foods` → `data` 是紧凑表格字符串 `[160]{productName,nutritionDescription,energyKj,energyKcal,protein,fat,carbohydrate,sodium,calcium}:` + 每行一条；**按名称而不是编码**对应，McBench 做了名称归一化匹配（如“可乐”→“可乐中杯”），匹配不上的营养记为“无法核实”，含热量约束的任务判不通过。
+- `query-store-coupons` → `data[]{title,couponId,couponCode,tradeDateTime,products[]{productCode,productName},promotionId}`；用券方式是把券商品作为 `calculate-price` 的商品项，带上 `couponId + couponCode`。
+- `calculate-price` → `data{originalPrice,discount,price,productList[]{productCode,productName,quantity,originalSubtotal,subtotal}}`，**单位为“分”**；无效商品返回 `success:false, code:60006`。
+- 服务器响应约 0.5–1.5 秒/次；客户端默认间隔 ≥150ms，远低于 600 次/分钟上限。
+
 ## Demo / MOCK 模式（补充，非替代）
 
-`mcbench demo` 使用 `mcbench/fixtures/mock_data.json` 中的**模拟数据**（门店、菜单、价格、营养、优惠券均为示意，带 `_mock` 标记）和脚本示例 Agent，只用于无 Token 体验流程。MOCK 里各工具的参数格式是 McBench 自定的；真实服务器的参数以 `tools/list` 返回的 schema 为准，由模型按 schema 调用。
-
-> ⚠️ 待办：拿到 Token 后，需按真实 `query-meals` / `list-nutrition-foods` / `calculate-price` 的返回结构，调整 `verifier.build_catalog()` 与 `verify()` 中的字段映射（当前按 MOCK 结构实现）。
+`mcbench demo` 回放 `mcbench/fixtures/mock_data.json`：由 `scripts/record_live.py` 在真实服务器上录制的**只读**响应（菜单、价格、营养、套餐组成、券商品价格），经 `scripts/build_fixture.py` 去除 traceId、图片、个人券 ID/券码（替换为 `MOCKCOUPONID…`）。模拟服务器返回与真实服务器**相同的数据结构**，因此 demo 与 live 共用同一套适配器和裁判。数据为录制快照，不代表实时价格与供应。保存到磁盘的轨迹会把真实券 ID/券码打码为 `***末4位`。

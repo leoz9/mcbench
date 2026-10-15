@@ -2,6 +2,7 @@
 (OpenAI, DeepSeek, Qwen/DashScope, Kimi, GLM, Doubao, OpenRouter, vLLM, Ollama...)."""
 import json
 import os
+import urllib.error
 import urllib.request
 
 
@@ -19,7 +20,10 @@ class OpenAICompatChat:
         req = urllib.request.Request(self.base_url + "/chat/completions", data=json.dumps(body).encode(),
                                      headers={"Content-Type": "application/json",
                                               "Authorization": f"Bearer {self.api_key}"}, method="POST")
-        with urllib.request.urlopen(req, timeout=self.timeout) as r:
-            data = json.loads(r.read())
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as r:
+                data = json.loads(r.read())
+        except urllib.error.HTTPError as e:
+            raise RuntimeError(f"HTTP {e.code}: {e.read().decode('utf-8', 'replace')[:300]}") from None
         msg = data["choices"][0]["message"]
         return {"role": "assistant", "content": msg.get("content"), "tool_calls": msg.get("tool_calls") or []}, data.get("usage")
