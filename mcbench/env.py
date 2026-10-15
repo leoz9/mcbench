@@ -16,7 +16,7 @@ from . import mcd
 from .mcp_client import HttpMCP, MockMCP, SafeMCP
 from .safety import BLOCKED_TOOLS, BlockedToolError
 from .tasks import LOCAL_TOOLS, SYSTEM_PROMPT, get_tasks, load_task_set
-from .verifier import score_run, verify
+from .verifier import verify
 
 LOCAL_NAMES = {t["function"]["name"] for t in LOCAL_TOOLS}
 
@@ -62,12 +62,14 @@ class McBenchEnv:
         self.submission, self.outcome, self.asked = None, None, 0
         self.safety_violations, self.invalid_code_calls, self.tool_calls = 0, 0, 0
         self.replies = list(task.get("user_replies") or [])
+        self.followup_done, self.injected = False, set()
         self.t0 = time.time()
         self.trace = {"task": task["id"], "task_title": task["title"], "category": task["category"],
                       "difficulty": task["difficulty"], "split": task.get("split"), "prompt": task["prompt"],
                       "task_set": self.task_set, "mcp_mode": self.mcp.mode,
                       "started": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "events": []}
-        obs = {"system": SYSTEM_PROMPT, "prompt": task["prompt"], "tools": self.tools}
+        self.task_tools = self.tools + [{"type": "function", "function": d} for d in task.get("distractor_tools") or []]
+        obs = {"system": SYSTEM_PROMPT, "prompt": task["prompt"], "tools": self.task_tools}
         return obs, {"task_id": task["id"]}
 
     def log(self, ev):
@@ -91,7 +93,20 @@ class McBenchEnv:
         self.steps += 1
         self.tool_calls += 1
         self.log({"type": "tool_call", "name": name, "args": args})
-        if name == "submit_order":
+        distract = {d["name"]: d for d in self.task.get("distractor_tools") or []}
+        fu = self.task.get("followup")
+        if name == "submit_order" and fu and not self.followup_done:
+            # simulated user changes requirements after seeing the first plan (tau-bench style)
+            self.followup_done = True
+            self.log({"type": "followup", "text": fu["message"]})
+            out = {"ok": False, "user": fu["message"], "note": "用户看了方案后修改了需求，请按新需求重新规划并再次 submit_order。"}
+        elif name in distract:
+            if distract[name].get("unsafe"):
+                self.safety_violations += 1
+                out = {"blocked": True, "error": f"'{name}' would place/charge a real order — blocked by McBench."}
+            else:
+                out = distract[name].get("fake_result") or {"ok": True}
+        elif name == "submit_order":
             self.submission, self.outcome = args, "order"
             out = {"ok": True, "note": "dry-run: 已记录方案，未下单"}
         elif name == "report_infeasible":
@@ -111,6 +126,10 @@ class McBenchEnv:
                 out = {"blocked": True, "error": str(e)}
             except Exception as e:  # noqa
                 out = {"error": str(e)[:300]}
+        inj = self.task.get("injection")
+        if inj and name == inj["tool"] and name not in self.injected and isinstance(out, dict):
+            self.injected.add(name)
+            out = {**out, "notice": inj["text"]}
         self.log({"type": "tool_result", "name": name, "result": out})
         terminated = self.outcome is not None
         truncated = not terminated and self.steps >= self.max_steps
@@ -122,7 +141,9 @@ class McBenchEnv:
 
     def finish(self):
         self.done = True
-        v = verify(self.task, self.submission, self.mcp, self.catalog_cache, self.outcome)
+        from .rubric import effective_task, grade
+        etask = effective_task(self.task, self.trace)
+        v = verify(etask, self.submission, self.mcp, self.catalog_cache, self.outcome)
         v["safety_violations"] = self.safety_violations
         v["invalid_code_calls"] = self.invalid_code_calls
         if self.task.get("requires_clarification"):
@@ -134,12 +155,16 @@ class McBenchEnv:
         elif self.task.get("category") == "adversarial":
             v.setdefault("checks", {})["safety"] = True
         v["passed"] = bool(v.get("passed"))
-        score = score_run(v, self.tool_calls, self.safety_violations)
         secs = round(time.time() - self.t0, 2)
         self.log({"type": "verdict", "verdict": v})
-        self.trace.update(submission=self.submission, outcome=self.outcome, verdict=v, score=score,
+        self.trace.update(submission=self.submission, outcome=self.outcome, verdict=v,
                           tool_calls=self.tool_calls, steps=self.steps, seconds=secs,
                           safety_violations=self.safety_violations, asked_user=self.asked)
+        g = grade(self.trace, etask)
+        v["passed_lenient"] = v["passed"]
+        v["passed"] = g["passed"]
+        score = g["score"]
+        self.trace.update(score=score, rubric=g)
         return {"score": score, "verdict": v, "trace": self.trace}
 
 

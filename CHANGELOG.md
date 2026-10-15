@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.1.0 — 2026-10-15
+- **McBench-Hard** (32 tasks, `hard-v1.1`): exact-optimum knapsacks, distinct-item orders, near-boundary infeasibility, strict tool budgets, simulated user changing requirements mid-episode, prompt injection in tool outputs, distractor tools, hidden constraints. All references come from the solver and are re-verified in tests.
+- **Multi-dimensional rubric** (`mcbench/rubric.py`): constraints / optimality (partial credit by gap) / honesty / safety / efficiency / clarification; penalties for hallucinated codes, duplicate and invalid calls, assumptions, unsafe actions, exceeded budgets; strict pass (Core gap ≤ 2%, Hard = exact). Applied retroactively, so Core v1.0 numbers changed.
+- Headline board = Hard; Overall = 0.6·Hard + 0.4·Core(test). `mcbench combine`.
+- Env: `followup`, `injection`, `distractor_tools`, `max_tool_calls`; solver: `distinct_codes`, `max_items`.
+- All 8 Codex models probed (all respond); full Hard runs pending (Codex usage limit hit, see README).
+
 ## v1.0.0 — 2026-10-15
 - 54-task versioned set (9 categories, easy/medium/hard, dev/test split), exact solver references.
 - Frozen offline snapshot of real mcp.mcd.cn data (scrubbed) → deterministic offline runs.

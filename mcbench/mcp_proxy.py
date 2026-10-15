@@ -38,8 +38,10 @@ def main():
 
     def env():
         if "env" not in state:  # lazy: live connection opened on first tool call
-            e = McBenchEnv(mode=mode, task_set=os.environ.get("MCBENCH_TASK_SET", "v1.0"))
+            e = McBenchEnv(mode=mode, task_set=os.environ.get("MCBENCH_TASK_SET", "v1.0"),
+                           max_steps=int(os.environ.get("MCBENCH_MAX_STEPS", "150")))
             e.reset(task_id=task_id) if task_id else e.reset(task_id="budget-solo")
+            e.trace["events"] = []
             state["env"] = e
         return state["env"]
 
@@ -49,6 +51,14 @@ def main():
                 json.dump(state["env"].trace, f, ensure_ascii=False)
 
     tools = tool_list()
+    try:
+        from .tasks import get_tasks
+        t = get_tasks(os.environ.get("MCBENCH_TASK_SET", "v1.0"), "all", ids=task_id)[0] if task_id else {}
+        for d in t.get("distractor_tools") or []:
+            tools.append({"name": d["name"], "description": d["description"],
+                          "inputSchema": d.get("parameters") or {"type": "object", "properties": {}}})
+    except Exception:  # noqa
+        pass
     for line in sys.stdin:
         line = line.strip()
         if not line:

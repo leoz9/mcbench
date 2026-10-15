@@ -37,6 +37,8 @@ def _dominance(units, c):
     """Keep the cheapest few units per 'signature' to shrink the search."""
     nut = any(k in c for k in ("max_kcal", "min_kcal", "min_protein", "max_sodium"))
     keep = 6 if nut else 1
+    if c.get("distinct_codes"):
+        keep = max(keep, 12)
     groups = {}
     for u in units:
         sig = (tuple(sorted(u.kinds.items())), u.nonspicy_burgers, bool(u.coupon),
@@ -92,7 +94,7 @@ def solve(task, units, time_limit=20.0, max_units=None):
                     return
             if "max_kcal" in c and agg["kcal"] > c["max_kcal"]:
                 return
-        if len(chosen) >= cap:
+        if len(chosen) >= min(cap, c.get("max_items", 99)):
             return
         # remaining needs
         rem = dict(need)
@@ -108,7 +110,7 @@ def solve(task, units, time_limit=20.0, max_units=None):
             if not useful:
                 continue
             chosen.append(u)
-            dfs(j, chosen, price + u.price)
+            dfs(j + 1 if c.get("distinct_codes") else j, chosen, price + u.price)
             chosen.pop()
 
     dfs(0, [], 0.0)

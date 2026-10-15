@@ -198,6 +198,8 @@ def main():
     tn.add_argument("--difficulty", default="medium")
     tv = ts.add_parser("validate"); tv.add_argument("path", nargs="?")
     b = s.add_parser("leaderboard"); b.add_argument("run_dir"); b.add_argument("--note", default="")
+    cb = s.add_parser("combine", help="headline board: Hard + Core → web/data")
+    cb.add_argument("hard_dir"); cb.add_argument("core_dir"); cb.add_argument("--note", default="")
     e = s.add_parser("export-web"); e.add_argument("run_dir"); e.add_argument("--sub", default="data")
     rp = s.add_parser("replay"); rp.add_argument("trace"); rp.add_argument("--speed", type=float, default=0.0)
     c = s.add_parser("cut"); c.add_argument("trace_a"); c.add_argument("trace_b"); c.add_argument("-o", "--out", default="battle.mp4")
@@ -215,6 +217,13 @@ def main():
         cmd_tasks(a)
     elif a.cmd == "leaderboard":
         cmd_leaderboard(a)
+    elif a.cmd == "combine":
+        b = lb.combine(a.hard_dir, a.core_dir, ROOT / "web", note=a.note)
+        print(f"{'#':<3}{'Agent':<20}{'Overall':>8}{'Hard':>7}{'H-pass':>8}{'Core':>7}{'C-pass':>8}")
+        for i, r in enumerate(b["rows"], 1):
+            c = r["core"] or {}
+            print(f"{i:<3}{r['model']:<20}{str(r['overall']):>8}{str(r['avg_score']):>7}{(r['pass_at_1'] or 0):>8.3f}"
+                  f"{str(c.get('avg_score', '-')):>7}{(c.get('pass_at_1') if c else 0):>8.3f}")
     elif a.cmd == "export-web":
         cmd_export(a)
     elif a.cmd == "replay":

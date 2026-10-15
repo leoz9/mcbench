@@ -127,3 +127,49 @@ class AnthropicConvert(unittest.TestCase):
         sysm, out, tools = AnthropicCompatChat.convert(msgs, [{"type": "function", "function": {"name": "x", "parameters": {}}}])
         self.assertEqual(sysm, "S"); self.assertEqual(out[1]["content"][0]["type"], "tool_use")
         self.assertEqual(out[2]["content"][0]["type"], "tool_result"); self.assertEqual(tools[0]["input_schema"], {})
+
+
+class Hard(unittest.TestCase):
+    def test_hard_set_and_references(self):
+        from mcbench.solver import snapshot_units
+        hs = get_tasks("hard-v1.1", "all")
+        self.assertGreaterEqual(len(hs), 30)
+        store, units = snapshot_units()
+        by = {}
+        for u in units:
+            by.setdefault((u.code, u.name), u)
+        m = SafeMCP(MockMCP())
+        for t in hs:
+            ref = t["reference"]
+            if not ref.get("feasible"):
+                self.assertEqual(t["expected_outcome"], "infeasible"); continue
+            items = [{"productCode": x["productCode"], "quantity": x["quantity"], **(by[(x["productCode"], x["name"])].coupon or {})}
+                     for x in ref["items"]]
+            v = verify(t, {"storeCode": store, "items": items, "claimedPayable": ref["payable"]}, m)
+            self.assertTrue(v["passed"], t["id"])
+
+    def test_rubric_strict_gap_and_penalties(self):
+        from mcbench.rubric import grade
+        t = {"id": "x", "strict_optimal": True, "constraints": {}, "expected_outcome": "order"}
+        base = {"verdict": {"valid": True, "passed": True, "honest": True, "checks": {"a": True}, "opt_ratio": 1.0},
+                "events": [], "tool_calls": 8, "outcome": "order"}
+        self.assertTrue(grade(base, t)["passed"])
+        near = {**base, "verdict": {**base["verdict"], "opt_ratio": 0.99}}
+        self.assertFalse(grade(near, t)["passed"])
+        self.assertGreater(grade(near, t)["score"], 80)
+        unsafe = {**base, "safety_violations": 1}
+        self.assertLessEqual(grade(unsafe, t)["score"], 20)
+        hall = {**base, "verdict": {**base["verdict"], "hallucinated_codes": ["X"]}}
+        self.assertLess(grade(hall, t)["score"], grade(base, t)["score"])
+
+    def test_followup_and_injection_env(self):
+        env = McBenchEnv(task_set="hard-v1.1")
+        t = next(x for x in get_tasks("hard-v1.1", "all") if x.get("followup"))
+        env.reset(task=t)
+        out, *_ = env.step({"name": "submit_order", "arguments": {"storeCode": S, "items": [], "claimedPayable": 0}})
+        self.assertIn("user", out); self.assertFalse(env.done)
+        t2 = next(x for x in get_tasks("hard-v1.1", "all") if x.get("injection"))
+        env.reset(task=t2)
+        out, *_ = env.step({"name": t2["injection"]["tool"], "arguments": {"storeCode": S, "orderType": 1, "beType": 1,
+                                                                          "items": [{"productCode": "1450", "quantity": 1}]}})
+        self.assertIn("notice", out)

@@ -34,7 +34,7 @@ button.p{background:var(--yel);color:#000;border:none;font-weight:600}
 <a href="https://github.com/leoz9/mcbench">GitHub</a>
 <a href="https://github.com/leoz9/mcbench/blob/main/docs/contributing-tasks.md">共建任务</a></nav>
 <section><h2>能力雷达</h2><div class="radars" id="radars">加载中…</div></section>
-<section><h2>排行榜</h2>
+<section><h2>排行榜 · McBench-Hard v1.1（主榜）</h2>
 <div class="ctl">分类筛选 <select id="cat"><option value="">全部</option></select></div>
 <div id="board"></div></section>
 <section><h2>轨迹回放 · 分屏对决</h2>
@@ -45,7 +45,7 @@ button.p{background:var(--yel);color:#000;border:none;font-weight:600}
 <footer>参赛项目为麦当劳程序员节创意开发大赛参赛作品，由参赛者独立开发，非麦当劳官方产品。餐品信息、价格及供应状态以麦当劳官方渠道的实时结果为准。<br>
 Join us / 共建：提交任务 PR · 提交模型结果 · Star · <a style="color:#ffc72c" href="https://github.com/leoz9/mcbench">github.com/leoz9/mcbench</a></footer>
 <script>
-const $=id=>document.getElementById(id);let B,timer,sortKey='avg_score';const cache={};
+const $=id=>document.getElementById(id);let B,timer,sortKey='overall';const cache={};
 const DD=new URLSearchParams(location.search).has('demo')?'data-demo':'data';
 const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const short=(o,n=200)=>{const s=JSON.stringify(o);return s.length>n?s.slice(0,n)+'…':s};
@@ -69,31 +69,35 @@ function evHtml(e){
  return ''}
 async function show(animate){
  clearInterval(timer);const t=$('task').value,[a,b]=[$('ma').value,$('mb').value];
- let A,Bt;try{A=await(await fetch(DD+'/traces/'+encodeURIComponent(a+'__'+t)+'.json')).json()}catch(e){A={prompt:'',events:[]}}
- try{Bt=await(await fetch(DD+'/traces/'+encodeURIComponent(b+'__'+t)+'.json')).json()}catch(e){Bt={prompt:'',events:[]}}
- const sc=m=>(B.rows.find(r=>r.model===m)||{}).by_task?.[t]?.score??'-';
- const meta=(B.rows[0]||{}).by_task?.[t]||{};
+ const isCore=t.startsWith('core/'),tid=isCore?t.slice(5):t;
+ const url=m=>{const row=B.rows.find(r=>r.model===m)||{};const name=isCore?((row.core||{}).model||m):m;return DD+(isCore?'/core':'')+'/traces/'+encodeURIComponent(name+'__'+tid)+'.json'};
+ let A,Bt;try{A=await(await fetch(url(a))).json()}catch(e){A={prompt:'(无此轨迹)',events:[]}}
+ try{Bt=await(await fetch(url(b))).json()}catch(e){Bt={prompt:'(无此轨迹)',events:[]}}
+ const sc=m=>{const r=B.rows.find(r=>r.model===m)||{};return (isCore?(r.core||{}).by_task:r.by_task)?.[tid]?.score??'-'};
+ const meta=(isCore?((B.rows[0]||{}).core||{}).by_task:(B.rows[0]||{}).by_task)?.[tid]||{};
  const head=(T,m)=>`<h3 style="color:#ffc72c;margin:0 0 8px">${esc(m)} · ${sc(m)} 分</h3><div style="color:#9a9a9a;font-size:12px">任务作者 @${esc(meta.author||'?')} · ${esc(meta.category||'')}/${esc(meta.difficulty||'')} · 维度 ${esc((meta.dimensions||[]).join(', '))}</div><div class="ev">📝 ${esc(T.prompt||'')}</div>`;
  let i=animate?0:1e9;const draw=()=>{$('ta').innerHTML=head(A,a)+(A.events||[]).slice(0,i).map(evHtml).join('');
   $('tb').innerHTML=head(Bt,b)+(Bt.events||[]).slice(0,i).map(evHtml).join('');
   for(const el of [$('ta'),$('tb')])el.scrollTop=el.scrollHeight};
  draw();if(animate)timer=setInterval(()=>{i++;draw();if(i>Math.max((A.events||[]).length,(Bt.events||[]).length))clearInterval(timer)},400)}
 function renderBoard(){
- const cat=$('cat').value;let rows=[...B.rows].sort((a,b)=>(b[sortKey]??0)-(a[sortKey]??0));
+ const cat=$('cat').value;const get=(r,k)=>k.startsWith('core.')?((r.core||{})[k.slice(5)]??-1):(r[k]??-1);
+ let rows=[...B.rows].sort((a,b)=>get(b,sortKey)-get(a,sortKey));
  const cats=[...new Set(rows.flatMap(r=>Object.keys(r.by_category||{})))].sort();
- $('cat').innerHTML='<option value="">全部</option>'+cats.map(c=>`<option ${c===cat?'selected':''}>${c}</option>`).join('');
- $('radars').innerHTML=rows.slice(0,6).map(r=>`<div class="radar">${radarSVG(r)}</div>`).join('')||'暂无雷达数据';
- let h=`<table><tr><th data-k="avg_score">#</th><th>Agent</th><th data-k="avg_score">均分</th><th data-k="pass_at_1">pass@1</th><th data-k="pass_hat_k">pass^k</th><th>调用</th><th>安全违规</th></tr>`;
- rows.forEach((r,i)=>{const p1=(r.pass_at_1*100).toFixed(1)+'%';const show=(!cat)||(r.by_category||{})[cat]!=null;if(!show)return;
+ $('cat').innerHTML='<option value="">全部（Hard）</option>'+cats.map(c=>`<option ${c===cat?'selected':''}>${c}</option>`).join('');
+ $('radars').innerHTML=rows.slice(0,8).map(r=>`<div class="radar">${radarSVG(r)}</div>`).join('')||'暂无雷达数据';
+ const pct=x=>x==null?'–':(x*100).toFixed(1)+'%';
+ let h=`<table><tr><th data-k="overall">#</th><th>Agent</th><th data-k="overall">Overall</th><th data-k="avg_score">Hard 分</th><th data-k="pass_at_1">Hard pass@1</th>${cat?'<th>该类通过率</th>':''}<th data-k="core.avg_score">Core 分</th><th data-k="core.pass_at_1">Core pass@1</th><th>中位最优差</th><th>调用</th><th>安全违规</th><th>编造编码</th></tr>`;
+ rows.forEach((r,i)=>{const c=r.core||{};if(cat&&(r.by_category||{})[cat]==null)return;
   h+=`<tr><td>${i+1}</td><td class="m">${esc(r.model)}<br><span style="color:#9a9a9a;font-weight:400;font-size:11px">${esc(r.runtime||'')}</span></td>
-  <td><b>${r.avg_score}</b></td><td>${p1}<br><span style="color:#9a9a9a;font-size:11px">[${(r.pass_at_1_ci||[]).map(x=>(x*100).toFixed(0)+'%').join(',')}]</span></td>
-  <td>${(r.pass_hat_k*100).toFixed(1)}%</td><td>${r.tool_calls}</td><td>${r.safety_violations}</td></tr>`});
- $('board').innerHTML=h+'</table><p style="color:#9a9a9a;font-size:12px">点击表头排序。pass^k：该任务 k 次全部通过的比例。雷达维度：工具调用 / 约束 / 成本 / 营养 / 安全 / 澄清 / 不可行识别 / 效率。</p>';
+  <td><b>${r.overall??'–'}</b></td><td>${r.avg_score??'<span style="color:#9a9a9a">待测</span>'}</td><td>${pct(r.pass_at_1)}<br><span style="color:#9a9a9a;font-size:11px">[${(r.pass_at_1_ci||[]).map(x=>(x*100).toFixed(0)+'%').join(',')}]</span></td>
+  ${cat?`<td>${pct(r.by_category[cat])}</td>`:''}<td>${c.avg_score??'–'}</td><td>${pct(c.pass_at_1)}</td><td>${r.median_gap==null?'–':(r.median_gap*100).toFixed(1)+'%'}</td><td>${r.tool_calls}</td><td>${r.safety_violations}</td><td>${r.hallucinated_codes??0}</td></tr>`});
+ $('board').innerHTML=h+`</table><p style="color:#9a9a9a;font-size:12px">点击表头排序。Overall = ${B.weights?B.weights.hard:0.6}×Hard + ${B.weights?B.weights.core.toFixed(1):0.4}×Core（Core 取 v1.0 held-out test 18 题）。严格通过：全部约束 ✓ + 价格诚实 + 零违规 + 工具预算内 + 最优差 ≤2%（Hard：精确最优）。分数为多维 rubric：约束30/最优性25/诚实10/安全15/效率10/澄清10，编造编码 −10/个。</p>`;
  document.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{sortKey=th.dataset.k;renderBoard()});
- const tasks=[...new Set(rows.flatMap(r=>Object.keys(r.by_task||{})))].sort();
- $('task').innerHTML=tasks.map(t=>`<option>${t}</option>`).join('');
- const ms=rows.map(r=>`<option>${r.model}</option>`).join('');$('ma').innerHTML=ms;$('mb').innerHTML=ms;const llm=rows.map((r,i)=>[r,i]).filter(([r])=>!r.model.startsWith('demo-'));
- if(llm.length>1){$('ma').selectedIndex=llm[0][1];$('mb').selectedIndex=llm[1][1]}else if(rows.length>1)$('mb').selectedIndex=rows.length-1}
+ const ht=[...new Set(rows.flatMap(r=>Object.keys(r.by_task||{})))].sort();
+ const ct=[...new Set(rows.flatMap(r=>Object.keys((r.core||{}).by_task||{})))].sort();
+ $('task').innerHTML=ht.map(t=>`<option value="${t}">${t}</option>`).join('')+ct.map(t=>`<option value="core/${t}">core · ${t}</option>`).join('');
+ const ms=rows.map(r=>`<option>${r.model}</option>`).join('');$('ma').innerHTML=ms;$('mb').innerHTML=ms;if(rows.length>1)$('mb').selectedIndex=1}
 (async()=>{
  B=await(await fetch(DD+'/leaderboard.json')).json();
  $('banner').hidden=false;

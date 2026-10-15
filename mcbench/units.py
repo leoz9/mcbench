@@ -123,6 +123,11 @@ def evaluate(units, constraints, payable):
         ch["must_include"] = any(c["must_include_name"] in n for n in all_names(units))
     if c.get("use_coupon"):
         ch["coupon"] = any(u.coupon for u in units)
+    if c.get("distinct_codes"):
+        codes = [u.code for u in units]
+        ch["distinct"] = len(codes) == len(set(codes))
+    if "max_items" in c:
+        ch["max_items"] = len(units) <= c["max_items"]
     if need_nut:
         agg["nutrition_verifiable"] = nut_ok
     return ch, agg

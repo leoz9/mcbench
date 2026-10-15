@@ -32,10 +32,11 @@ def run_codex_episode(model, label, task, env: McBenchEnv, timeout=900, task_set
     work = Path(tempfile.mkdtemp(prefix="mcbench-codex-"))
     tpath = work / "trace.json"
     prompt = (SYSTEM_PROMPT + "\n\n只能使用名为 mcbench 的 MCP 服务器提供的工具；不要运行任何 shell 命令、不要读写文件。"
+              f"整个任务最多 {env.max_steps} 次工具调用，超出将被截断。"
               "完成后必须调用 mcbench 的 submit_order（或在确实无法满足时调用 report_infeasible）。\n\n任务：" + task["prompt"])
     mode = "live" if env.mcp.mode == "live" else "offline"
-    env_tbl = '{MCBENCH_MODE="%s",MCBENCH_TRACE="%s",MCBENCH_TASK_ID="%s",MCBENCH_TASK_SET="%s"}' % (
-        mode, tpath, task["id"], task_set)
+    env_tbl = '{MCBENCH_MODE="%s",MCBENCH_TRACE="%s",MCBENCH_TASK_ID="%s",MCBENCH_TASK_SET="%s",MCBENCH_MAX_STEPS="%d"}' % (
+        mode, tpath, task["id"], task_set, env.max_steps)
     cmd = [codex_bin(), "exec", "--skip-git-repo-check", "--ephemeral", "--json", "-s", "read-only", "-C", str(work),
            "-m", model, "-c", 'approval_policy="never"',
            "-c", 'mcp_servers.mcbench.command="python3"',
@@ -72,7 +73,7 @@ def run_codex_episode(model, label, task, env: McBenchEnv, timeout=900, task_set
     env.reset(task=task)
     if ptrace:
         # replay authoritative state from proxy trace rather than re-calling tools
-        env.trace["events"] = [e for e in ptrace["events"]]
+        env.trace["events"] = [e for e in ptrace["events"] if e["type"] != "verdict"]
         sub = next((e["args"] for e in reversed(ptrace["events"]) if e["type"] == "tool_call" and e["name"] == "submit_order"), None)
         outc = "order" if sub else ("infeasible" if any(e["type"] == "tool_call" and e["name"] == "report_infeasible" for e in ptrace["events"]) else None)
         env.submission, env.outcome = sub, outc

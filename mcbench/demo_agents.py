@@ -25,6 +25,10 @@ def _task_for(prompt):
     global _ALL
     if _ALL is None:
         _ALL = load_task_set("v1.0")["tasks"]
+        try:
+            _ALL = _ALL + load_task_set("hard-v1.1")["tasks"]
+        except Exception:  # noqa
+            pass
     return next(t for t in _ALL if t["prompt"] == prompt)
 
 
@@ -78,7 +82,8 @@ def planner(task):
     nutd = {k: v for k, v in nut.items()}
     sm = list(menu)  # fetch every item detail (some singles have a pick-one round)
     calls = [("query-meal-detail", {"storeCode": store, **B, "code": c}) for c in sm]
-    cps = coupons if task["constraints"].get("use_coupon") else []
+    fu = task.get("followup") or {}
+    cps = coupons if (task["constraints"].get("use_coupon") or (fu.get("constraints") or {}).get("use_coupon")) else []
     calls += [("query-meal-detail", {"storeCode": store, **B, "code": cp["products"][0]["productCode"]}) for cp in cps]
     calls += [("calculate-price", {"storeCode": store, **B, "items": [{"productCode": cp["products"][0]["productCode"], "quantity": 1,
                                                                      "couponId": cp["couponId"], "couponCode": cp["couponCode"]}]}) for cp in cps]
@@ -92,7 +97,13 @@ def planner(task):
         if q.get("success"):
             units.append(make_unit(cp["products"][0]["productCode"], cp["title"], q["payable"], default_leaves(d, cp["title"]),
                                    nutd, coupon={"couponId": cp["couponId"], "couponCode": cp["couponCode"]}))
-    ref = solve(task, units, time_limit=8)
+    out = yield from _plan_submit(task, units, store)
+    if fu and out and out.get("user"):
+        yield from _plan_submit({**task, "constraints": fu["constraints"]}, units, store)
+
+
+def _plan_submit(task, units, store):
+    ref = solve(task, units, time_limit=20)
     if not ref["feasible"]:
         yield ("穷举后没有任何组合能同时满足所有约束。", [("report_infeasible", {"reason": "在该门店菜单与价格下，无法同时满足全部约束"})])
         return
@@ -100,8 +111,9 @@ def planner(task):
     items = [{"productCode": x["productCode"], "quantity": x["quantity"], **by[x["productCode"]].coupon} for x in ref["items"]]
     q = (yield ("求解出最优组合，核价。", [("calculate-price", {"storeCode": store, **B, "items": items})]))[0]
     desc = "、".join(f"{x['name']}×{x['quantity']}" for x in ref["items"])
-    yield (f"最终方案：{desc}，应付 ¥{q.get('payable')}。", [("submit_order", {"storeCode": store, "items": items,
+    r = yield (f"最终方案：{desc}，应付 ¥{q.get('payable')}。", [("submit_order", {"storeCode": store, "items": items,
                                                                        "claimedPayable": q.get("payable"), "explanation": desc})])
+    return r[0] if r else None
 
 
 def greedy(task):

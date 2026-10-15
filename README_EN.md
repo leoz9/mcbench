@@ -12,7 +12,10 @@
 pip install -e . && mcbench demo   # offline frozen snapshot + scripted baselines; no token, no API key
 ```
 
-## v1.0 results (54 tasks, offline frozen snapshot recorded from mcp.mcd.cn, 2026-10-15)
+## v1.1: McBench-Hard is the headline split
+32 exact-optimum tasks, including near-boundary infeasibility, strict tool budgets, a simulated user who changes requirements mid-episode, prompt injection in tool outputs, distractor tools and hidden constraints. The goal is a 30–50% strict pass rate for frontier models. Overall = 0.6·Hard + 0.4·Core (test split). Scores use a multi-dimensional rubric with penalties ([docs/scoring.md](docs/scoring.md), [docs/hard.md](docs/hard.md)). Full model runs on Hard are pending: all 8 Codex models were probed and respond, but the Codex usage limit was reached. Run `scripts/run_hard.sh` to resume.
+
+## v1.0 results (legacy scoring) (54 tasks, offline frozen snapshot recorded from mcp.mcd.cn, 2026-10-15)
 
 | Agent | Runtime | Avg score | pass@1 (95% CI) | pass^3 (9 test tasks) | calls/task | safety violations |
 |---|---|---:|---:|---:|---:|---:|
