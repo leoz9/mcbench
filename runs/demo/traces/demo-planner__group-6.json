@@ -4,7 +4,7 @@
  "task_title": "6 人团餐 200 元",
  "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。6 个同事加班：每人至少 1 个汉堡 + 1 杯饮品（可以是套餐），其中至少 2 个汉堡不能是辣的，应付不超过 200 元，越便宜越好。",
  "mcp_mode": "mock",
- "started": "2026-10-15T07:32:40-0400",
+ "started": "2026-10-15T08:15:13-0400",
  "events": [
   {
    "t": 0.0,
@@ -3288,12 +3288,12 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 0.07,
    "type": "thought",
    "text": "本地筛出 2 个候选，用 calculate-price 核价。"
   },
   {
-   "t": 0.05,
+   "t": 0.07,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -3309,7 +3309,7 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 0.07,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -3328,7 +3328,7 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 0.07,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -3348,7 +3348,7 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 0.07,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -3373,12 +3373,12 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 0.07,
    "type": "thought",
    "text": "最终方案：大堡口福三件套×6，应付 ¥137.4。"
   },
   {
-   "t": 0.05,
+   "t": 0.07,
    "type": "tool_call",
    "name": "submit_order",
    "args": {
@@ -3394,7 +3394,7 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 0.07,
    "type": "tool_result",
    "name": "submit_order",
    "result": {
@@ -3403,7 +3403,7 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 0.07,
    "type": "verdict",
    "verdict": {
     "task": "group-6",
@@ -3490,7 +3490,7 @@
  },
  "tool_calls": 13,
  "steps": 5,
- "seconds": 0.05,
+ "seconds": 0.07,
  "usage": {
   "prompt_tokens": 0,
   "completion_tokens": 0

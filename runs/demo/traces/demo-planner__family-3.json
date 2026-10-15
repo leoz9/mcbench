@@ -4,7 +4,7 @@
  "task_title": "三口之家不吃辣",
  "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。一家三口（含一个小朋友）：3 个汉堡、3 杯饮品、至少 1 份小食，全部不要辣的，其中要有一盒纯牛奶给小朋友，应付不超过 100 元，越便宜越好。",
  "mcp_mode": "mock",
- "started": "2026-10-15T07:32:40-0400",
+ "started": "2026-10-15T08:15:13-0400",
  "events": [
   {
    "t": 0.0,
@@ -3288,12 +3288,12 @@
    }
   },
   {
-   "t": 0.25,
+   "t": 0.34,
    "type": "thought",
    "text": "本地筛出 2 个候选，用 calculate-price 核价。"
   },
   {
-   "t": 0.25,
+   "t": 0.34,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -3317,7 +3317,7 @@
    }
   },
   {
-   "t": 0.25,
+   "t": 0.34,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -3348,7 +3348,7 @@
    }
   },
   {
-   "t": 0.25,
+   "t": 0.34,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -3372,7 +3372,7 @@
    }
   },
   {
-   "t": 0.25,
+   "t": 0.34,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -3403,12 +3403,12 @@
    }
   },
   {
-   "t": 0.25,
+   "t": 0.34,
    "type": "thought",
    "text": "最终方案：牛肉堡单品精选×2、纯悦×2、汉堡开心乐园餐×1，应付 ¥66.5。"
   },
   {
-   "t": 0.25,
+   "t": 0.34,
    "type": "tool_call",
    "name": "submit_order",
    "args": {
@@ -3432,7 +3432,7 @@
    }
   },
   {
-   "t": 0.25,
+   "t": 0.34,
    "type": "tool_result",
    "name": "submit_order",
    "result": {
@@ -3441,7 +3441,7 @@
    }
   },
   {
-   "t": 0.25,
+   "t": 0.34,
    "type": "verdict",
    "verdict": {
     "task": "family-3",
@@ -3564,7 +3564,7 @@
  },
  "tool_calls": 13,
  "steps": 5,
- "seconds": 0.25,
+ "seconds": 0.34,
  "usage": {
   "prompt_tokens": 0,
   "completion_tokens": 0

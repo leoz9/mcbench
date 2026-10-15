@@ -4,7 +4,7 @@
  "task_title": "700 kcal 高蛋白午餐",
  "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。午餐：总热量不超过 700 kcal，蛋白质至少 25g，至少 1 个汉堡和 1 杯无糖饮品（如无糖可乐/美式/纯悦）。营养以 list-nutrition-foods 为准，应付越低越好。",
  "mcp_mode": "mock",
- "started": "2026-10-15T07:32:41-0400",
+ "started": "2026-10-15T08:15:13-0400",
  "events": [
   {
    "t": 0.0,

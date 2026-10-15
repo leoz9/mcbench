@@ -4,7 +4,7 @@
  "task_title": "用好优惠券",
  "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。先查我在该门店可用的优惠券（query-store-coupons）。搭配至少 1 个汉堡 + 1 份小食，如果有可用券必须至少用上一张（在 calculate-price 的商品项里带 couponId 和 couponCode），应付越低越好。",
  "mcp_mode": "mock",
- "started": "2026-10-15T07:32:40-0400",
+ "started": "2026-10-15T08:15:13-0400",
  "events": [
   {
    "t": 0.0,

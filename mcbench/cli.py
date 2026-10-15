@@ -21,12 +21,21 @@ def make_mcp(live):
     return SafeMCP(MockMCP())
 
 
-def run_all(agents, tasks, mcp, out_dir, max_steps=12):
+def run_all(agents, tasks, mcp, out_dir, max_steps=12, codex=None):
     (Path(out_dir) / "traces").mkdir(parents=True, exist_ok=True)
     cache = {}
-    for name, factory in agents.items():
+    jobs = [(n, f, None) for n, f in agents.items()] + [(m["name"], None, m) for m in (codex or [])]
+    for name, factory, cm in jobs:
         for t in tasks:
-            tr = run_episode(factory(), name, t, mcp, max_steps=max_steps, catalog_cache=cache)
+            dst = Path(out_dir, "traces", f"{name}__{t['id']}.json")
+            if dst.exists():
+                print(f"  {name:<16} {t['id']:<14} (已有轨迹，跳过)")
+                continue
+            if cm:
+                from .codex_agent import run_codex_episode
+                tr = run_codex_episode(cm["model"], name, t, mcp, live=mcp.mode == "live", catalog_cache=cache)
+            else:
+                tr = run_episode(factory(), name, t, mcp, max_steps=max_steps, catalog_cache=cache)
             Path(out_dir, "traces", f"{name}__{t['id']}.json").write_text(json.dumps(tr, ensure_ascii=False, indent=1), "utf-8")
             v = tr["verdict"]
             print(f"  {name:<16} {t['id']:<14} {'PASS' if v.get('passed') else 'FAIL'}  ¥{v.get('payable', '-')}  calls={tr['tool_calls']}")
@@ -43,7 +52,7 @@ def cmd_demo(a):
     board = run_all(agents, TASKS, make_mcp(False), out)
     web = ROOT / "web" if (ROOT / "web" / "index.html").exists() else None
     if web:
-        lb.export_web(out, web)
+        lb.export_web(out, web, "data-demo")
     from .replay import replay
     replay(out / "traces" / "demo-hasty__best-coupon.json")
     replay(out / "traces" / "demo-planner__best-coupon.json")
@@ -57,7 +66,7 @@ def cmd_demo(a):
         except Exception as e:  # noqa
             print(f"(跳过视频渲染：{e})")
     if web:
-        print(f"📊 网页版：python -m http.server -d {web} 8000 → http://localhost:8000")
+        print(f"📊 网页版：python -m http.server -d {web} 8000 → http://localhost:8000/?demo （真实榜单：去掉 ?demo）")
 
 
 def cmd_run(a):
@@ -66,12 +75,13 @@ def cmd_run(a):
     if a.demo_agents:
         from .demo_agents import DEMO_AGENTS, ScriptedAgent
         agents = {n: (lambda p=p: ScriptedAgent(p)) for n, p in DEMO_AGENTS.items()}
-    cfg = json.load(open(a.config, encoding="utf-8")) if not a.demo_agents else {"models": []}
-    for m in cfg["models"]:
+    cfg = json.load(open(a.config, encoding="utf-8")) if a.config else {"models": []}
+    codex = [m for m in cfg["models"] if m.get("provider") == "codex"]
+    for m in [m for m in cfg["models"] if m.get("provider") != "codex"]:
         agents[m["name"]] = (lambda m=m: OpenAICompatChat(m["model"], m["base_url"], m.get("api_key_env", "OPENAI_API_KEY"),
                                                          m.get("temperature", 0.0), extra=m.get("extra")))
     tasks = [TASK_BY_ID[t] for t in a.tasks.split(",")] if a.tasks else TASKS
-    run_all(agents, tasks, make_mcp(a.live), a.out, a.max_steps)
+    run_all(agents, tasks, make_mcp(a.live), a.out, a.max_steps, codex)
     lb.export_web(a.out, ROOT / "web") if a.export else None
 
 
@@ -87,7 +97,7 @@ def main():
     p = argparse.ArgumentParser(prog="mcbench", description="McBench：大模型点麦当劳擂台")
     s = p.add_subparsers(dest="cmd", required=True)
     d = s.add_parser("demo", help="一键演示（MOCK，无需 Token/Key）"); d.add_argument("--out", default="runs/demo"); d.add_argument("--no-video", action="store_true")
-    r = s.add_parser("run", help="用真实大模型跑分"); r.add_argument("--config", default="models.example.json")
+    r = s.add_parser("run", help="用真实大模型跑分"); r.add_argument("--config")
     r.add_argument("--live", action="store_true", help="连接真实 https://mcp.mcd.cn（需 MCD_MCP_TOKEN）")
     r.add_argument("--tasks"); r.add_argument("--out", default="runs/latest"); r.add_argument("--export", action="store_true")
     r.add_argument("--demo-agents", action="store_true", help="用脚本示例 Agent 代替大模型（测试 live 链路）")

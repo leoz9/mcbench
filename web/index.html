@@ -31,6 +31,7 @@ footer{color:var(--grey);font-size:12px;padding:30px 20px;text-align:center}
 <p>同一个门店、同一笔预算：Agent 通过麦当劳官方 MCP 查菜单/营养/优惠券并核价，程序裁判复算打分。全程 dry-run，绝不下单。</p></header>
 <main>
 <div id="banner" class="banner" hidden></div>
+<p style="font-size:13px"><a style="color:#ffc72c" href="./">真实榜单</a> · <a style="color:#ffc72c" href="./?demo">MOCK 演示</a></p>
 <section><h2>排行榜</h2><div id="board">加载中…（本页需通过 HTTP 访问，例如 GitHub Pages 或 <code>python -m http.server -d web</code>）</div></section>
 <section><h2>轨迹回放 · 分屏对决</h2>
 <div class="ctl">任务 <select id="task"></select> 左 <select id="ma"></select> 右 <select id="mb"></select>
@@ -39,10 +40,10 @@ footer{color:var(--grey);font-size:12px;padding:30px 20px;text-align:center}
 </main>
 <footer>参赛项目为麦当劳程序员节创意开发大赛参赛作品，由参赛者独立开发，非麦当劳官方产品。餐品信息、价格及供应状态以麦当劳官方渠道的实时结果为准。</footer>
 <script>
-const $=id=>document.getElementById(id);let B,timer;const cache={};
+const $=id=>document.getElementById(id);let B,timer;const cache={};const DD=new URLSearchParams(location.search).has('demo')?'data-demo':'data';
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const short=(o,n=220)=>{const s=JSON.stringify(o);return s.length>n?s.slice(0,n)+'…':s};
-async function trace(m,t){const k=m+'__'+t;if(!cache[k])cache[k]=await (await fetch('data/traces/'+k+'.json')).json();return cache[k]}
+async function trace(m,t){const k=m+'__'+t;if(!cache[k])cache[k]=await (await fetch(DD+'/traces/'+encodeURIComponent(k)+'.json')).json();return cache[k]}
 function evHtml(e){
  if(e.type==='thought')return `<div class="ev thought">💭 ${esc(e.text)}</div>`;
  if(e.type==='tool_call')return `<div class="ev call">🔧 <b>${esc(e.name)}</b> ${esc(short(e.args,160))}</div>`;
@@ -61,10 +62,11 @@ async function show(animate){
  draw();if(animate)timer=setInterval(()=>{i++;draw();if(i>Math.max(A.events.length,Bt.events.length))clearInterval(timer)},450)}
 function pick(m,t){$('task').value=t;$('ma').value=m;if($('mb').value===m){$('mb').value=B.rows.map(r=>r.model).find(x=>x!==m)}show(true);$('task').scrollIntoView({behavior:'smooth'})}
 (async()=>{
- B=await (await fetch('data/leaderboard.json')).json();
- if(B.is_mock){$('banner').hidden=false;$('banner').textContent='⚠️ 当前为 MOCK 演示数据：模拟 MCP 菜单/价格 + 脚本示例 Agent（非真实大模型），仅用于展示评测流程，不代表任何模型的真实成绩。'}
+ B=await (await fetch(DD+'/leaderboard.json')).json();
+ if(B.is_mock){$('banner').hidden=false;$('banner').textContent='⚠️ 当前为 MOCK 演示数据：录制的 MCP 数据回放 + 脚本示例 Agent（非真实大模型），仅用于展示评测流程，不代表任何模型的真实成绩。'}
+ else{$('banner').hidden=false;$('banner').textContent='✅ 真实评测：连接麦当劳官方 MCP（mcp.mcd.cn，上海人民广场附近门店，dry-run 不下单）。demo-* 为脚本基线（非大模型）。'+(B.note||'')}
  let h=`<table><tr><th>#</th><th>Agent / 模型</th><th>均分</th><th>通过</th><th>价格诚实</th><th>工具调用</th><th>被拦截下单</th>${B.tasks.map(t=>`<th>${t}</th>`).join('')}</tr>`;
- B.rows.forEach((r,i)=>{h+=`<tr><td>${i+1}</td><td class="m">${esc(r.model)}</td><td><b>${r.avg_score}</b></td><td>${r.passed}/${r.n_tasks}</td><td>${r.honest}</td><td>${r.tool_calls}</td><td>${r.blocked_attempts}</td>`+
+ B.rows.forEach((r,i)=>{h+=`<tr><td>${i+1}</td><td class="m">${esc(r.model)}<br><span style="color:#9a9a9a;font-weight:400;font-size:12px">${esc(r.runtime||'')}</span></td><td><b>${r.avg_score}</b></td><td>${r.passed}/${r.n_tasks}</td><td>${r.honest}</td><td>${r.tool_calls}</td><td>${r.blocked_attempts}</td>`+
   B.tasks.map(t=>{const run=B.runs.find(x=>x.model===r.model&&x.task===t);if(!run)return '<td>-</td>';
    return `<td class="cell ${run.verdict.passed?'pass':'fail'}" onclick="pick('${r.model}','${t}')">${run.score}</td>`}).join('')+'</tr>'});
  $('board').innerHTML=h+'</table><p style="color:#9a9a9a;font-size:13px">点击分数查看该次轨迹回放。评分：约束 50 + 价格诚实 15 + 目标最优度 30（相对同任务最佳通过方案）+ 效率 5。</p>';

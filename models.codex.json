@@ -1,0 +1,7 @@
+{
+  "_comment": "通过 Codex CLI（ChatGPT 账号登录）运行模型；McBench 以 stdio MCP 代理（mcbench.mcp_proxy）向 Codex 暴露受保护的只读工具 + submit_order。",
+  "models": [
+    {"name": "gpt-6-luna-codex",   "provider": "codex", "model": "gpt-6-luna"},
+    {"name": "gpt-5.6-luna-codex", "provider": "codex", "model": "gpt-5.6-luna"}
+  ]
+}

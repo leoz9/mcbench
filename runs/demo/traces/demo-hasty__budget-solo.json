@@ -4,7 +4,7 @@
  "task_title": "30 元一人午餐",
  "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。一人午餐：至少 1 个汉堡和 1 杯饮品（套餐也可以），应付不超过 30 元，尽量吃饱：总热量尽量高但不超过 900 kcal（热量以 list-nutrition-foods 为准）。",
  "mcp_mode": "mock",
- "started": "2026-10-15T07:32:41-0400",
+ "started": "2026-10-15T08:15:13-0400",
  "events": [
   {
    "t": 0.0,

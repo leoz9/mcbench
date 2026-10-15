@@ -3,8 +3,8 @@
  "task": "group-6",
  "task_title": "6 人团餐 200 元",
  "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。6 个同事加班：每人至少 1 个汉堡 + 1 杯饮品（可以是套餐），其中至少 2 个汉堡不能是辣的，应付不超过 200 元，越便宜越好。",
- "mcp_mode": "mock",
- "started": "2026-10-15T07:32:40-0400",
+ "mcp_mode": "live",
+ "started": "2026-10-15T08:00:13-0400",
  "events": [
   {
    "t": 0.0,
@@ -23,7 +23,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 5.78,
    "type": "tool_result",
    "name": "query-nearby-stores",
    "result": {
@@ -72,12 +72,12 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 5.78,
    "type": "thought",
    "text": "选最近的 麦当劳上海黄浦华旭国际大厦餐厅，查菜单、营养和可用券。"
   },
   {
-   "t": 0.0,
+   "t": 5.78,
    "type": "tool_call",
    "name": "query-meals",
    "args": {
@@ -87,7 +87,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 7.66,
    "type": "tool_result",
    "name": "query-meals",
    "result": {
@@ -267,6 +267,15 @@
       "tags": [
        "套餐",
        "立省10.5元起"
+      ]
+     },
+     {
+      "code": "9900003537",
+      "name": "学生专享汉堡小食随心选",
+      "price": 27.0,
+      "category": "鸡肉汉堡/卷",
+      "tags": [
+       "套餐"
       ]
      },
      {
@@ -1093,6 +1102,15 @@
       ]
      },
      {
+      "code": "9900003538",
+      "name": "学生专享饮品随心选",
+      "price": 10.0,
+      "category": "饮品",
+      "tags": [
+       "冷饮"
+      ]
+     },
+     {
       "code": "3505",
       "name": "锡兰红茶",
       "price": 11.5,
@@ -1105,13 +1123,13 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 7.66,
    "type": "tool_call",
    "name": "list-nutrition-foods",
    "args": {}
   },
   {
-   "t": 0.0,
+   "t": 8.85,
    "type": "tool_result",
    "name": "list-nutrition-foods",
    "result": {
@@ -2384,7 +2402,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 8.85,
    "type": "tool_call",
    "name": "query-store-coupons",
    "args": {
@@ -2394,27 +2412,15 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 10.64,
    "type": "tool_result",
    "name": "query-store-coupons",
    "result": {
     "coupons": [
      {
-      "title": "王牌小食拼",
-      "couponId": "MOCKCOUPONID0000",
-      "couponCode": "MOCKCODE0000",
-      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
-      "products": [
-       {
-        "productCode": "9900016371",
-        "productName": "王牌小食拼"
-       }
-      ]
-     },
-     {
       "title": "中薯条买一送一",
-      "couponId": "MOCKCOUPONID0001",
-      "couponCode": "MOCKCODE0001",
+      "couponId": "***5D2A",
+      "couponCode": "***001X",
       "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
       "products": [
        {
@@ -2422,17 +2428,29 @@
         "productName": "中薯条买一送一"
        }
       ]
+     },
+     {
+      "title": "王牌小食拼",
+      "couponId": "***E711",
+      "couponCode": "***0109",
+      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
+      "products": [
+       {
+        "productCode": "9900016371",
+        "productName": "王牌小食拼"
+       }
+      ]
      }
     ]
    }
   },
   {
-   "t": 0.0,
+   "t": 10.64,
    "type": "thought",
    "text": "展开 6 个便宜套餐的组成。"
   },
   {
-   "t": 0.0,
+   "t": 10.64,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2443,7 +2461,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 11.91,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2529,7 +2547,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 11.91,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2540,7 +2558,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 13.03,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2740,7 +2758,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 13.03,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2751,7 +2769,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 14.78,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2845,7 +2863,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 14.78,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2856,7 +2874,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 17.26,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2950,7 +2968,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 17.26,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2961,7 +2979,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 20.48,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -3047,7 +3065,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 20.48,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -3058,7 +3076,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 25.93,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -3288,12 +3306,12 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 25.99,
    "type": "thought",
    "text": "本地筛出 2 个候选，用 calculate-price 核价。"
   },
   {
-   "t": 0.05,
+   "t": 25.99,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -3309,7 +3327,7 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 27.56,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -3328,7 +3346,7 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 27.56,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -3348,7 +3366,7 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 30.08,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -3373,12 +3391,12 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 30.08,
    "type": "thought",
    "text": "最终方案：大堡口福三件套×6，应付 ¥137.4。"
   },
   {
-   "t": 0.05,
+   "t": 30.08,
    "type": "tool_call",
    "name": "submit_order",
    "args": {
@@ -3394,7 +3412,7 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 30.08,
    "type": "tool_result",
    "name": "submit_order",
    "result": {
@@ -3403,7 +3421,7 @@
    }
   },
   {
-   "t": 0.05,
+   "t": 34.71,
    "type": "verdict",
    "verdict": {
     "task": "group-6",
@@ -3490,7 +3508,7 @@
  },
  "tool_calls": 13,
  "steps": 5,
- "seconds": 0.05,
+ "seconds": 34.71,
  "usage": {
   "prompt_tokens": 0,
   "completion_tokens": 0

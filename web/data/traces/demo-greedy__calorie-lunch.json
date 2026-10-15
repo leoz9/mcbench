@@ -3,8 +3,8 @@
  "task": "calorie-lunch",
  "task_title": "700 kcal 高蛋白午餐",
  "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。午餐：总热量不超过 700 kcal，蛋白质至少 25g，至少 1 个汉堡和 1 杯无糖饮品（如无糖可乐/美式/纯悦）。营养以 list-nutrition-foods 为准，应付越低越好。",
- "mcp_mode": "mock",
- "started": "2026-10-15T07:32:41-0400",
+ "mcp_mode": "live",
+ "started": "2026-10-15T08:02:13-0400",
  "events": [
   {
    "t": 0.0,
@@ -23,7 +23,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 1.6,
    "type": "tool_result",
    "name": "query-nearby-stores",
    "result": {
@@ -72,12 +72,12 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 1.6,
    "type": "thought",
    "text": "选最近的 麦当劳上海黄浦华旭国际大厦餐厅，查菜单、营养和可用券。"
   },
   {
-   "t": 0.0,
+   "t": 1.6,
    "type": "tool_call",
    "name": "query-meals",
    "args": {
@@ -87,7 +87,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 3.81,
    "type": "tool_result",
    "name": "query-meals",
    "result": {
@@ -267,6 +267,15 @@
       "tags": [
        "套餐",
        "立省10.5元起"
+      ]
+     },
+     {
+      "code": "9900003537",
+      "name": "学生专享汉堡小食随心选",
+      "price": 27.0,
+      "category": "鸡肉汉堡/卷",
+      "tags": [
+       "套餐"
       ]
      },
      {
@@ -1093,6 +1102,15 @@
       ]
      },
      {
+      "code": "9900003538",
+      "name": "学生专享饮品随心选",
+      "price": 10.0,
+      "category": "饮品",
+      "tags": [
+       "冷饮"
+      ]
+     },
+     {
       "code": "3505",
       "name": "锡兰红茶",
       "price": 11.5,
@@ -1105,13 +1123,13 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 3.81,
    "type": "tool_call",
    "name": "list-nutrition-foods",
    "args": {}
   },
   {
-   "t": 0.0,
+   "t": 8.68,
    "type": "tool_result",
    "name": "list-nutrition-foods",
    "result": {
@@ -2384,7 +2402,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 8.68,
    "type": "tool_call",
    "name": "query-store-coupons",
    "args": {
@@ -2394,27 +2412,15 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 10.41,
    "type": "tool_result",
    "name": "query-store-coupons",
    "result": {
     "coupons": [
      {
-      "title": "王牌小食拼",
-      "couponId": "MOCKCOUPONID0000",
-      "couponCode": "MOCKCODE0000",
-      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
-      "products": [
-       {
-        "productCode": "9900016371",
-        "productName": "王牌小食拼"
-       }
-      ]
-     },
-     {
       "title": "中薯条买一送一",
-      "couponId": "MOCKCOUPONID0001",
-      "couponCode": "MOCKCODE0001",
+      "couponId": "***5D2A",
+      "couponCode": "***001X",
       "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
       "products": [
        {
@@ -2422,17 +2428,29 @@
         "productName": "中薯条买一送一"
        }
       ]
+     },
+     {
+      "title": "王牌小食拼",
+      "couponId": "***E711",
+      "couponCode": "***0109",
+      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
+      "products": [
+       {
+        "productCode": "9900016371",
+        "productName": "王牌小食拼"
+       }
+      ]
      }
     ]
    }
   },
   {
-   "t": 0.0,
+   "t": 10.41,
    "type": "thought",
    "text": "每类挑最便宜的单品，核一下价。"
   },
   {
-   "t": 0.0,
+   "t": 10.41,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -2452,7 +2470,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 11.43,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -2477,12 +2495,12 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 11.43,
    "type": "thought",
    "text": "应付 ¥21.5，提交。"
   },
   {
-   "t": 0.0,
+   "t": 11.43,
    "type": "tool_call",
    "name": "submit_order",
    "args": {
@@ -2501,7 +2519,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 11.43,
    "type": "tool_result",
    "name": "submit_order",
    "result": {
@@ -2510,7 +2528,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 12.5,
    "type": "verdict",
    "verdict": {
     "task": "calorie-lunch",
@@ -2608,7 +2626,7 @@
  },
  "tool_calls": 6,
  "steps": 4,
- "seconds": 0.0,
+ "seconds": 12.5,
  "usage": {
   "prompt_tokens": 0,
   "completion_tokens": 0

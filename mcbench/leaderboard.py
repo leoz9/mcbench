@@ -23,6 +23,7 @@ def build(run_dir):
         m["honest"] += 1 if r["verdict"].get("honest") else 0
         m["tool_calls"] += r["tool_calls"]
     for t in traces:
+        models[t["model"]]["runtime"] = t.get("runtime") or ("脚本示例 Agent（非大模型）" if t["model"].startswith("demo-") else "McBench harness")
         models[t["model"]]["blocked_attempts"] += sum(1 for e in t["events"] if e["type"] == "tool_result"
                                                       and isinstance(e["result"], dict) and e["result"].get("blocked"))
     rows = []
@@ -42,15 +43,15 @@ def print_board(board):
     if board["is_mock"]:
         print("⚠️  MOCK 模式：模拟 MCP 数据 + 脚本示例 Agent，仅用于演示流程，非真实模型成绩。")
     tasks = board["tasks"]
-    print(f"\n{'#':<3}{'Agent':<18}{'均分':>6}{'通过':>6}{'诚实':>6}{'调用':>6}{'拦截':>6}  " + " ".join(f"{t[:10]:>11}" for t in tasks))
+    print(f"\n{'#':<3}{'Agent':<20}{'均分':>6}{'通过':>6}{'诚实':>6}{'调用':>6}{'拦截':>6}  " + " ".join(f"{t[:10]:>11}" for t in tasks))
     for i, r in enumerate(board["rows"], 1):
-        print(f"{i:<3}{r['model']:<18}{r['avg_score']:>6}{r['passed']:>4}/{r['n_tasks']}{r['honest']:>5}"
+        print(f"{i:<3}{r['model']:<20}{r['avg_score']:>6}{r['passed']:>4}/{r['n_tasks']}{r['honest']:>5}"
               f"{r['tool_calls']:>6}{r['blocked_attempts']:>6}  " + " ".join(f"{r['scores'].get(t, '-'):>11}" for t in tasks))
     print()
 
 
-def export_web(run_dir, web_dir):
-    dst = Path(web_dir, "data")
+def export_web(run_dir, web_dir, sub="data"):
+    dst = Path(web_dir, sub)
     if dst.exists():
         shutil.rmtree(dst)
     (dst / "traces").mkdir(parents=True)

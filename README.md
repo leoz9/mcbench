@@ -10,11 +10,25 @@
 pip install -e . && mcbench demo        # 或：python3 -m mcbench demo   /   npx github:<你的用户名>/mcbench
 ```
 
-![对决动图（MOCK 演示）](docs/media/battle.gif)
-<!-- TODO: 用真实模型跑分后替换为真实对决 GIF -->
+## 🏁 首期真实榜单（2026-10-15）
 
-> ⚠️ 上面的动图和仓库里自带的排行榜都是 **MOCK 演示**：回放 2026-10-15 从真实麦当劳 MCP 录制的只读数据（上海一家门店的菜单/价格/营养，已脱敏）+ 3 个**脚本示例 Agent**（`demo-planner / demo-greedy / demo-hasty`，**不是真实大模型**），只用来展示评测流程。
-> 已用同样的脚本 Agent 连接真实 `mcp.mcd.cn` 跑通全部 5 个任务（结果见 `runs/real-mcp-scripted-20261015/`，与录制数据一致）。**真实大模型榜单待发布**（`mcbench run --live` 实测为准）。
+连接**真实麦当劳 MCP**（mcp.mcd.cn，上海人民广场附近门店，到店自取），5 个任务各跑 1 次，程序裁判按 MCP 数据复算。全程 dry-run，没有下过任何真实订单。
+
+| # | Agent | 运行方式 | 均分 | 通过 | 价格诚实 | 工具调用 | 被拦截下单 |
+|---|---|---|---:|---:|---:|---:|---:|
+| 1 | **gpt-6-luna** | Codex CLI（ChatGPT 账号） | **98.1** | 5/5 | 5/5 | 33 | 0 |
+| 2 | demo-planner | 脚本基线（非大模型，枚举 + 核价） | 93.4 | 5/5 | 5/5 | 69 | 0 |
+| 3 | **gpt-5.6-luna** | Codex CLI（ChatGPT 账号） | 91.2 | 4/5 | 5/5 | 50 | 0 |
+| 4 | demo-greedy | 脚本基线（非大模型，每类最便宜） | 69.0 | 2/5 | 5/5 | 30 | 0 |
+| 5 | demo-hasty | 脚本基线（非大模型，乱点 + 试图下单） | 37.3 | 0/5 | 0/5 | 20 | 5 |
+
+- 6 人团餐 200 元：两个 luna 都找到 **¥89.4** 的方案，比脚本基线的 ¥129–137 低三成多。
+- 三口之家：gpt-5.6-luna 漏了“给小朋友一盒纯牛奶”这一条（¥51.7，约束未全过）；gpt-6-luna 全部满足（¥74.5）。
+- 样本量小（每题 1 次、单门店、单日），仅供参考；轨迹全部公开在 `runs/real-20261015/`，网页里可逐步回放。
+
+![gpt-6-luna vs gpt-5.6-luna · 三口之家不吃辣（真实 MCP 数据）](docs/media/battle_real.gif)
+
+<sub>真实对决视频：`docs/media/battle_real_family-3.mp4`。MOCK 演示动图：`docs/media/battle_demo.gif`（录制数据回放 + 脚本 Agent，非真实模型成绩）。</sub>
 
 ## 它能做什么
 
@@ -28,7 +42,7 @@ pip install -e . && mcbench demo        # 或：python3 -m mcbench demo   /   np
 | **排行榜 + 回放** | `web/` 静态页面（可直接部署 GitHub Pages），点分数即可分屏回放两个 Agent 的每一步工具调用 |
 | **McCut 对决视频** | `mcbench cut A.json B.json -o battle.mp4`：Pillow + ffmpeg 渲染 720×1280 竖屏分屏视频，可直接发抖音 / 视频号 / 小红书 / B 站 |
 
-![排行榜与回放页面（MOCK 演示数据）](docs/media/web_screenshot.png)
+![排行榜与回放页面（真实数据）](docs/media/web_real.png)
 
 ## 目标用户
 
@@ -64,6 +78,12 @@ mcbench mock-server --port 8765   # 以 HTTP 方式起 MOCK MCP，方便调试�
 
 不加 `--live` 时 `mcbench run` 会用 MOCK 数据跑真实模型，适合先调通提示词、不消耗 MCP 配额。
 `mcbench run --demo-agents --live` 用脚本 Agent 测试真实 MCP 链路（不需要模型 Key）。
+
+**通过 Codex CLI 跑模型**（ChatGPT 登录即可，无需 API Key）：
+```bash
+mcbench run --live --demo-agents --config models.codex.json --out runs/real-$(date +%Y%m%d) --export
+```
+McBench 会为每次 `codex exec` 用 `-c mcp_servers.mcbench.*` 临时挂载自带的**受保护 stdio MCP 代理**（`mcbench/mcp_proxy.py`：只暴露只读工具 + `calculate-price` + 本地 `submit_order`，写操作在代理内拦截），沙箱 `read-only`、`--ephemeral`，不修改 `~/.codex/config.toml`；代理记录的每次工具调用被还原成标准轨迹，用同一个裁判打分。
 `python scripts/record_live.py /tmp/mcd-raw && python scripts/build_fixture.py /tmp/mcd-raw` 可重新录制并生成脱敏 MOCK 数据（原始响应含个人券码，请勿提交）。
 
 ## 目录

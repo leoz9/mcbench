@@ -16,6 +16,7 @@
    "blocked_attempts": 0,
    "tool_calls": 69,
    "payable_total": 0.0,
+   "runtime": "脚本示例 Agent（非大模型）",
    "avg_score": 97.6,
    "n_tasks": 5
   },
@@ -33,6 +34,7 @@
    "blocked_attempts": 0,
    "tool_calls": 30,
    "payable_total": 0.0,
+   "runtime": "脚本示例 Agent（非大模型）",
    "avg_score": 72.1,
    "n_tasks": 5
   },
@@ -50,6 +52,7 @@
    "blocked_attempts": 5,
    "tool_calls": 20,
    "payable_total": 0.0,
+   "runtime": "脚本示例 Agent（非大模型）",
    "avg_score": 37.3,
    "n_tasks": 5
   }

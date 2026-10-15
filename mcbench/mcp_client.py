@@ -6,6 +6,7 @@ Both are wrapped in SafeMCP which enforces the dry-run allowlist.
 """
 import json
 import time
+import urllib.error
 import urllib.request
 
 from .safety import check_tool
@@ -22,6 +23,20 @@ class HttpMCP:
         self._initialize()
 
     def _post(self, payload, expect_response=True):
+        last = None
+        for attempt in range(4):
+            try:
+                return self._post_once(payload, expect_response)
+            except urllib.error.HTTPError as e:
+                last = e
+                if e.code not in (429, 500, 502, 503, 504):
+                    raise
+            except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+                last = e
+            time.sleep(2 * (attempt + 1))
+        raise last
+
+    def _post_once(self, payload, expect_response=True):
         wait = self.min_interval - (time.time() - self._last)
         if wait > 0:
             time.sleep(wait)

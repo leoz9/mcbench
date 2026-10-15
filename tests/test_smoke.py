@@ -60,3 +60,21 @@ class T(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Proxy(unittest.TestCase):
+    def test_stdio_proxy_blocks_writes_and_logs(self):
+        import json, os, subprocess, tempfile
+        log = tempfile.mktemp()
+        reqs = [{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
+                {"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
+                {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "create-order", "arguments": {}}},
+                {"jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": {"name": "submit_order", "arguments": {"storeCode": "1"}}}]
+        out = subprocess.run([sys.executable, "-m", "mcbench.mcp_proxy"], input="\n".join(json.dumps(r) for r in reqs),
+                             capture_output=True, text=True, cwd=str(Path(__file__).resolve().parent.parent),
+                             env={**os.environ, "MCBENCH_MODE": "mock", "MCBENCH_TRACE": log}).stdout.splitlines()
+        res = [json.loads(l) for l in out]
+        names = [t["name"] for t in res[1]["result"]["tools"]]
+        self.assertIn("submit_order", names); self.assertNotIn("create-order", names)
+        self.assertIn("blocked", res[2]["result"]["content"][0]["text"])
+        self.assertEqual(len(open(log).read().splitlines()), 4)

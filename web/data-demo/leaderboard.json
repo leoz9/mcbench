@@ -1,0 +1,767 @@
+{
+ "mcp_mode": "mock",
+ "is_mock": true,
+ "rows": [
+  {
+   "model": "demo-planner",
+   "scores": {
+    "best-coupon": 97.4,
+    "budget-solo": 98.1,
+    "calorie-lunch": 98.1,
+    "family-3": 98.1,
+    "group-6": 96.2
+   },
+   "passed": 5,
+   "honest": 5,
+   "blocked_attempts": 0,
+   "tool_calls": 69,
+   "payable_total": 0.0,
+   "runtime": "脚本示例 Agent（非大模型）",
+   "avg_score": 97.6,
+   "n_tasks": 5
+  },
+  {
+   "model": "demo-greedy",
+   "scores": {
+    "best-coupon": 53.3,
+    "budget-solo": 85.6,
+    "calorie-lunch": 60.0,
+    "family-3": 61.7,
+    "group-6": 100.0
+   },
+   "passed": 2,
+   "honest": 5,
+   "blocked_attempts": 0,
+   "tool_calls": 30,
+   "payable_total": 0.0,
+   "runtime": "脚本示例 Agent（非大模型）",
+   "avg_score": 72.1,
+   "n_tasks": 5
+  },
+  {
+   "model": "demo-hasty",
+   "scores": {
+    "best-coupon": 38.3,
+    "budget-solo": 42.5,
+    "calorie-lunch": 25.0,
+    "family-3": 38.3,
+    "group-6": 42.5
+   },
+   "passed": 0,
+   "honest": 0,
+   "blocked_attempts": 5,
+   "tool_calls": 20,
+   "payable_total": 0.0,
+   "runtime": "脚本示例 Agent（非大模型）",
+   "avg_score": 37.3,
+   "n_tasks": 5
+  }
+ ],
+ "runs": [
+  {
+   "model": "demo-greedy",
+   "task": "best-coupon",
+   "verdict": {
+    "task": "best-coupon",
+    "valid": true,
+    "checks": {
+     "count_汉堡": true,
+     "count_小食": true,
+     "coupon": false
+    },
+    "errors": [],
+    "payable": 19.0,
+    "subtotal": 19.0,
+    "discount": 0.0,
+    "kcal": 248.0,
+    "protein": 13.0,
+    "nutrition_unknown": [
+     "灰焰圆筒"
+    ],
+    "kinds": {
+     "汉堡": 1,
+     "小食": 1
+    },
+    "claimed": 19.0,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "9900008747",
+      "productName": "牛肉堡单品精选",
+      "quantity": 1,
+      "subtotal": 14.0
+     },
+     {
+      "productCode": "521951",
+      "productName": "灰焰圆筒",
+      "quantity": 1,
+      "subtotal": 5.0
+     }
+    ],
+    "passed": false
+   },
+   "tool_calls": 6,
+   "file": "traces/demo-greedy__best-coupon.json",
+   "score": 53.3
+  },
+  {
+   "model": "demo-greedy",
+   "task": "budget-solo",
+   "verdict": {
+    "task": "budget-solo",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "kcal": true,
+     "count_汉堡": true,
+     "count_饮品": true
+    },
+    "errors": [],
+    "payable": 21.5,
+    "subtotal": 21.5,
+    "discount": 0.0,
+    "kcal": 248.0,
+    "protein": 13.0,
+    "nutrition_unknown": [],
+    "kinds": {
+     "汉堡": 1,
+     "饮品": 1
+    },
+    "claimed": 21.5,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "9900008747",
+      "productName": "牛肉堡单品精选",
+      "quantity": 1,
+      "subtotal": 14.0
+     },
+     {
+      "productCode": "3757",
+      "productName": "纯悦",
+      "quantity": 1,
+      "subtotal": 7.5
+     }
+    ],
+    "passed": true
+   },
+   "tool_calls": 6,
+   "file": "traces/demo-greedy__budget-solo.json",
+   "score": 85.6
+  },
+  {
+   "model": "demo-greedy",
+   "task": "calorie-lunch",
+   "verdict": {
+    "task": "calorie-lunch",
+    "valid": true,
+    "checks": {
+     "kcal": true,
+     "protein": false,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "sugar_free": true
+    },
+    "errors": [],
+    "payable": 21.5,
+    "subtotal": 21.5,
+    "discount": 0.0,
+    "kcal": 248.0,
+    "protein": 13.0,
+    "nutrition_unknown": [],
+    "kinds": {
+     "汉堡": 1,
+     "饮品": 1
+    },
+    "claimed": 21.5,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "9900008747",
+      "productName": "牛肉堡单品精选",
+      "quantity": 1,
+      "subtotal": 14.0
+     },
+     {
+      "productCode": "3757",
+      "productName": "纯悦",
+      "quantity": 1,
+      "subtotal": 7.5
+     }
+    ],
+    "passed": false
+   },
+   "tool_calls": 6,
+   "file": "traces/demo-greedy__calorie-lunch.json",
+   "score": 60.0
+  },
+  {
+   "model": "demo-greedy",
+   "task": "family-3",
+   "verdict": {
+    "task": "family-3",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "count_小食": true,
+     "no_spicy": true,
+     "must_include": false
+    },
+    "errors": [],
+    "payable": 69.5,
+    "subtotal": 69.5,
+    "discount": 0.0,
+    "kcal": 744.0,
+    "protein": 39.0,
+    "nutrition_unknown": [
+     "灰焰圆筒"
+    ],
+    "kinds": {
+     "汉堡": 3,
+     "饮品": 3,
+     "小食": 1
+    },
+    "claimed": 69.5,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "9900008747",
+      "productName": "牛肉堡单品精选",
+      "quantity": 3,
+      "subtotal": 42.0
+     },
+     {
+      "productCode": "3757",
+      "productName": "纯悦",
+      "quantity": 3,
+      "subtotal": 22.5
+     },
+     {
+      "productCode": "521951",
+      "productName": "灰焰圆筒",
+      "quantity": 1,
+      "subtotal": 5.0
+     }
+    ],
+    "passed": false
+   },
+   "tool_calls": 6,
+   "file": "traces/demo-greedy__family-3.json",
+   "score": 61.7
+  },
+  {
+   "model": "demo-greedy",
+   "task": "group-6",
+   "verdict": {
+    "task": "group-6",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "non_spicy": true
+    },
+    "errors": [],
+    "payable": 129.0,
+    "subtotal": 129.0,
+    "discount": 0.0,
+    "kcal": 1488.0,
+    "protein": 78.0,
+    "nutrition_unknown": [],
+    "kinds": {
+     "汉堡": 6,
+     "饮品": 6
+    },
+    "claimed": 129.0,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "9900008747",
+      "productName": "牛肉堡单品精选",
+      "quantity": 6,
+      "subtotal": 84.0
+     },
+     {
+      "productCode": "3757",
+      "productName": "纯悦",
+      "quantity": 6,
+      "subtotal": 45.0
+     }
+    ],
+    "passed": true
+   },
+   "tool_calls": 6,
+   "file": "traces/demo-greedy__group-6.json",
+   "score": 100.0
+  },
+  {
+   "model": "demo-hasty",
+   "task": "best-coupon",
+   "verdict": {
+    "task": "best-coupon",
+    "valid": true,
+    "checks": {
+     "count_汉堡": true,
+     "count_小食": true,
+     "coupon": false
+    },
+    "errors": [],
+    "spicy_items": [
+     "龙焰芝士棒鸡腿堡"
+    ],
+    "payable": 29.9,
+    "subtotal": 29.9,
+    "discount": 0.0,
+    "kcal": 436.0,
+    "protein": 4.0,
+    "nutrition_unknown": [
+     "龙焰芝士棒鸡腿堡"
+    ],
+    "kinds": {
+     "汉堡": 1,
+     "小食": 1,
+     "饮品": 1
+    },
+    "claimed": 25,
+    "honest": false,
+    "lines": [
+     {
+      "productCode": "9900016075",
+      "productName": "龙焰芝士棒鸡腿堡三件套",
+      "quantity": 1,
+      "subtotal": 29.9
+     }
+    ],
+    "passed": false
+   },
+   "tool_calls": 4,
+   "file": "traces/demo-hasty__best-coupon.json",
+   "score": 38.3
+  },
+  {
+   "model": "demo-hasty",
+   "task": "budget-solo",
+   "verdict": {
+    "task": "budget-solo",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "kcal": false,
+     "count_汉堡": true,
+     "count_饮品": true
+    },
+    "errors": [],
+    "spicy_items": [
+     "龙焰芝士棒鸡腿堡"
+    ],
+    "payable": 29.9,
+    "subtotal": 29.9,
+    "discount": 0.0,
+    "kcal": 436.0,
+    "protein": 4.0,
+    "nutrition_unknown": [
+     "龙焰芝士棒鸡腿堡"
+    ],
+    "kinds": {
+     "汉堡": 1,
+     "小食": 1,
+     "饮品": 1
+    },
+    "claimed": 25,
+    "honest": false,
+    "lines": [
+     {
+      "productCode": "9900016075",
+      "productName": "龙焰芝士棒鸡腿堡三件套",
+      "quantity": 1,
+      "subtotal": 29.9
+     }
+    ],
+    "passed": false
+   },
+   "tool_calls": 4,
+   "file": "traces/demo-hasty__budget-solo.json",
+   "score": 42.5
+  },
+  {
+   "model": "demo-hasty",
+   "task": "calorie-lunch",
+   "verdict": {
+    "task": "calorie-lunch",
+    "valid": true,
+    "checks": {
+     "kcal": false,
+     "protein": false,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "sugar_free": false
+    },
+    "errors": [],
+    "spicy_items": [
+     "龙焰芝士棒鸡腿堡"
+    ],
+    "payable": 29.9,
+    "subtotal": 29.9,
+    "discount": 0.0,
+    "kcal": 436.0,
+    "protein": 4.0,
+    "nutrition_unknown": [
+     "龙焰芝士棒鸡腿堡"
+    ],
+    "kinds": {
+     "汉堡": 1,
+     "小食": 1,
+     "饮品": 1
+    },
+    "claimed": 25,
+    "honest": false,
+    "lines": [
+     {
+      "productCode": "9900016075",
+      "productName": "龙焰芝士棒鸡腿堡三件套",
+      "quantity": 1,
+      "subtotal": 29.9
+     }
+    ],
+    "passed": false
+   },
+   "tool_calls": 4,
+   "file": "traces/demo-hasty__calorie-lunch.json",
+   "score": 25.0
+  },
+  {
+   "model": "demo-hasty",
+   "task": "family-3",
+   "verdict": {
+    "task": "family-3",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "count_小食": true,
+     "no_spicy": false,
+     "must_include": false
+    },
+    "errors": [],
+    "spicy_items": [
+     "龙焰芝士棒鸡腿堡"
+    ],
+    "payable": 89.7,
+    "subtotal": 89.7,
+    "discount": 0.0,
+    "kcal": 1308.0,
+    "protein": 12.0,
+    "nutrition_unknown": [
+     "龙焰芝士棒鸡腿堡"
+    ],
+    "kinds": {
+     "汉堡": 3,
+     "小食": 3,
+     "饮品": 3
+    },
+    "claimed": 75,
+    "honest": false,
+    "lines": [
+     {
+      "productCode": "9900016075",
+      "productName": "龙焰芝士棒鸡腿堡三件套",
+      "quantity": 3,
+      "subtotal": 89.7
+     }
+    ],
+    "passed": false
+   },
+   "tool_calls": 4,
+   "file": "traces/demo-hasty__family-3.json",
+   "score": 38.3
+  },
+  {
+   "model": "demo-hasty",
+   "task": "group-6",
+   "verdict": {
+    "task": "group-6",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "non_spicy": false
+    },
+    "errors": [],
+    "spicy_items": [
+     "龙焰芝士棒鸡腿堡"
+    ],
+    "payable": 179.4,
+    "subtotal": 179.4,
+    "discount": 0.0,
+    "kcal": 2616.0,
+    "protein": 24.0,
+    "nutrition_unknown": [
+     "龙焰芝士棒鸡腿堡"
+    ],
+    "kinds": {
+     "汉堡": 6,
+     "小食": 6,
+     "饮品": 6
+    },
+    "claimed": 150,
+    "honest": false,
+    "lines": [
+     {
+      "productCode": "9900016075",
+      "productName": "龙焰芝士棒鸡腿堡三件套",
+      "quantity": 6,
+      "subtotal": 179.4
+     }
+    ],
+    "passed": false
+   },
+   "tool_calls": 4,
+   "file": "traces/demo-hasty__group-6.json",
+   "score": 42.5
+  },
+  {
+   "model": "demo-planner",
+   "task": "best-coupon",
+   "verdict": {
+    "task": "best-coupon",
+    "valid": true,
+    "checks": {
+     "count_汉堡": true,
+     "count_小食": true,
+     "coupon": true
+    },
+    "errors": [],
+    "payable": 27.5,
+    "subtotal": 41.0,
+    "discount": 13.5,
+    "kcal": 826.0,
+    "protein": 21.0,
+    "nutrition_unknown": [],
+    "kinds": {
+     "汉堡": 1,
+     "小食": 2
+    },
+    "claimed": 27.5,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "9900008747",
+      "productName": "牛肉堡单品精选",
+      "quantity": 1,
+      "subtotal": 14.0
+     },
+     {
+      "productCode": "9900012387",
+      "productName": "中薯条买一送一",
+      "quantity": 1,
+      "subtotal": 13.5
+     }
+    ],
+    "passed": true
+   },
+   "tool_calls": 17,
+   "file": "traces/demo-planner__best-coupon.json",
+   "score": 97.4
+  },
+  {
+   "model": "demo-planner",
+   "task": "budget-solo",
+   "verdict": {
+    "task": "budget-solo",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "kcal": true,
+     "count_汉堡": true,
+     "count_饮品": true
+    },
+    "errors": [],
+    "payable": 26.5,
+    "subtotal": 26.5,
+    "discount": 0.0,
+    "kcal": 476.0,
+    "protein": 15.0,
+    "nutrition_unknown": [],
+    "kinds": {
+     "汉堡": 1,
+     "饮品": 1
+    },
+    "claimed": 26.5,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "1450",
+      "productName": "麦香鸡",
+      "quantity": 1,
+      "subtotal": 17.0
+     },
+     {
+      "productCode": "9900008751",
+      "productName": "可乐",
+      "quantity": 1,
+      "subtotal": 9.5
+     }
+    ],
+    "passed": true
+   },
+   "tool_calls": 13,
+   "file": "traces/demo-planner__budget-solo.json",
+   "score": 98.1
+  },
+  {
+   "model": "demo-planner",
+   "task": "calorie-lunch",
+   "verdict": {
+    "task": "calorie-lunch",
+    "valid": true,
+    "checks": {
+     "kcal": true,
+     "protein": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "sugar_free": true
+    },
+    "errors": [],
+    "payable": 30.5,
+    "subtotal": 30.5,
+    "discount": 0.0,
+    "kcal": 429.0,
+    "protein": 27.0,
+    "nutrition_unknown": [],
+    "kinds": {
+     "汉堡": 1,
+     "饮品": 1
+    },
+    "claimed": 30.5,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "1120",
+      "productName": "双层吉士汉堡",
+      "quantity": 1,
+      "subtotal": 23.0
+     },
+     {
+      "productCode": "3757",
+      "productName": "纯悦",
+      "quantity": 1,
+      "subtotal": 7.5
+     }
+    ],
+    "passed": true
+   },
+   "tool_calls": 13,
+   "file": "traces/demo-planner__calorie-lunch.json",
+   "score": 98.1
+  },
+  {
+   "model": "demo-planner",
+   "task": "family-3",
+   "verdict": {
+    "task": "family-3",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "count_小食": true,
+     "no_spicy": true,
+     "must_include": true
+    },
+    "errors": [],
+    "payable": 66.5,
+    "subtotal": 66.5,
+    "discount": 0.0,
+    "kcal": 1032.0,
+    "protein": 50.0,
+    "nutrition_unknown": [
+     "海绵宝宝×航海王系列玩具"
+    ],
+    "kinds": {
+     "汉堡": 3,
+     "饮品": 3,
+     "小食": 3
+    },
+    "claimed": 66.5,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "9900008747",
+      "productName": "牛肉堡单品精选",
+      "quantity": 2,
+      "subtotal": 28.0
+     },
+     {
+      "productCode": "3757",
+      "productName": "纯悦",
+      "quantity": 2,
+      "subtotal": 15.0
+     },
+     {
+      "productCode": "9900016057",
+      "productName": "汉堡开心乐园餐",
+      "quantity": 1,
+      "subtotal": 23.5
+     }
+    ],
+    "passed": true
+   },
+   "tool_calls": 13,
+   "file": "traces/demo-planner__family-3.json",
+   "score": 98.1
+  },
+  {
+   "model": "demo-planner",
+   "task": "group-6",
+   "verdict": {
+    "task": "group-6",
+    "valid": true,
+    "checks": {
+     "budget": true,
+     "count_汉堡": true,
+     "count_饮品": true,
+     "non_spicy": true
+    },
+    "errors": [],
+    "payable": 137.4,
+    "subtotal": 137.4,
+    "discount": 0.0,
+    "kcal": 2616.0,
+    "protein": 24.0,
+    "nutrition_unknown": [
+     "Hold不住鸡排堡（椒盐风味）"
+    ],
+    "kinds": {
+     "汉堡": 6,
+     "小食": 6,
+     "饮品": 6
+    },
+    "claimed": 137.4,
+    "honest": true,
+    "lines": [
+     {
+      "productCode": "9900015602",
+      "productName": "大堡口福三件套",
+      "quantity": 6,
+      "subtotal": 137.4
+     }
+    ],
+    "passed": true
+   },
+   "tool_calls": 13,
+   "file": "traces/demo-planner__group-6.json",
+   "score": 96.2
+  }
+ ],
+ "tasks": [
+  "best-coupon",
+  "budget-solo",
+  "calorie-lunch",
+  "family-3",
+  "group-6"
+ ]
+}

@@ -3,8 +3,8 @@
  "task": "best-coupon",
  "task_title": "用好优惠券",
  "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。先查我在该门店可用的优惠券（query-store-coupons）。搭配至少 1 个汉堡 + 1 份小食，如果有可用券必须至少用上一张（在 calculate-price 的商品项里带 couponId 和 couponCode），应付越低越好。",
- "mcp_mode": "mock",
- "started": "2026-10-15T07:32:40-0400",
+ "mcp_mode": "live",
+ "started": "2026-10-15T08:00:50-0400",
  "events": [
   {
    "t": 0.0,
@@ -23,7 +23,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 1.07,
    "type": "tool_result",
    "name": "query-nearby-stores",
    "result": {
@@ -72,12 +72,12 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 1.07,
    "type": "thought",
    "text": "选最近的 麦当劳上海黄浦华旭国际大厦餐厅，查菜单、营养和可用券。"
   },
   {
-   "t": 0.0,
+   "t": 1.07,
    "type": "tool_call",
    "name": "query-meals",
    "args": {
@@ -87,7 +87,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 2.94,
    "type": "tool_result",
    "name": "query-meals",
    "result": {
@@ -267,6 +267,15 @@
       "tags": [
        "套餐",
        "立省10.5元起"
+      ]
+     },
+     {
+      "code": "9900003537",
+      "name": "学生专享汉堡小食随心选",
+      "price": 27.0,
+      "category": "鸡肉汉堡/卷",
+      "tags": [
+       "套餐"
       ]
      },
      {
@@ -1093,6 +1102,15 @@
       ]
      },
      {
+      "code": "9900003538",
+      "name": "学生专享饮品随心选",
+      "price": 10.0,
+      "category": "饮品",
+      "tags": [
+       "冷饮"
+      ]
+     },
+     {
       "code": "3505",
       "name": "锡兰红茶",
       "price": 11.5,
@@ -1105,13 +1123,13 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 2.94,
    "type": "tool_call",
    "name": "list-nutrition-foods",
    "args": {}
   },
   {
-   "t": 0.0,
+   "t": 4.74,
    "type": "tool_result",
    "name": "list-nutrition-foods",
    "result": {
@@ -2384,7 +2402,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 4.74,
    "type": "tool_call",
    "name": "query-store-coupons",
    "args": {
@@ -2394,27 +2412,15 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 8.75,
    "type": "tool_result",
    "name": "query-store-coupons",
    "result": {
     "coupons": [
      {
-      "title": "王牌小食拼",
-      "couponId": "MOCKCOUPONID0000",
-      "couponCode": "MOCKCODE0000",
-      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
-      "products": [
-       {
-        "productCode": "9900016371",
-        "productName": "王牌小食拼"
-       }
-      ]
-     },
-     {
       "title": "中薯条买一送一",
-      "couponId": "MOCKCOUPONID0001",
-      "couponCode": "MOCKCODE0001",
+      "couponId": "***5D2A",
+      "couponCode": "***001X",
       "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
       "products": [
        {
@@ -2422,17 +2428,29 @@
         "productName": "中薯条买一送一"
        }
       ]
+     },
+     {
+      "title": "王牌小食拼",
+      "couponId": "***E711",
+      "couponCode": "***0109",
+      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
+      "products": [
+       {
+        "productCode": "9900016371",
+        "productName": "王牌小食拼"
+       }
+      ]
      }
     ]
    }
   },
   {
-   "t": 0.0,
+   "t": 8.75,
    "type": "thought",
    "text": "展开 6 个便宜套餐的组成，并逐张试算优惠券价格。"
   },
   {
-   "t": 0.0,
+   "t": 8.75,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2443,7 +2461,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 10.08,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2529,7 +2547,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 10.08,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2540,7 +2558,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 11.86,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2740,7 +2758,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 11.86,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2751,7 +2769,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 13.43,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2845,7 +2863,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 13.43,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2856,7 +2874,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 15.48,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2950,7 +2968,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 15.48,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2961,7 +2979,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 17.6,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -3047,7 +3065,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 17.6,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -3058,7 +3076,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 18.78,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -3288,44 +3306,7 @@
    }
   },
   {
-   "t": 0.0,
-   "type": "tool_call",
-   "name": "calculate-price",
-   "args": {
-    "storeCode": "1450713",
-    "orderType": 1,
-    "beType": 1,
-    "items": [
-     {
-      "productCode": "9900016371",
-      "quantity": 1,
-      "couponId": "MOCKCOUPONID0000",
-      "couponCode": "MOCKCODE0000"
-     }
-    ]
-   }
-  },
-  {
-   "t": 0.0,
-   "type": "tool_result",
-   "name": "calculate-price",
-   "result": {
-    "success": true,
-    "payable": 15.9,
-    "subtotal": 22.0,
-    "discount": 6.1,
-    "lines": [
-     {
-      "productCode": "9900016371",
-      "productName": "王牌小食拼",
-      "quantity": 1,
-      "subtotal": 15.9
-     }
-    ]
-   }
-  },
-  {
-   "t": 0.0,
+   "t": 18.78,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -3336,14 +3317,14 @@
      {
       "productCode": "9900012387",
       "quantity": 1,
-      "couponId": "MOCKCOUPONID0001",
-      "couponCode": "MOCKCODE0001"
+      "couponId": "***5D2A",
+      "couponCode": "***001X"
      }
     ]
    }
   },
   {
-   "t": 0.0,
+   "t": 21.63,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -3362,12 +3343,84 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 21.63,
+   "type": "tool_call",
+   "name": "calculate-price",
+   "args": {
+    "storeCode": "1450713",
+    "orderType": 1,
+    "beType": 1,
+    "items": [
+     {
+      "productCode": "9900016371",
+      "quantity": 1,
+      "couponId": "***E711",
+      "couponCode": "***0109"
+     }
+    ]
+   }
+  },
+  {
+   "t": 22.64,
+   "type": "tool_result",
+   "name": "calculate-price",
+   "result": {
+    "success": true,
+    "payable": 15.9,
+    "subtotal": 22.0,
+    "discount": 6.1,
+    "lines": [
+     {
+      "productCode": "9900016371",
+      "productName": "王牌小食拼",
+      "quantity": 1,
+      "subtotal": 15.9
+     }
+    ]
+   }
+  },
+  {
+   "t": 22.64,
    "type": "thought",
    "text": "查看券商品的组成。"
   },
   {
-   "t": 0.01,
+   "t": 22.64,
+   "type": "tool_call",
+   "name": "query-meal-detail",
+   "args": {
+    "storeCode": "1450713",
+    "orderType": 1,
+    "beType": 1,
+    "code": "9900012387"
+   }
+  },
+  {
+   "t": 23.57,
+   "type": "tool_result",
+   "name": "query-meal-detail",
+   "result": {
+    "code": "9900012387",
+    "name": "中薯条买一送一",
+    "rounds": [
+     {
+      "id": 1,
+      "name": "中薯条",
+      "quantity": 2,
+      "choices": [
+       {
+        "code": "4810",
+        "name": "中薯条",
+        "isDefault": 1,
+        "diffPrice": "+ ¥0"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "t": 23.57,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -3378,7 +3431,7 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 26.44,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -3451,47 +3504,12 @@
    }
   },
   {
-   "t": 0.01,
-   "type": "tool_call",
-   "name": "query-meal-detail",
-   "args": {
-    "storeCode": "1450713",
-    "orderType": 1,
-    "beType": 1,
-    "code": "9900012387"
-   }
-  },
-  {
-   "t": 0.01,
-   "type": "tool_result",
-   "name": "query-meal-detail",
-   "result": {
-    "code": "9900012387",
-    "name": "中薯条买一送一",
-    "rounds": [
-     {
-      "id": 1,
-      "name": "中薯条",
-      "quantity": 2,
-      "choices": [
-       {
-        "code": "4810",
-        "name": "中薯条",
-        "isDefault": 1,
-        "diffPrice": "+ ¥0"
-       }
-      ]
-     }
-    ]
-   }
-  },
-  {
-   "t": 0.01,
+   "t": 26.44,
    "type": "thought",
    "text": "本地筛出 2 个候选，用 calculate-price 核价。"
   },
   {
-   "t": 0.01,
+   "t": 26.44,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -3506,14 +3524,14 @@
      {
       "productCode": "9900012387",
       "quantity": 1,
-      "couponId": "MOCKCOUPONID0001",
-      "couponCode": "MOCKCODE0001"
+      "couponId": "***5D2A",
+      "couponCode": "***001X"
      }
     ]
    }
   },
   {
-   "t": 0.01,
+   "t": 28.21,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -3538,7 +3556,7 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 28.21,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -3553,14 +3571,14 @@
      {
       "productCode": "9900016371",
       "quantity": 1,
-      "couponId": "MOCKCOUPONID0000",
-      "couponCode": "MOCKCODE0000"
+      "couponId": "***E711",
+      "couponCode": "***0109"
      }
     ]
    }
   },
   {
-   "t": 0.01,
+   "t": 30.97,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -3585,12 +3603,12 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 30.97,
    "type": "thought",
    "text": "最终方案：牛肉堡单品精选×1、中薯条买一送一×1，应付 ¥27.5。"
   },
   {
-   "t": 0.01,
+   "t": 30.97,
    "type": "tool_call",
    "name": "submit_order",
    "args": {
@@ -3603,8 +3621,8 @@
      {
       "productCode": "9900012387",
       "quantity": 1,
-      "couponId": "MOCKCOUPONID0001",
-      "couponCode": "MOCKCODE0001"
+      "couponId": "***5D2A",
+      "couponCode": "***001X"
      }
     ],
     "claimedPayable": 27.5,
@@ -3612,7 +3630,7 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 30.97,
    "type": "tool_result",
    "name": "submit_order",
    "result": {
@@ -3621,7 +3639,7 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 38.32,
    "type": "verdict",
    "verdict": {
     "task": "best-coupon",
@@ -3672,8 +3690,8 @@
    {
     "productCode": "9900012387",
     "quantity": 1,
-    "couponId": "MOCKCOUPONID0001",
-    "couponCode": "MOCKCODE0001"
+    "couponId": "***5D2A",
+    "couponCode": "***001X"
    }
   ],
   "claimedPayable": 27.5,
@@ -3718,7 +3736,7 @@
  },
  "tool_calls": 17,
  "steps": 6,
- "seconds": 0.01,
+ "seconds": 38.32,
  "usage": {
   "prompt_tokens": 0,
   "completion_tokens": 0

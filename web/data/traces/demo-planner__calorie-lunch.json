@@ -3,8 +3,8 @@
  "task": "calorie-lunch",
  "task_title": "700 kcal 高蛋白午餐",
  "prompt": "我在上海人民广场附近，到店自取（beType=1, orderType=1；搜门店用 searchType=2, city=上海, keyword=人民广场），选最近的门店。午餐：总热量不超过 700 kcal，蛋白质至少 25g，至少 1 个汉堡和 1 杯无糖饮品（如无糖可乐/美式/纯悦）。营养以 list-nutrition-foods 为准，应付越低越好。",
- "mcp_mode": "mock",
- "started": "2026-10-15T07:32:40-0400",
+ "mcp_mode": "live",
+ "started": "2026-10-15T07:59:38-0400",
  "events": [
   {
    "t": 0.0,
@@ -23,7 +23,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 2.44,
    "type": "tool_result",
    "name": "query-nearby-stores",
    "result": {
@@ -72,12 +72,12 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 2.44,
    "type": "thought",
    "text": "选最近的 麦当劳上海黄浦华旭国际大厦餐厅，查菜单、营养和可用券。"
   },
   {
-   "t": 0.0,
+   "t": 2.44,
    "type": "tool_call",
    "name": "query-meals",
    "args": {
@@ -87,7 +87,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 5.15,
    "type": "tool_result",
    "name": "query-meals",
    "result": {
@@ -1105,13 +1105,13 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 5.15,
    "type": "tool_call",
    "name": "list-nutrition-foods",
    "args": {}
   },
   {
-   "t": 0.0,
+   "t": 7.03,
    "type": "tool_result",
    "name": "list-nutrition-foods",
    "result": {
@@ -2384,7 +2384,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 7.03,
    "type": "tool_call",
    "name": "query-store-coupons",
    "args": {
@@ -2394,27 +2394,15 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 8.92,
    "type": "tool_result",
    "name": "query-store-coupons",
    "result": {
     "coupons": [
      {
-      "title": "王牌小食拼",
-      "couponId": "MOCKCOUPONID0000",
-      "couponCode": "MOCKCODE0000",
-      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
-      "products": [
-       {
-        "productCode": "9900016371",
-        "productName": "王牌小食拼"
-       }
-      ]
-     },
-     {
       "title": "中薯条买一送一",
-      "couponId": "MOCKCOUPONID0001",
-      "couponCode": "MOCKCODE0001",
+      "couponId": "***5D2A",
+      "couponCode": "***001X",
       "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
       "products": [
        {
@@ -2422,17 +2410,29 @@
         "productName": "中薯条买一送一"
        }
       ]
+     },
+     {
+      "title": "王牌小食拼",
+      "couponId": "***E711",
+      "couponCode": "***0109",
+      "validity": "2026-10-12 10:30:00-2026-10-16 23:59:59",
+      "products": [
+       {
+        "productCode": "9900016371",
+        "productName": "王牌小食拼"
+       }
+      ]
      }
     ]
    }
   },
   {
-   "t": 0.0,
+   "t": 8.92,
    "type": "thought",
    "text": "展开 6 个便宜套餐的组成。"
   },
   {
-   "t": 0.0,
+   "t": 8.92,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2443,7 +2443,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 11.41,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2529,7 +2529,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 11.41,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2540,7 +2540,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 13.64,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2740,7 +2740,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 13.64,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2751,7 +2751,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 15.71,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2845,7 +2845,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 15.71,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2856,7 +2856,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 18.22,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -2950,7 +2950,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 18.22,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -2961,7 +2961,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 19.85,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -3047,7 +3047,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 19.85,
    "type": "tool_call",
    "name": "query-meal-detail",
    "args": {
@@ -3058,7 +3058,7 @@
    }
   },
   {
-   "t": 0.0,
+   "t": 22.26,
    "type": "tool_result",
    "name": "query-meal-detail",
    "result": {
@@ -3288,12 +3288,12 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 22.26,
    "type": "thought",
    "text": "本地筛出 2 个候选，用 calculate-price 核价。"
   },
   {
-   "t": 0.01,
+   "t": 22.26,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -3313,7 +3313,7 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 25.51,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -3338,7 +3338,7 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 25.51,
    "type": "tool_call",
    "name": "calculate-price",
    "args": {
@@ -3358,7 +3358,7 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 27.94,
    "type": "tool_result",
    "name": "calculate-price",
    "result": {
@@ -3375,7 +3375,7 @@
      },
      {
       "productCode": "520689",
-      "productName": "鲜萃咖啡",
+      "productName": "小杯鲜萃咖啡",
       "quantity": 1,
       "subtotal": 9.5
      }
@@ -3383,12 +3383,12 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 27.94,
    "type": "thought",
    "text": "最终方案：双层吉士汉堡×1、纯悦×1，应付 ¥30.5。"
   },
   {
-   "t": 0.01,
+   "t": 27.94,
    "type": "tool_call",
    "name": "submit_order",
    "args": {
@@ -3408,7 +3408,7 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 27.94,
    "type": "tool_result",
    "name": "submit_order",
    "result": {
@@ -3417,7 +3417,7 @@
    }
   },
   {
-   "t": 0.01,
+   "t": 31.82,
    "type": "verdict",
    "verdict": {
     "task": "calorie-lunch",
@@ -3516,7 +3516,7 @@
  },
  "tool_calls": 13,
  "steps": 5,
- "seconds": 0.01,
+ "seconds": 31.82,
  "usage": {
   "prompt_tokens": 0,
   "completion_tokens": 0
