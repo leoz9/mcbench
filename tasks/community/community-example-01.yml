@@ -1,0 +1,17 @@
+# McBench community task (YAML or JSON). See docs/contributing-tasks.md.
+id: community-example-01
+category: budget          # one of: budget|nutrition|group|coupon|dietary|multi_constraint|clarification|adversarial|infeasible
+difficulty: easy      # easy|medium|hard
+title: "40 元汉堡+饮品（示例）"
+prompt: >
+  到店自取（beType=1, orderType=1）；门店用 query-nearby-stores（searchType=2, city=上海, keyword=人民广场）。
+  预算 40 元以内，要 1 个汉堡和 1 杯饮品，越便宜越好。
+constraints:
+  max_payable: 40
+  min_kind: {汉堡: 1, 饮品: 1}
+objective: min_payable          # or max_kcal
+expected_outcome: order         # order | infeasible
+dimensions: [tool_use, constraints, cost_opt]
+author: "leoz9"
+license: CC-BY-4.0
+notes: ""
