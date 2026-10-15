@@ -95,6 +95,9 @@ def combine(hard_dir, core_dir, web_dir, core_split="test", w_hard=0.6, note="")
     for p in Path(core_dir, "traces").glob("*.json"):
         if p.stem.split("__")[1] in core_ids:
             shutil.copy(p, dst / "core" / "traces" / p.name)
+    vis = Path(hard_dir).parent / "vision" / "vision_leaderboard.json"
+    if vis.exists():  # Vision tab of the website
+        shutil.copy(vis, dst / "vision_leaderboard.json")
     Path(dst, "leaderboard.json").write_text(json.dumps(board, ensure_ascii=False, indent=1), "utf-8")
     Path(hard_dir, "combined_leaderboard.json").write_text(json.dumps(board, ensure_ascii=False, indent=1), "utf-8")
     return board

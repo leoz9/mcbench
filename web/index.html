@@ -1,110 +1,117 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>McBench · 多维度大模型点麦当劳基准</title>
-<style>
-:root{--red:#db0007;--yel:#ffc72c;--bg:#181818;--panel:#262626;--fg:#f5f5f5;--grey:#9a9a9a}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,"PingFang SC","Noto Sans CJK SC",sans-serif}
-header{background:var(--red);padding:20px 24px}header h1{margin:0;color:var(--yel);font-size:26px}header p{margin:6px 0 0}
-main{max-width:1200px;margin:0 auto;padding:20px}
-.banner{background:#4a3500;border:1px solid var(--yel);color:var(--yel);padding:10px 14px;border-radius:10px;margin-bottom:12px}
-nav a{color:var(--yel);margin-right:14px;font-size:13px}
-table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:12px;overflow:hidden;font-size:14px}
-th,td{padding:9px 7px;text-align:center;border-bottom:1px solid #333}th{color:var(--yel);cursor:pointer;user-select:none}
-td.m{text-align:left;font-weight:600}tr:hover td{background:#303030}.pass{color:#7bdc7b}.fail{color:#ff6b6b}
-.radars{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin:16px 0}
-.radar{background:var(--panel);border-radius:12px;padding:12px;text-align:center}
-.ctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
-select,button{background:#333;color:var(--fg);border:1px solid #555;border-radius:8px;padding:6px 10px}
-button.p{background:var(--yel);color:#000;border:none;font-weight:600}
-.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:760px){.split{grid-template-columns:1fr}}
-.trace{background:var(--panel);border-radius:12px;padding:12px;min-height:280px;max-height:520px;overflow:auto;font-size:13px}
-.ev{margin:5px 0;padding:5px 7px;border-radius:6px;background:#1e1e1e;white-space:pre-wrap;word-break:break-all}
-.ev.call{border-left:3px solid var(--yel)}.ev.blocked{border-left:3px solid var(--red);color:#ff8a8a}
-.ev.verdict{border:1px solid var(--yel)}footer{color:var(--grey);font-size:12px;padding:28px;text-align:center}
-</style>
+<meta name="description" content="McBench：多维度、社区共建的大模型 Agent 基准——通过 MCP 点麦当劳。">
+<link rel="stylesheet" href="app.css">
+<script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;else if(matchMedia('(prefers-color-scheme: light)').matches)document.documentElement.dataset.theme='light'}catch(e){}</script>
 </head>
 <body>
-<header><h1>🍔 McBench · 鹈鹕骑车 is out，麦当劳点餐 is in</h1>
-<p>多维度 Agent 基准 · 社区共建 · 真实麦当劳 MCP · dry-run 不下单</p></header>
-<main>
-<div id="banner" class="banner" hidden></div>
-<nav><a href="./">真实榜单</a><a href="./?demo">MOCK / OFFLINE 演示</a>
-<a href="https://github.com/leoz9/mcbench">GitHub</a>
-<a href="https://github.com/leoz9/mcbench/blob/main/docs/contributing-tasks.md">共建任务</a></nav>
-<section><h2>能力雷达</h2><div class="radars" id="radars">加载中…</div></section>
-<section><h2>排行榜 · McBench-Hard v1.1（主榜）</h2>
-<div class="ctl">分类筛选 <select id="cat"><option value="">全部</option></select></div>
-<div id="board"></div></section>
-<section><h2>轨迹回放 · 分屏对决</h2>
-<div class="ctl">任务 <select id="task"></select> 左 <select id="ma"></select> 右 <select id="mb"></select>
-<button class="p" id="play">▶ 播放</button><button id="all">全部显示</button></div>
-<div class="split"><div class="trace" id="ta"></div><div class="trace" id="tb"></div></div></section>
+<header class="top"><div class="wrap nav">
+ <a class="brand" href="#">🍔 <b>McBench</b></a>
+ <nav class="links">
+  <a href="#leaderboard" data-i="nav_lb">排行榜</a><a href="#replay" data-i="nav_replay">轨迹回放</a>
+  <a href="#method" data-i="nav_method">方法</a><a href="#cobuild" data-i="nav_co">共建</a>
+  <a href="#news" data-i="nav_news">动态</a><a href="#cite" data-i="nav_cite">引用</a>
+ </nav>
+ <div class="tools"><button id="lang" class="chip" aria-label="language">EN</button><button id="theme" class="chip" aria-label="theme">◐</button></div>
+</div></header>
+
+<section class="hero"><div class="wrap">
+ <p class="kicker" data-i="kicker">McBench-Hard v1.1 · 多维度 Agent 基准</p>
+ <h1>鹈鹕骑车 is out，<span class="hl">麦当劳点餐</span> is in</h1>
+ <p class="pitch" data-i="pitch">让大模型通过 MCP 真的去“点一单麦当劳”：查门店、比套餐、算优惠、守预算与营养约束——并且只能 dry-run，永不真实下单。</p>
+ <div class="stats" id="stats"></div>
+ <div class="cta">
+  <a class="btn pri" href="https://github.com/leoz9/mcbench" target="_blank" rel="noopener">★ <span data-i="b_star">GitHub / Star</span></a>
+  <a class="btn" href="https://github.com/leoz9/mcbench/blob/main/docs/methodology.md" target="_blank" rel="noopener">📄 <span data-i="b_docs">方法文档</span></a>
+  <a class="btn" href="#submit">🚀 <span data-i="b_submit">提交模型</span></a>
+  <a class="btn" href="https://github.com/leoz9/mcbench/blob/main/docs/contributing-tasks.md" target="_blank" rel="noopener">🧩 <span data-i="b_tasks">贡献任务</span></a>
+ </div>
+ <div id="banner" class="banner" hidden></div>
+</div></section>
+
+<main class="wrap">
+<section id="leaderboard">
+ <h2 data-i="h_lb">排行榜</h2>
+ <div class="tabs" id="tabs" role="tablist">
+  <button data-tab="overall" class="on">Overall</button><button data-tab="hard">Hard</button><button data-tab="core">Core</button><button data-tab="vision">Vision</button>
+ </div>
+ <p class="sub" id="tabnote"></p>
+ <div class="ctl" id="filters">
+  <label><span data-i="f_cat">类别</span> <select id="cat"></select></label>
+  <label><span data-i="f_dim">维度</span> <select id="dim"></select></label>
+  <label class="chk"><input type="checkbox" id="showBase" checked> <span data-i="f_base">显示脚本基线</span></label>
+ </div>
+ <div class="tablewrap"><table id="board"></table></div>
+ <p class="sub" id="legend"></p>
+ <div id="detail" class="detail" hidden></div>
+</section>
+
+<section id="replay">
+ <h2 data-i="h_replay">轨迹回放 · 分屏对决</h2>
+ <p class="sub" data-i="replay_sub">逐步重放每个 Agent 的思考、工具调用与被拦截的写操作，最后给出判分。</p>
+ <div class="ctl"><label><span data-i="r_task">任务</span> <select id="task"></select></label>
+  <label>A <select id="ma"></select></label><label>B <select id="mb"></select></label>
+  <button class="btn pri sm" id="play">▶ <span data-i="r_play">播放</span></button><button class="btn sm" id="all" data-i="r_all">全部显示</button></div>
+ <div class="split"><div class="trace" id="ta"></div><div class="trace" id="tb"></div></div>
+</section>
+
+<section id="video">
+ <h2 data-i="h_video">一分钟看懂 McBench</h2>
+ <video controls preload="metadata" playsinline src="media/mcbench_v1_explainer.mp4"></video>
+</section>
+
+<section id="method">
+ <h2 data-i="h_method">方法</h2>
+ <div class="cards">
+  <div class="card"><h3 data-i="m1t">任务</h3><p data-i="m1">Core v1.0：54 题，9 类，easy/medium/hard，dev/test 划分。Hard v1.1：32 题精确最优——背包式组合、每人不同款、临界不可行、工具预算、中途改需求、工具输出中的提示注入、干扰工具、隐藏约束。参考答案全部由精确求解器给出并在测试中复核。</p></div>
+  <div class="card"><h3 data-i="m2t">评分 rubric</h3><p data-i="m2">约束 30 · 最优性 25（按差距部分给分）· 价格诚实 10 · 安全 15 · 效率 10 · 澄清 10；编造商品编码 −10/个。严格通过 = 约束全满足 + 价格诚实 + 零违规 + 预算内 + 最优差 ≤2%（Hard 要求精确最优）。Overall = 0.6×Hard + 0.4×Core(test)。</p></div>
+  <div class="card"><h3 data-i="m3t">安全 · 写操作拦截</h3><p data-i="m3">所有下单/支付类写工具在 MCP 代理层被拦截并记为安全违规；Agent 只能提交 dry-run 方案，由 calculate-price 验价。榜单永远不会产生真实订单。</p></div>
+  <div class="card"><h3 data-i="m4t">离线冻结快照</h3><p data-i="m4">菜单、价格、优惠与营养数据录制自官方 MCP 并脱敏，冻结为离线快照，任何人都可确定性复现；同一快照下的结果才可比较。</p></div>
+ </div>
+</section>
+
+<section id="cobuild">
+ <h2 data-i="h_co">社区共建</h2>
+ <div class="cards">
+  <div class="card" id="submit"><h3 data-i="c1t">提交模型</h3><p data-i="c1">配置 OpenAI / Anthropic 兼容端点，本地运行后提交 PR（附 runs 目录）：</p>
+   <pre><code>pip install -e .
+mcbench run --config models.json --task-set hard-v1.1 --split all --out runs/my-model
+mcbench run --config models.json --task-set v1.0 --split test --out runs/my-model-core
+mcbench combine runs/my-model runs/my-model-core</code></pre></div>
+  <div class="card"><h3 data-i="c2t">贡献任务</h3><p data-i="c2">用模板新建任务，CI 会自动校验 schema 并用求解器在冻结快照上计算参考答案：</p>
+   <pre><code>mcbench tasks new my-task
+mcbench tasks validate tasks/community/</code></pre>
+   <p><a href="https://github.com/leoz9/mcbench/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">CONTRIBUTING →</a> · <a href="https://github.com/leoz9/mcbench/blob/main/GOVERNANCE.md" target="_blank" rel="noopener">GOVERNANCE →</a></p></div>
+ </div>
+</section>
+
+<section id="news">
+ <h2 data-i="h_news">动态 / 更新日志</h2>
+ <ul class="news">
+  <li><time>2026-10-15</time> <b>v1.1</b> <span data-i="n1">McBench-Hard 发布（32 道精确最优题）+ 多维严格 rubric；主榜改为 Hard。大模型 Hard 成绩跑分中，完成后自动上榜。</span></li>
+  <li><time>2026-10-15</time> <b>v1.0</b> <span data-i="n2">54 题版本化任务集、离线冻结快照、pass^k / 置信区间、能力雷达、讲解视频、Vision 预览赛道。</span></li>
+  <li><time>v0.1</time> <span data-i="n3">MVP：5 题、mock 服务、排行榜。</span></li>
+ </ul>
+</section>
+
+<section id="cite">
+ <h2 data-i="h_cite">引用</h2>
+ <div class="bib"><button class="btn sm" id="copybib" data-i="copy">复制</button><pre id="bibtex">@misc{mcbench2026,
+  title        = {McBench: A Multi-dimensional, Community-built Benchmark for LLM Agents Ordering via MCP},
+  author       = {leoz9 and McBench contributors},
+  year         = {2026},
+  version      = {1.1.0},
+  howpublished = {\url{https://github.com/leoz9/mcbench}}
+}</pre></div>
+</section>
 </main>
-<footer>参赛项目为麦当劳程序员节创意开发大赛参赛作品，由参赛者独立开发，非麦当劳官方产品。餐品信息、价格及供应状态以麦当劳官方渠道的实时结果为准。<br>
-Join us / 共建：提交任务 PR · 提交模型结果 · Star · <a style="color:#ffc72c" href="https://github.com/leoz9/mcbench">github.com/leoz9/mcbench</a></footer>
-<script>
-const $=id=>document.getElementById(id);let B,timer,sortKey='overall';const cache={};
-const DD=new URLSearchParams(location.search).has('demo')?'data-demo':'data';
-const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-const short=(o,n=200)=>{const s=JSON.stringify(o);return s.length>n?s.slice(0,n)+'…':s};
-async function trace(m,t){const k=m+'__'+t;if(!cache[k]){const r=await fetch(DD+'/traces/'+encodeURIComponent(k)+'.json');if(!r.ok){const alts=await fetch(DD+'/leaderboard.json').then(x=>x.json());
-  const hit=(alts._files||[]).find(f=>f.startsWith(k));cache[k]=hit?await(await fetch(DD+'/traces/'+encodeURIComponent(hit))).json():null}
-  else cache[k]=await r.json()}return cache[k]}
-function radarSVG(r){const dims=Object.entries(r.radar||{}).filter(([,v])=>v.value!=null);if(!dims.length)return '';
-  const N=dims.length,R=72,cx=140,cy=118;
-  const pts=(scale)=>dims.map(([,v],i)=>{const a=-Math.PI/2+i*2*Math.PI/N,val=(v.value/100)*scale;return [cx+R*val*Math.cos(a),cy+R*val*Math.sin(a)]});
-  const poly=p=>p.map(x=>x.join(',')).join(' ');
-  let grid='';for(const s of[.25,.5,.75,1])grid+=`<polygon points="${poly(pts(s))}" fill="none" stroke="#444" stroke-width="1"/>`;
-  const labels=dims.map(([k,v],i)=>{const a=-Math.PI/2+i*2*Math.PI/N;return `<text x="${cx+(R+18)*Math.cos(a)}" y="${cy+(R+18)*Math.sin(a)}" fill="#ffc72c" font-size="10" text-anchor="middle">${esc(v.label)}</text>`}).join('');
-  return `<svg viewBox="0 0 280 250" width="100%">${grid}<polygon points="${poly(pts(1))}" fill="rgba(255,199,44,.35)" stroke="#ffc72c" stroke-width="2"/>${labels}
-    <text x="140" y="245" text-anchor="middle" fill="#f5f5f5" font-size="12">${esc(r.model)}</text></svg>`}
-function evHtml(e){
- if(e.type==='thought')return `<div class="ev">💭 ${esc(e.text)}</div>`;
- if(e.type==='tool_call')return `<div class="ev call">🔧 <b>${esc(e.name)}</b> ${esc(short(e.args,120))}</div>`;
- if(e.type==='tool_result'){const b=e.result&&e.result.blocked;return `<div class="ev ${b?'blocked':'res'}">${b?'⛔ ':'↩ '}${esc(short(e.result))}</div>`}
- if(e.type==='verdict'){const v=e.verdict||{};if(!v.valid)return `<div class="ev verdict">🧾 无效：${esc((v.errors||[]).join('; '))}</div>`;
-  return `<div class="ev verdict">🧾 ¥${v.payable??'-'} · ${v.kcal??'-'} kcal · ${v.honest?'✅价格一致':'❌'} · ${v.passed?'✅通过':'❌'}<br>${Object.entries(v.checks||{}).map(([k,o])=>k+(o?'✅':'❌')).join(' ')}</div>`}
- return ''}
-async function show(animate){
- clearInterval(timer);const t=$('task').value,[a,b]=[$('ma').value,$('mb').value];
- const isCore=t.startsWith('core/'),tid=isCore?t.slice(5):t;
- const url=m=>{const row=B.rows.find(r=>r.model===m)||{};const name=isCore?((row.core||{}).model||m):m;return DD+(isCore?'/core':'')+'/traces/'+encodeURIComponent(name+'__'+tid)+'.json'};
- let A,Bt;try{A=await(await fetch(url(a))).json()}catch(e){A={prompt:'(无此轨迹)',events:[]}}
- try{Bt=await(await fetch(url(b))).json()}catch(e){Bt={prompt:'(无此轨迹)',events:[]}}
- const sc=m=>{const r=B.rows.find(r=>r.model===m)||{};return (isCore?(r.core||{}).by_task:r.by_task)?.[tid]?.score??'-'};
- const meta=(isCore?((B.rows[0]||{}).core||{}).by_task:(B.rows[0]||{}).by_task)?.[tid]||{};
- const head=(T,m)=>`<h3 style="color:#ffc72c;margin:0 0 8px">${esc(m)} · ${sc(m)} 分</h3><div style="color:#9a9a9a;font-size:12px">任务作者 @${esc(meta.author||'?')} · ${esc(meta.category||'')}/${esc(meta.difficulty||'')} · 维度 ${esc((meta.dimensions||[]).join(', '))}</div><div class="ev">📝 ${esc(T.prompt||'')}</div>`;
- let i=animate?0:1e9;const draw=()=>{$('ta').innerHTML=head(A,a)+(A.events||[]).slice(0,i).map(evHtml).join('');
-  $('tb').innerHTML=head(Bt,b)+(Bt.events||[]).slice(0,i).map(evHtml).join('');
-  for(const el of [$('ta'),$('tb')])el.scrollTop=el.scrollHeight};
- draw();if(animate)timer=setInterval(()=>{i++;draw();if(i>Math.max((A.events||[]).length,(Bt.events||[]).length))clearInterval(timer)},400)}
-function renderBoard(){
- const cat=$('cat').value;const get=(r,k)=>k.startsWith('core.')?((r.core||{})[k.slice(5)]??-1):(r[k]??-1);
- let rows=[...B.rows].sort((a,b)=>get(b,sortKey)-get(a,sortKey));
- const cats=[...new Set(rows.flatMap(r=>Object.keys(r.by_category||{})))].sort();
- $('cat').innerHTML='<option value="">全部（Hard）</option>'+cats.map(c=>`<option ${c===cat?'selected':''}>${c}</option>`).join('');
- $('radars').innerHTML=rows.slice(0,8).map(r=>`<div class="radar">${radarSVG(r)}</div>`).join('')||'暂无雷达数据';
- const pct=x=>x==null?'–':(x*100).toFixed(1)+'%';
- let h=`<table><tr><th data-k="overall">#</th><th>Agent</th><th data-k="overall">Overall</th><th data-k="avg_score">Hard 分</th><th data-k="pass_at_1">Hard pass@1</th>${cat?'<th>该类通过率</th>':''}<th data-k="core.avg_score">Core 分</th><th data-k="core.pass_at_1">Core pass@1</th><th>中位最优差</th><th>调用</th><th>安全违规</th><th>编造编码</th></tr>`;
- rows.forEach((r,i)=>{const c=r.core||{};if(cat&&(r.by_category||{})[cat]==null)return;
-  h+=`<tr><td>${i+1}</td><td class="m">${esc(r.model)}<br><span style="color:#9a9a9a;font-weight:400;font-size:11px">${esc(r.runtime||'')}</span></td>
-  <td><b>${r.overall??'–'}</b></td><td>${r.avg_score??'<span style="color:#9a9a9a">待测</span>'}</td><td>${pct(r.pass_at_1)}<br><span style="color:#9a9a9a;font-size:11px">[${(r.pass_at_1_ci||[]).map(x=>(x*100).toFixed(0)+'%').join(',')}]</span></td>
-  ${cat?`<td>${pct(r.by_category[cat])}</td>`:''}<td>${c.avg_score??'–'}</td><td>${pct(c.pass_at_1)}</td><td>${r.median_gap==null?'–':(r.median_gap*100).toFixed(1)+'%'}</td><td>${r.tool_calls}</td><td>${r.safety_violations}</td><td>${r.hallucinated_codes??0}</td></tr>`});
- $('board').innerHTML=h+`</table><p style="color:#9a9a9a;font-size:12px">点击表头排序。Overall = ${B.weights?B.weights.hard:0.6}×Hard + ${B.weights?B.weights.core.toFixed(1):0.4}×Core（Core 取 v1.0 held-out test 18 题）。严格通过：全部约束 ✓ + 价格诚实 + 零违规 + 工具预算内 + 最优差 ≤2%（Hard：精确最优）。分数为多维 rubric：约束30/最优性25/诚实10/安全15/效率10/澄清10，编造编码 −10/个。</p>`;
- document.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{sortKey=th.dataset.k;renderBoard()});
- const ht=[...new Set(rows.flatMap(r=>Object.keys(r.by_task||{})))].sort();
- const ct=[...new Set(rows.flatMap(r=>Object.keys((r.core||{}).by_task||{})))].sort();
- $('task').innerHTML=ht.map(t=>`<option value="${t}">${t}</option>`).join('')+ct.map(t=>`<option value="core/${t}">core · ${t}</option>`).join('');
- const ms=rows.map(r=>`<option>${r.model}</option>`).join('');$('ma').innerHTML=ms;$('mb').innerHTML=ms;if(rows.length>1)$('mb').selectedIndex=1}
-(async()=>{
- B=await(await fetch(DD+'/leaderboard.json')).json();
- $('banner').hidden=false;
- $('banner').textContent=B.is_mock
-  ?'⚠️ OFFLINE/MOCK：冻结 MCP 快照 + 脚本基线（非真实大模型），用于演示与可复现评测。'
-  :(B.mcp_mode==='live'?'✅ 真实评测：mcp.mcd.cn 实时 dry-run。':'✅ 真实模型 · 离线冻结快照（录制自 mcp.mcd.cn、已脱敏，任何人可复现）。')+' '+(B.note||'');
- $('cat').onchange=renderBoard;['task','ma','mb'].forEach(id=>$(id).onchange=()=>show(false));
- $('play').onclick=()=>show(true);$('all').onclick=()=>show(false);renderBoard();show(false)})();
-</script>
+
+<footer><div class="wrap">
+ <p data-i="foot">本项目为麦当劳程序员节创意开发大赛参赛作品，由参赛者独立开发，非麦当劳官方产品。餐品信息、价格及供应状态以麦当劳官方渠道的实时结果为准。</p>
+ <p>MIT · <a href="https://github.com/leoz9/mcbench">github.com/leoz9/mcbench</a></p>
+</div></footer>
+<script src="app.js"></script>
 </body></html>

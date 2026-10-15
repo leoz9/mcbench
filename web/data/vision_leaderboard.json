@@ -1,0 +1,303 @@
+{
+ "synthetic": true,
+ "rows": [
+  {
+   "model": "gpt-6-luna",
+   "f1": 0.967,
+   "exact": 0.833,
+   "price_mae": 1.41,
+   "tasks": [
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-00",
+     "pred": [
+      "高达吉士双牛堡",
+      "可乐"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 0.667,
+     "f1": 0.8,
+     "id": "vision-01",
+     "pred": [
+      "藍酱炸鸡",
+      "龙焰鸡腿堡",
+      "麦当劳奶昔"
+     ],
+     "price_err": 11.9
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-02",
+     "pred": [
+      "双层吉士汉堡",
+      "燕麦奶",
+      "咖啡阿芙佳朵",
+      "麦乐鸡"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-03",
+     "pred": [
+      "麦香鸡",
+      "麦乐鸡",
+      "培根蔬萃双层牛堡"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-04",
+     "pred": [
+      "灰焰圆筒",
+      "鸡肉堡单品精选"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 0.667,
+     "f1": 0.8,
+     "id": "vision-05",
+     "pred": [
+      "那么大鸡排（椒盐风味）",
+      "灰烬圆筒",
+      "咖啡阿芙佳朵"
+     ],
+     "price_err": 5.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-06",
+     "pred": [
+      "麦当劳奶昔",
+      "龙焰鸡腿堡"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-07",
+     "pred": [
+      "“我就喜欢”鸡薯双全盒",
+      "可乐",
+      "燕麦奶",
+      "麦香鱼"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-08",
+     "pred": [
+      "雪碧",
+      "纯悦"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-09",
+     "pred": [
+      "蘸酱韩式甜辣酱鸡块",
+      "鸡肉堡单品精选"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-10",
+     "pred": [
+      "龙焰芝士棒鸡腿堡",
+      "可乐"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-11",
+     "pred": [
+      "牛肉堡单品精选",
+      "阳光柠檬红茶",
+      "蓝莓爆爆珠麦旋风",
+      "【美汁源】“黄金橙橙”"
+     ],
+     "price_err": 0.0
+    }
+   ]
+  },
+  {
+   "model": "gpt-5.6-luna",
+   "f1": 0.911,
+   "exact": 0.667,
+   "price_mae": 5.08,
+   "tasks": [
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-00",
+     "pred": [
+      "高达吉士双牛堡",
+      "可乐"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 0.667,
+     "f1": 0.8,
+     "id": "vision-01",
+     "pred": [
+      "蘸酱炸鸡",
+      "龙焱鸡腿堡",
+      "麦当劳奶昔"
+     ],
+     "price_err": 24.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-02",
+     "pred": [
+      "双层吉士汉堡",
+      "燕麦奶",
+      "咖啡阿芙佳朵",
+      "麦乐鸡"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-03",
+     "pred": [
+      "麦香鸡",
+      "麦乐鸡",
+      "培根蔬萃双层牛堡"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 0.5,
+     "f1": 0.667,
+     "id": "vision-04",
+     "pred": [
+      "炙烤圆筒",
+      "鸡肉堡单品精选"
+     ],
+     "price_err": 5.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 0.667,
+     "f1": 0.8,
+     "id": "vision-05",
+     "pred": [
+      "那么大鸡排（椒盐风味）",
+      "炭烤圆筒",
+      "咖啡阿芙佳朵"
+     ],
+     "price_err": 5.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-06",
+     "pred": [
+      "麦当劳奶昔",
+      "龙焰鸡腿堡"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-07",
+     "pred": [
+      "“我就喜欢”鸡薯双全盒",
+      "可乐",
+      "燕麦奶",
+      "麦香鱼"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-08",
+     "pred": [
+      "雪碧",
+      "纯悦"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-09",
+     "pred": [
+      "蘸酱韩式甜辣酱鸡块",
+      "鸡肉堡单品精选"
+     ],
+     "price_err": 0.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 0.5,
+     "f1": 0.667,
+     "id": "vision-10",
+     "pred": [
+      "龙烤芝士棒鸡腿堡",
+      "可乐"
+     ],
+     "price_err": 27.0
+    },
+    {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "id": "vision-11",
+     "pred": [
+      "牛肉堡单品精选",
+      "阳光柠檬红茶",
+      "蓝莓爆爆珠麦旋风",
+      "【美汁源】“黄金橙橙”"
+     ],
+     "price_err": 0.0
+    }
+   ]
+  }
+ ]
+}
