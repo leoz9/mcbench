@@ -1,0 +1,4 @@
+# Cloudflare Pages (static site). Deploy: npx wrangler pages deploy  (uses pages_build_output_dir)
+name = "mcbench"
+compatibility_date = "2026-10-01"
+pages_build_output_dir = "web"

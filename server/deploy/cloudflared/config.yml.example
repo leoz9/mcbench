@@ -1,0 +1,11 @@
+# Copy to config.yml and fill in. Credentials JSON comes from `cloudflared tunnel create mcbench-api`
+# and must NOT be committed (see .gitignore).
+tunnel: <TUNNEL_UUID>
+credentials-file: /etc/cloudflared/<TUNNEL_UUID>.json
+ingress:
+  - hostname: api.<your-domain>
+    service: http://api:8787
+    originRequest:
+      connectTimeout: 10s
+      noTLSVerify: false
+  - service: http_status:404

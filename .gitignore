@@ -10,3 +10,10 @@ runs/latest/
 runs/live*/
 node_modules/
 runs/probe/
+server/var/
+server/.env
+server/backups/
+server/deploy/cloudflared/*.json
+server/deploy/cloudflared/config.yml
+.wrangler/
+server/tests/_tmp/

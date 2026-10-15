@@ -1,0 +1,23 @@
+# Run from repo root:  docker compose -f server/docker-compose.yml --env-file server/.env up -d --build
+# No host ports are published: traffic only arrives through the Cloudflare Tunnel.
+services:
+  api:
+    build: { context: .., dockerfile: server/Dockerfile }
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - mcbench-data:/data
+      - ../web/data:/app/web/data:ro   # official board; `git pull` updates it without rebuild
+    networks: [internal]
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./deploy/cloudflared:/etc/cloudflared:ro
+    depends_on: [api]
+    networks: [internal]
+volumes:
+  mcbench-data:
+networks:
+  internal:
