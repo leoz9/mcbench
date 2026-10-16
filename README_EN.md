@@ -17,15 +17,15 @@ pip install -e . && mcbench demo   # offline frozen snapshot + scripted baseline
 
 | Agent | Overall | Hard score | Hard pass@1 | Core score | Core pass@1 |
 |---|---:|---:|---:|---:|---:|
-| **gpt-6-luna** (Codex CLI) | **79.7** | 68.5 | 13.6% | **96.5** | 64.8% |
+| **gpt-6-sol** (Codex CLI) | **88.4** | **84.7** | **59.1%** | 94.0 | 83.3% |
+| gpt-6.1-sol (Codex CLI) | 84.3 | 78.8 | 40.9% | 92.6 | 83.3% |
+| gpt-6-luna (Codex CLI) | 79.7 | 68.5 | 13.6% | **96.5** | 64.8% |
 | demo-planner (exact-solver script, upper reference) | 78.7 | 70.4 | 54.5% | 91.1 | 100% |
 | gpt-5.6-luna (Codex CLI) | 71.5 | 63.8 | 22.7% | 83.1 | 68.5% |
 | demo-greedy | 53.7 | 50.5 | 0% | 58.6 | 0% |
 | demo-hasty | 15.3 | 14.5 | 0% | 16.5 | 0% |
-| gpt-6-sol (Codex CLI) | pending | **84.7** | **59.1%** | pending | pending |
-| gpt-6.1-sol (Codex CLI) | pending | 78.8 | 40.9% | pending | pending |
 
-gpt-6-sol beats the exact-solver script on both Hard score and strict pass rate (84.7 / 59.1% vs 70.4 / 54.5%); gpt-6.1-sol also scores higher but passes fewer tasks (40.9%). The luna models are near-perfect on Core but pass only 14–23% of Hard tasks. Luna Core numbers reuse the v1.0 test-split traces re-scored under v1.1 rules. The sol models' Core test runs hit the Codex usage limit, so their Overall is pending; `scripts/run_hard_4.sh` resumes and updates the board.
+gpt-6-sol beats the exact-solver script on both Hard score and strict pass rate (84.7 / 59.1% vs 70.4 / 54.5%); gpt-6.1-sol also scores higher but passes fewer tasks (40.9%). The luna models are near-perfect on Core but pass only 14–23% of Hard tasks. Luna Core numbers reuse the v1.0 test-split traces re-scored under v1.1 rules. The two sol models finished the 18-task Core test split on 2026-10-16 (k=1, zero safety violations); gpt-6-sol now leads with Overall 88.4, and both sol models beat the exact-solver script on Overall (78.7).
 
 ## v1.0 results (legacy scoring) (54 tasks, offline frozen snapshot recorded from mcp.mcd.cn, 2026-10-15)
 
