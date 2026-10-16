@@ -1,7 +1,9 @@
-# 🍔 McBench：鹈鹕骑车 is out，麦当劳点餐 is in
+# McBench：真实商业 MCP 环境下的多维度 Agent 评测基准
+
+*McBench: A Multi-Dimensional Benchmark for LLM Agents in Real-World Commercial MCP Environments*
 
 [![CI](https://github.com/leoz9/mcbench/actions/workflows/ci.yml/badge.svg)](https://github.com/leoz9/mcbench/actions/workflows/ci.yml)
-[![Leaderboard](https://img.shields.io/badge/leaderboard-live-ffc72c)](https://cv.leozto.sbs/mcbench/)
+[![Leaderboard](https://img.shields.io/badge/leaderboard-live-ffc72c)](https://mcbench.velaios.com/)
 [![Tasks](https://img.shields.io/badge/tasks-120%20(Core%2054%20%C2%B7%20Hard%2065)-db0007)](docs/task-design.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![共建](https://img.shields.io/badge/PRs-%E5%85%B1%E5%BB%BA%E6%AC%A2%E8%BF%8E-brightgreen)](CONTRIBUTING.md)
@@ -10,7 +12,7 @@
 > **McBench 是一个多维度、社区共建的 Agent 基准**：9 个能力维度出一张雷达图，任务人人可投稿，CI 自动验证。
 > 全程 dry-run：`create-order` 等下单 / 改账户工具在 harness 层拦截，**绝不产生真实订单**。
 
-[English README](README_EN.md) · [在线榜单](https://cv.leozto.sbs/mcbench/) · [方法论](docs/methodology.md) · [共建任务](docs/contributing-tasks.md)
+[English README](README_EN.md) · [在线榜单](https://mcbench.velaios.com/) · [方法论](docs/methodology.md) · [共建任务](docs/contributing-tasks.md)
 
 ```bash
 pip install -e . && mcbench demo      # 一行试玩：离线冻结快照 + 脚本基线，不要 Token、不要 API Key

@@ -1,4 +1,4 @@
-# 🍔 McBench — pelicans on bicycles are out, ordering McDonald's is in
+# McBench: A Multi-Dimensional Benchmark for LLM Agents in Real-World Commercial MCP Environments
 
 [![CI](https://github.com/leoz9/mcbench/actions/workflows/ci.yml/badge.svg)](https://github.com/leoz9/mcbench/actions/workflows/ci.yml)
 [![Leaderboard](https://img.shields.io/badge/leaderboard-live-ffc72c)](https://cv.leozto.sbs/mcbench/)
