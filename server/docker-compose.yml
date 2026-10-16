@@ -7,7 +7,7 @@ services:
     env_file: .env
     volumes:
       - mcbench-data:/data
-      - ../web/data:/app/web/data:ro   # official board; `git pull` updates it without rebuild
+      - ../web/data:/app/web/data:ro,z   # official board; `git pull` updates it without rebuild
     networks: [internal]
   cloudflared:
     image: cloudflare/cloudflared:latest
