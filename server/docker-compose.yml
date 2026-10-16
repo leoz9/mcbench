@@ -12,9 +12,10 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
-    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
-    volumes:
-      - ./deploy/cloudflared:/etc/cloudflared:ro
+    # Remotely-managed tunnel: ingress is configured in Cloudflare; only the token lives on the VPS (server/.env).
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?set TUNNEL_TOKEN in server/.env}
     depends_on: [api]
     networks: [internal]
 volumes:
