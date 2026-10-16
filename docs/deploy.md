@@ -98,3 +98,9 @@ python -m http.server -d ../web 8000   # 打开 http://localhost:8000/?api=http:
 pytest -q server/tests
 ```
 `ALLOW_SCRIPTED=1` 允许提交脚本代理（`provider: scripted`, `model: demo-planner|demo-greedy|demo-hasty`）做端到端测试。
+
+## 6. 当前线上部署（2026-10-16）
+- 站点：https://mcbench.velaios.com（Cloudflare Pages 项目 `mcbench`，`.github/workflows/cloudflare-pages.yml` 在 push `web/**` 时自动部署；仓库 secrets `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID`）。备用：https://mcbench.pages.dev；GitHub Pages 保留为镜像。
+- API：https://mcbench-api.velaios.com（命名隧道 `mcbench-api`，远程管理 ingress → `http://api:8787`；cloudflared 以 `TUNNEL_TOKEN` 运行在 compose 中）。
+  `api.mcbench.velaios.com` 的 DNS/ingress 也已配置，但它是二级子域，Cloudflare 免费 Universal SSL 不覆盖（需 Advanced Certificate Manager 或 Total TLS），因此前端使用 `mcbench-api.velaios.com`。
+- VPS：`/opt/mcbench`，`/etc/cron.d/mcbench`（每 15 分钟 `git pull` 同步官方榜单数据；每天 04:15 本地备份到 `server/backups/`，key 字段清空）。
