@@ -6,8 +6,8 @@
 <meta name="description" content="McBench: A Multi-Dimensional Benchmark for LLM Agents in Real-World Commercial MCP Environments.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="app.css?v=bdfd358">
-<script src="config.js?v=bdfd358"></script>
+<link rel="stylesheet" href="app.css?v=202610172343">
+<script src="config.js?v=202610172343"></script>
 <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
@@ -37,7 +37,7 @@
 <section class="teaser"><div class="wrap">
  <div class="teasergrid">
   <figure class="fig"><div id="herochart" class="figbody"></div>
-   <figcaption><b data-i="fig1">图 1.</b> <span data-i="fig1c">各 Agent 在 McBench-Hard（held-out test）上的得分与工具调用次数（对数轴）。实心点为大模型，空心点为脚本基线（非大模型）。</span></figcaption></figure>
+   <figcaption><b data-i="fig1">图 1.</b> <span data-i="fig1c">各 Agent 在 McBench-Hard（held-out test）上的得分与工具调用次数（对数轴）。每个点为一个已评测的大模型 Agent。</span></figcaption></figure>
   <div class="statcol"><div class="stats" id="stats"></div><div id="banner" class="banner" hidden></div></div>
  </div>
 </div></section>
@@ -61,7 +61,6 @@
   <label><span data-i="f_cat">类别</span><select id="cat"></select></label>
   <label><span data-i="f_dim">维度</span><select id="dim"></select></label>
   <label class="search"><input id="q" type="search" placeholder="搜索模型" data-ph="q_ph"></label>
-  <label class="chk"><input type="checkbox" id="showBase" checked> <span data-i="f_base">显示脚本基线</span></label>
  </div>
  <div class="tablewrap" id="tablewrap"><table id="board"></table></div>
  <div class="chartwrap" id="chartwrap" hidden></div>
@@ -164,5 +163,5 @@ mcbench tasks validate tasks/community/</code></pre>
  <p data-i="foot">本项目为麦当劳程序员节创意开发大赛参赛作品，由参赛者独立开发，非麦当劳官方产品。餐品信息、价格及供应状态以麦当劳官方渠道的实时结果为准。</p>
  <p>McBench Team · MIT License · <a href="https://github.com/leoz9/mcbench">github.com/leoz9/mcbench</a></p>
 </div></footer>
-<script src="app.js?v=bdfd358"></script>
+<script src="app.js?v=202610172343"></script>
 </body></html>

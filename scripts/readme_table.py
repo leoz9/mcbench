@@ -5,16 +5,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 rows = json.load(open(ROOT / "web/data/leaderboard.json", encoding="utf-8"))["rows"]
-rows = [r for r in rows if r["overall"] is not None]
+# Real LLM results only: no scripted baselines / demo / mock / placeholder rows, no pending rows.
+BASELINE_RE = re.compile(r"^(demo|mock|placeholder|example|dummy|test)[-_]|scripted|脚本", re.I)
+rows = [r for r in rows if r["overall"] is not None and not BASELINE_RE.search(r["model"])
+        and not BASELINE_RE.search(r.get("runtime") or "")]
 cols = [("overall", lambda r: r["overall"]), ("hard", lambda r: r["avg_score"]), ("hp1", lambda r: r["pass_at_1"]),
         ("core", lambda r: r["core"]["avg_score"]), ("cp1", lambda r: r["core"]["pass_at_1"])]
-best = {k: max(f(r) for r in rows if not r["model"].startswith("demo-")) for k, f in cols}
+best = {k: max(f(r) for r in rows) for k, f in cols}
 
 
 def label(r, zh):
     m, rt = r["model"], r["runtime"] or ""
-    if m == "demo-planner":
-        return m + ("（精确求解器脚本，上界参考）" if zh else " (exact-solver script, upper reference)")
     if rt.startswith("Codex CLI"):
         s = "Codex CLI"
     elif rt.startswith("opencode CLI"):
@@ -26,7 +27,7 @@ def label(r, zh):
 
 def fmt(k, v, r):
     s = f"{v * 100:.1f}%".replace(".0%", "%") if k in ("hp1", "cp1") else f"{v:.1f}"
-    return f"**{s}**" if (not r["model"].startswith("demo-") and v == best[k]) else s
+    return f"**{s}**" if v == best[k] else s
 
 
 def table(zh):

@@ -1,7 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const DD=new URLSearchParams(location.search).has('demo')?'data-demo':'data';
+const DD='data';
 const QS=new URLSearchParams(location.search);
 const API=(QS.get('api')||(window.MCBENCH_CONFIG||{}).apiBase||'').replace(/\/$/,'');
 let apiOK=false,view='table';
@@ -9,11 +9,11 @@ let B=null,V=null,tab='overall',sortKey=null,sel=null,timer;
 let lang=localStorage.getItem('lang')||'zh';
 
 /* ---------- i18n (Chinese is the HTML default; EN overrides) ---------- */
-const EN={venue:'Benchmark · v1.2 · 2026',title:'McBench: A Multi-Dimensional Benchmark for LLM Agents in Real-World Commercial MCP Environments',subtitle:'McBench：真实商业 MCP 环境下的多维度 Agent 评测基准',l_paper:'Paper / Docs',l_code:'Code',l_lb:'Leaderboard',l_submit:'Submit',l_data:'Dataset',fig1:'Figure 1.',fig1c:'McBench-Hard (held-out test) score vs. number of tool calls (log scale). Filled markers are LLM agents; hollow markers are scripted baselines (not LLMs).',fig3:'Figure 3.',fig3c:'Evaluation pipeline: task, tool calls, write-blocking and grading.',h_abs:'Abstract',abs:'Existing agent benchmarks mostly rely on synthetic APIs or simulated websites and miss the constraints, pricing and safety risks of real commercial services. McBench places LLM agents in an offline frozen snapshot of a real commercial MCP service (restaurant ordering) and asks them to solve multi-step tasks — finding stores, comparing meals, stacking coupons, meeting budget and nutrition constraints — graded against exact solver optima. Scores cover six dimensions: constraint satisfaction, optimality, price honesty, safety, efficiency and clarification; every write operation is intercepted at the proxy so no real order is ever placed. The benchmark has 120 tasks (Core 54 + Hard 65 + community); the headline board uses a held-out test split and reports pass@1 confidence intervals and pass^k consistency.',h_find:'Key findings',n00:'Four LLMs evaluated on Hard test; online submission and anonymous arena launched.',nav_lb:'Leaderboard',nav_replay:'Traces',nav_method:'Method',nav_co:'Contribute',nav_news:'News',nav_cite:'Cite',
+const EN={venue:'Benchmark · v1.2 · 2026',title:'McBench: A Multi-Dimensional Benchmark for LLM Agents in Real-World Commercial MCP Environments',subtitle:'McBench：真实商业 MCP 环境下的多维度 Agent 评测基准',l_paper:'Paper / Docs',l_code:'Code',l_lb:'Leaderboard',l_submit:'Submit',l_data:'Dataset',fig1:'Figure 1.',fig1c:'McBench-Hard (held-out test) score vs. number of tool calls (log scale) for each evaluated LLM agent.',fig3:'Figure 3.',fig3c:'Evaluation pipeline: task, tool calls, write-blocking and grading.',h_abs:'Abstract',abs:'Existing agent benchmarks mostly rely on synthetic APIs or simulated websites and miss the constraints, pricing and safety risks of real commercial services. McBench places LLM agents in an offline frozen snapshot of a real commercial MCP service (restaurant ordering) and asks them to solve multi-step tasks — finding stores, comparing meals, stacking coupons, meeting budget and nutrition constraints — graded against exact solver optima. Scores cover six dimensions: constraint satisfaction, optimality, price honesty, safety, efficiency and clarification; every write operation is intercepted at the proxy so no real order is ever placed. The benchmark has 120 tasks (Core 54 + Hard 65 + community); the headline board uses a held-out test split and reports pass@1 confidence intervals and pass^k consistency.',h_find:'Key findings',n00:'Four LLMs evaluated on Hard test; online submission and anonymous arena launched.',nav_lb:'Leaderboard',nav_replay:'Traces',nav_method:'Method',nav_co:'Contribute',nav_news:'News',nav_cite:'Cite',
 kicker:'McBench v1.2 · 120 tasks · multi-dimensional agent benchmark',
 pitch:'LLM agents actually "order McDonald\'s" over MCP: find stores, compare meals, stack coupons, respect budget and nutrition constraints — dry-run only, never a real order.',
 b_star:'GitHub / Star',b_docs:'Paper-style docs',b_submit:'Submit model',b_tasks:'Contribute tasks',
-h_lb:'Leaderboard',f_cat:'Category',f_dim:'Dimension',f_base:'Show scripted baselines',
+h_lb:'Leaderboard',f_cat:'Category',f_dim:'Dimension',
 h_replay:'Trace replay',replay_sub:'Step through each agent\'s thoughts, tool calls and blocked write attempts, then the verdict.',
 r_task:'Task',r_play:'Play',r_all:'Show all',h_video:'McBench in one minute',h_method:'Methodology',
 m1t:'Tasks',m1:'Core v1.0: 54 tasks, 9 categories, easy/medium/hard, dev/test split. Hard: 65 exact-optimum tasks (headline uses the held-out test split of 22; 43 dev tasks are public) — knapsack combos, distinct items per person, near-boundary infeasibility, tool budgets, mid-episode requirement changes, prompt injection in tool output, distractor tools, hidden constraints. All references come from an exact solver and are re-verified in tests.',
@@ -32,7 +32,7 @@ const S={zh:{all:'全部',pending:'待测',base:'脚本基线',baseTip:'脚本�
  n_overall:w=>`Overall = ${w.hard}×Hard + ${(+w.core).toFixed(1)}×Core(test)。Hard 或 Core 尚未跑完的模型显示“待测”，跑分完成后自动更新。点击行查看详情，点击表头排序。`,
  n_hard:'McBench-Hard：精确最优题（held-out test 划分），差 1 分钱也不算通过。',n_core:'Core v1.0 held-out test 18 题（与 Hard 同一冻结快照）。',
  n_vision:'Vision 预览赛道：从餐品图片识别并报价。当前为合成数据，仅供参考，不计入 Overall。',
- legend:'严格通过：约束全满足 + 价格诚实 + 零违规 + 预算内 + 最优差 ≤2%（Hard：精确）。脚本基线是规则程序而非大模型，仅作参照下限/上限。',
+ legend:'严格通过：约束全满足 + 价格诚实 + 零违规 + 预算内 + 最优差 ≤2%（Hard：精确）。',
  st_tasks:'评测任务',st_models:'已评测大模型',st_dims:'能力维度',st_viol:'真实下单',
  d_radar:'能力雷达',d_cost:'成本与效率',d_cats:'分类别通过率',noTrace:'(无此轨迹)',author:'任务作者',dims:'维度',
  banner_off:'离线冻结快照（录制自官方 MCP、已脱敏，任何人可复现）。',banner_mock:'OFFLINE/MOCK 演示数据：脚本基线（非真实大模型）。',copied:'已复制',com:'社区·未复核',q_ph:'搜索模型…',tq_ph:'搜索任务 id / 标题…',allCat:'全部类别',allDiff:'全部难度',tasksN:(n,m)=>`共 ${n} 题 · 显示 ${m}`,api_on:'API 在线',api_off:'静态模式',off_note:'后端 API 暂不可用，已回退到静态数据：提交与投票暂时关闭。',sub_ok:id=>`已入队 #${id}，正在评测…`,sub_done:'评测完成，已上榜！',sub_fail:'评测失败：',queued:p=>`排队中（前面 ${p} 个）`,running:'评测中…',reveal:'揭晓：',voted:'感谢投票！',elo:'社区 Elo',votes:'票数',arena_need:'至少需要两条可回放轨迹',chartAxis:'分数'},
@@ -41,7 +41,7 @@ const S={zh:{all:'全部',pending:'待测',base:'脚本基线',baseTip:'脚本�
  n_overall:w=>`Overall = ${w.hard}×Hard + ${(+w.core).toFixed(1)}×Core(test). Models whose Hard or Core run is not finished show "pending" and update automatically. Click a row for details, a header to sort.`,
  n_hard:'McBench-Hard: 65 exact-optimum tasks (headline uses the held-out test split of 22; 43 dev tasks are public) — one cent off is a fail.',n_core:'Core v1.0 held-out test split, 18 tasks (same frozen snapshot as Hard).',
  n_vision:'Vision preview track: recognise and price meals from photos. Currently synthetic data — indicative only, not part of Overall.',
- legend:'Strict pass: all constraints + honest price + zero violations + within budget + gap ≤ 2% (Hard: exact). Scripted baselines are rule-based programs, not LLMs — reference points only.',
+ legend:'Strict pass: all constraints + honest price + zero violations + within budget + gap ≤ 2% (Hard: exact).',
  st_tasks:'tasks',st_models:'LLMs evaluated',st_dims:'capability dims',st_viol:'real orders placed',
  d_radar:'Capability radar',d_cost:'Cost & efficiency',d_cats:'Pass rate by category',noTrace:'(no trace)',author:'Task author',dims:'dimensions',
  banner_off:'Offline frozen snapshot (recorded from the official MCP, scrubbed, reproducible by anyone).',banner_mock:'OFFLINE/MOCK demo data: scripted baselines (not LLMs).',copied:'Copied',com:'community · unverified',q_ph:'Search models…',tq_ph:'Search task id / title…',allCat:'All categories',allDiff:'All difficulties',tasksN:(n,m)=>`${n} tasks · showing ${m}`,api_on:'API online',api_off:'static mode',off_note:'Backend API unreachable — showing static data; submission and voting are disabled.',sub_ok:id=>`Queued #${id}, evaluating…`,sub_done:'Done — now on the leaderboard!',sub_fail:'Evaluation failed: ',queued:p=>`queued (${p} ahead)`,running:'running…',reveal:'Revealed: ',voted:'Thanks for voting!',elo:'Community Elo',votes:'votes',arena_need:'Need at least two replayable traces',chartAxis:'score'}};
@@ -54,7 +54,7 @@ function applyLang(){document.documentElement.lang=lang==='zh'?'zh-CN':'en';$('l
  if(B){renderStats();renderBanner();renderBoard();show(false);renderTasks();renderApiState();arenaLoad()}}
 
 /* ---------- helpers ---------- */
-const isBase=r=>/^demo-/.test(r.model)||/脚本|scripted/i.test(r.runtime||'');
+const isBase=r=>/^(demo|mock|placeholder|example|dummy|test)[-_]/i.test(r.model)||/脚本|scripted|mock|placeholder/i.test(r.runtime||'');
 const num=x=>x==null||Number.isNaN(x)?null:x;
 const pct=x=>x==null?'–':(x*100).toFixed(1)+'%';
 const pend=()=>`<span class="pend">${t('pending')}</span>`;
@@ -72,7 +72,7 @@ const filterOn=()=>$('cat').value||$('dim').value;
 function rowsFor(){
  if(tab==='vision')return (V?.rows||[]).map(r=>({...r,_v:1}));
  const q=$('q').value.trim().toLowerCase();
- return B.rows.filter(r=>($('showBase').checked||!isBase(r))&&(!q||r.model.toLowerCase().includes(q))).map(r=>{
+ return B.rows.filter(r=>!isBase(r)&&(!q||r.model.toLowerCase().includes(q))).map(r=>{
   const h=filterOn()?agg(r,'hard'):{score:num(r.avg_score),pass:num(r.pass_at_1),passk:num(r.pass_hat_k)};
   const c=filterOn()?agg(r,'core'):{score:num(r.core?.avg_score),pass:num(r.core?.pass_at_1)};
   const ov=filterOn()?(h.score!=null&&c.score!=null?B.weights.hard*h.score+B.weights.core*c.score:null):num(r.overall);
@@ -90,14 +90,13 @@ function cols(){
 function renderStats(){const llm=B.rows.filter(r=>!isBase(r));const nh=Math.max(0,...B.rows.map(r=>Object.keys(r.by_task||{}).length));
  const nc=Math.max(0,...B.rows.map(r=>Object.keys(r.core?.by_task||{}).length));const dims=Object.keys(B.rows[0]?.radar||{}).length;const zh=lang==='zh';
  $('stats').innerHTML=[['120',zh?'任务总数（Core 54 + Hard 65 + 社区）':'tasks (Core 54 + Hard 65 + community)'],[String(nh+nc),zh?`主榜评测题（Hard ${nh} + Core ${nc}，test）`:`headline tasks (Hard ${nh} + Core ${nc}, test)`],[String(llm.length),t('st_models')],[String(dims),t('st_dims')]].map(([b,s])=>`<div class="stat"><b data-n="${b}">${b}</b><span>${s}</span></div>`).join('');countUp();renderFindings()}
-function renderFindings(){const zh=lang==='zh',L=B.rows.filter(r=>!isBase(r)&&r.avg_score!=null),base=B.rows.filter(isBase),f=[];
+function renderFindings(){const zh=lang==='zh',L=B.rows.filter(r=>!isBase(r)&&r.avg_score!=null),f=[];
  if(L.length){const avgR=k=>{const v=L.map(r=>r.rubric?.[k]).filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null},rc=avgR('constraints'),ro=avgR('optimality'),best=[...L].sort((a,b)=>b.avg_score-a.avg_score)[0],bp=[...L].sort((a,b)=>(b.pass_at_1??0)-(a.pass_at_1??0))[0];
   f.push(zh?`<b>Hard 远未饱和。</b>最佳大模型 ${esc(best.model)} 在 Hard test 上得分 ${best.avg_score}，严格通过率最高为 ${pct(bp.pass_at_1)}（${esc(bp.model)}）；${rc!=null&&ro!=null?`大模型在最优性维度的平均得分（${(ro*100).toFixed(0)}）${ro<rc?'低于':'高于'}约束满足维度（${(rc*100).toFixed(0)}）。`:''}`:`<b>Hard is far from saturated.</b> The best LLM, ${esc(best.model)}, scores ${best.avg_score} on Hard test; the highest strict pass rate is ${pct(bp.pass_at_1)} (${esc(bp.model)}). ${rc!=null&&ro!=null?`Across LLMs the mean optimality score (${(ro*100).toFixed(0)}) is ${ro<rc?'lower':'higher'} than constraint satisfaction (${(rc*100).toFixed(0)}).`:''}`);
   const both=L.filter(r=>r.core?.avg_score!=null);if(both.length){const r=both.sort((a,b)=>(b.core.avg_score-b.avg_score)-(a.core.avg_score-a.avg_score))[0];
    f.push(zh?`<b>Core 与 Hard 存在明显落差。</b>${esc(r.model)} 在 Core 上得分 ${r.core.avg_score}，在 Hard 上降至 ${r.avg_score}：精确优化与对抗性设置显著拉开差距。`:`<b>A clear Core→Hard gap.</b> ${esc(r.model)} scores ${r.core.avg_score} on Core but ${r.avg_score} on Hard: exact optimisation and adversarial settings separate models.`)}
-  const pl=base.find(r=>r.model==='demo-planner'),mc=Math.max(...L.map(r=>r.tool_calls||0)),ratio=pl&&mc?(pl.tool_calls/mc).toFixed(1):null;if(pl&&pl.pass_at_1!=null&&ratio)f.push(zh?`<b>穷举式脚本基线仍具竞争力。</b>非大模型的规划脚本（demo-planner）以 ${pl.tool_calls.toLocaleString()} 次调用达到 ${pct(pl.pass_at_1)} 的严格通过率，是调用最多的大模型的 ${ratio} 倍——效率与最优性之间存在权衡（图 1）。`:`<b>Exhaustive scripted baselines remain competitive.</b> The non-LLM planner script reaches ${pct(pl.pass_at_1)} strict pass with ${pl.tool_calls.toLocaleString()} calls, ${ratio}× the calls of the most call-hungry LLM — an efficiency/optimality trade-off (Fig. 1).`);
-  const sv=L.reduce((a,r)=>a+(r.safety_violations||0),0),hb=base.find(r=>r.safety_violations>0);
-  f.push(zh?`<b>安全性：</b>已评测大模型共 ${sv} 次写操作违规${hb?`；作为对照，故意“直接下单”的脚本基线 ${esc(hb.model)} 被拦截 ${hb.safety_violations} 次`:''}，写操作拦截确保评测零真实订单。`:`<b>Safety:</b> evaluated LLMs made ${sv} write violations${hb?`; as a control, the deliberately hasty script ${esc(hb.model)} was blocked ${hb.safety_violations} times`:''}. Write-blocking guarantees zero real orders.`)}
+  const sv=L.reduce((a,r)=>a+(r.safety_violations||0),0),hc=L.reduce((a,r)=>a+(r.hallucinated_codes||0),0);
+  f.push(zh?`<b>安全性：</b>已评测的 ${L.length} 个大模型在 Hard test 上共 ${sv} 次写操作违规、${hc} 个编造编码；写操作在代理层被拦截，评测零真实订单。`:`<b>Safety:</b> the ${L.length} evaluated LLMs made ${sv} write violations and ${hc} hallucinated codes on Hard test; writes are blocked at the proxy, so no real order is ever placed.`)}
  const pend2=B.rows.filter(r=>!isBase(r)&&(r.avg_score==null||r.core?.avg_score==null)).map(r=>r.model);
  if(pend2.length)f.push(zh?`部分结果待补：${pend2.map(esc).join('、')} 的 Hard 或 Core 尚未完成，Overall 暂不排名。`:`Pending: Hard or Core runs for ${pend2.map(esc).join(', ')} are incomplete, so they are not ranked on Overall yet.`);
  $('findings').innerHTML=f.map(x=>`<li>${x}</li>`).join('')}
@@ -163,13 +162,14 @@ async function show(animate){clearInterval(timer);if(!$('task').value)return;con
 $('lang').onclick=()=>{lang=lang==='zh'?'en':'zh';localStorage.setItem('lang',lang);applyLang()};
 $('theme').onclick=()=>{const h=document.documentElement,n=h.dataset.theme==='dark'?'light':'dark';h.dataset.theme=n;localStorage.setItem('theme',n)};
 $('tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;tab=b.dataset.tab;sortKey=null;document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));renderBoard()};
-['cat','dim','showBase'].forEach(id=>$(id).onchange=renderBoard);$('q').oninput=renderBoard;['task','ma','mb'].forEach(id=>$(id).onchange=()=>show(false));
+['cat','dim'].forEach(id=>$(id).onchange=renderBoard);$('q').oninput=renderBoard;['task','ma','mb'].forEach(id=>$(id).onchange=()=>show(false));
 $('play').onclick=()=>show(true);$('all').onclick=()=>show(false);
 $('copybib').onclick=()=>{navigator.clipboard?.writeText($('bibtex').textContent);$('copybib').textContent=t('copied')};
 (async()=>{const nc={cache:'no-cache'};
- if(API&&!QS.has('demo')){try{const ctl=new AbortController();setTimeout(()=>ctl.abort(),4000);
+ if(API){try{const ctl=new AbortController();setTimeout(()=>ctl.abort(),4000);
    const r=await fetch(API+'/api/leaderboard',{signal:ctl.signal});if(r.ok){B=await r.json();apiOK=true}}catch(e){}}
  if(!B)B=await(await fetch(DD+'/leaderboard.json',nc)).json();B.weights=B.weights||{hard:.6,core:.4};
+ B.rows=(B.rows||[]).filter(r=>!isBase(r)&&(r.avg_score!=null||r.core?.avg_score!=null)); // real LLM results only
  try{const r=await fetch(DD+'/vision_leaderboard.json',nc);if(r.ok)V=await r.json()}catch(e){}
  fillReplay();initExtras();applyLang()})();
 
@@ -215,7 +215,7 @@ function renderTasks(){if(!B)return;const T=allTasks(),q=$('tq').value.trim().to
  opt('tcat',[...new Set(T.map(x=>x.category))].filter(Boolean).sort(),t('allCat'));opt('tdiff',[...new Set(T.map(x=>x.difficulty))].filter(Boolean).sort(),t('allDiff'));
  const F=T.filter(x=>(!st||x.set===st)&&(!c||x.category===c)&&(!d||x.difficulty===d)&&(!q||x.key.includes(q)));
  const pages=Math.max(1,Math.ceil(F.length/TPS));tpage=Math.min(tpage,pages-1);const P=F.slice(tpage*TPS,tpage*TPS+TPS);
- const models=B.rows.filter(r=>$('showBase').checked||!isBase(r));
+ const models=B.rows.filter(r=>!isBase(r));
  const cell=(r,x)=>{const v=(x.set==='core'?r.core?.by_task:r.by_task)?.[x.id];if(!v)return `<td class="hc na" title="${t('pending')}">·</td>`;
   const s=v.score??0,a=Math.round(s);return `<td class="hc${v.pass_at_1>=1?' pass':''}" data-t="${esc(x.key)}" data-m="${esc(r.model)}" style="--s:${s}" title="${esc(r.model)} · ${s}">${a}</td>`};
  $('tgrid').innerHTML=`<thead><tr><th class="l">${lang==='zh'?'任务':'Task'}</th><th class="l">${lang==='zh'?'类别':'Category'}</th><th>${lang==='zh'?'难度':'Difficulty'}</th>${models.map(r=>`<th class="vm" title="${esc(r.model)}"><span>${esc(r.model)}</span></th>`).join('')}</tr></thead><tbody>`+
@@ -252,7 +252,6 @@ async function loadElo(){try{const r=await(await fetch(API+'/api/votes/ratings')
 function initExtras(){
  document.querySelectorAll('.viewtog button').forEach(b=>b.onclick=()=>{view=b.dataset.view;document.querySelectorAll('.viewtog button').forEach(x=>x.classList.toggle('on',x===b));renderBoard()});
  ['tq'].forEach(id=>$(id).oninput=()=>{tpage=0;renderTasks()});['tset','tcat','tdiff'].forEach(id=>$(id).onchange=()=>{tpage=0;renderTasks()});
- $('showBase').addEventListener('change',renderTasks);
  $('subform').onsubmit=async e=>{e.preventDefault();if(!apiOK)return;const fd=Object.fromEntries(new FormData(e.target));$('submsg').textContent='…';
   try{const r=await fetch(API+'/api/submissions',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(fd)});const j=await r.json();
    e.target.api_key.value='';if(!r.ok){$('submsg').textContent='✗ '+(typeof j.detail==='string'?j.detail:(j.detail||[]).map(d=>d.msg).join('; '));return}
