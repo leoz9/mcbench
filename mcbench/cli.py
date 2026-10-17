@@ -64,6 +64,8 @@ def _agent_jobs(a):
         for m in cfg["models"]:
             if m.get("provider") == "codex":
                 jobs.append({"kind": "codex", "name": m["name"], "model": m["model"]})
+            elif m.get("provider") == "opencode":
+                jobs.append({"kind": "opencode", "name": m["name"], "model": m["model"]})
             elif m.get("provider") == "anthropic":
                 from .llm import AnthropicCompatChat
                 jobs.append({"kind": "openai", "name": m["name"],
@@ -106,6 +108,9 @@ def cmd_run(a):
         elif j["kind"] == "codex":
             from .codex_agent import run_codex_episode
             tr = run_codex_episode(j["model"], j["name"], t, env, task_set=a.task_set)
+        elif j["kind"] == "opencode":
+            from .opencode_agent import run_opencode_episode
+            tr = run_opencode_episode(j["model"], j["name"], t, env, task_set=a.task_set)
         else:
             tr = run_episode(j["factory"](), j["name"], t, env)
         if seed is not None:
@@ -119,10 +124,10 @@ def cmd_run(a):
                 try:
                     tr = f.result()
                 except Exception as e:  # noqa
-                    if type(e).__name__ == "CodexRateLimited":
+                    if type(e).__name__ in ("CodexRateLimited", "OpencodeRateLimited"):
                         for g in futs:
                             g.cancel()
-                        print(f"\n!! CODEX RATE LIMITED — stopping (resume later with --resume):\n{e}", flush=True)
+                        print(f"\n!! RATE LIMITED — stopping (resume later with --resume):\n{e}", flush=True)
                         ex.shutdown(wait=True, cancel_futures=True)
                         sys.exit(3)
                     raise

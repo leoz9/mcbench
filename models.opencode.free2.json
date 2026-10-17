@@ -1,0 +1,19 @@
+{
+ "models": [
+  {
+   "name": "mimo-v2.6-flash",
+   "provider": "opencode",
+   "model": "opencode/mimo-v2.6-flash-free"
+  },
+  {
+   "name": "nemotron-3.5-super-vl",
+   "provider": "opencode",
+   "model": "opencode/nemotron-3.5-super-vl-free"
+  },
+  {
+   "name": "space-bunny",
+   "provider": "opencode",
+   "model": "opencode/space-bunny-free"
+  }
+ ]
+}

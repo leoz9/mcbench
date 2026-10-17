@@ -17,8 +17,9 @@ pip install -e . && mcbench demo   # offline frozen snapshot + scripted baseline
 
 | Agent | Overall | Hard score | Hard pass@1 | Core score | Core pass@1 |
 |---|---:|---:|---:|---:|---:|
-| **gpt-6-sol** (Codex CLI) | **88.4** | **84.7** | **59.1%** | 94.0 | 83.3% |
-| gpt-6.1-sol (Codex CLI) | 84.3 | 78.8 | 40.9% | 92.6 | 83.3% |
+| **gpt-6-sol** (Codex CLI) | **88.4** | **84.7** | **59.1%** | 94.0 | **83.3%** |
+| gpt-6.1-sol (Codex CLI) | 84.3 | 78.8 | 40.9% | 92.6 | **83.3%** |
+| glm-5.3-flash (opencode, free tier) | 79.8 | 80.2 | 45.5% | 79.2 | 44.4% |
 | gpt-6-luna (Codex CLI) | 79.7 | 68.5 | 13.6% | **96.5** | 64.8% |
 | demo-planner (exact-solver script, upper reference) | 78.7 | 70.4 | 54.5% | 91.1 | 100% |
 | gpt-5.6-luna (Codex CLI) | 71.5 | 63.8 | 22.7% | 83.1 | 68.5% |
@@ -26,6 +27,8 @@ pip install -e . && mcbench demo   # offline frozen snapshot + scripted baseline
 | demo-hasty | 15.3 | 14.5 | 0% | 16.5 | 0% |
 
 gpt-6-sol beats the exact-solver script on both Hard score and strict pass rate (84.7 / 59.1% vs 70.4 / 54.5%); gpt-6.1-sol also scores higher but passes fewer tasks (40.9%). The luna models are near-perfect on Core but pass only 14–23% of Hard tasks. Luna Core numbers reuse the v1.0 test-split traces re-scored under v1.1 rules. The two sol models finished the 18-task Core test split on 2026-10-16 (k=1, zero safety violations); gpt-6-sol now leads with Overall 88.4, and both sol models beat the exact-solver script on Overall (78.7).
+
+opencode free-tier models (2026-10-17): run through `opencode run` (opencode-ai 1.19.3, OpenCode Zen free tier, no login / API key) with the same guarded read-only MCP proxy (`mcbench/opencode_agent.py`; all writes blocked, dry-run only), full Hard test 22 + Core test 18 (k=1). **glm-5.3-flash** (model id `opencode/glm-5.3-flash-free`; the free tier only offers the Flash variant of GLM-5.3) scores Overall 79.8 (3rd), Hard 80.2 / 45.5%, Core 79.2 / 44.4%, zero safety violations and zero hallucinated codes. Provider 5xx / SSE stream drops / timeouts that end an episode before any submission are infrastructure failures: the episode is re-run from scratch and not scored. Other free models are added as their runs complete.
 
 ## v1.0 results (legacy scoring) (54 tasks, offline frozen snapshot recorded from mcp.mcd.cn, 2026-10-15)
 

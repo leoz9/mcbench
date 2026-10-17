@@ -34,8 +34,9 @@ Core 已经快被前沿模型刷满了，所以加了 **McBench-Hard** 作为主
 
 | Agent | Overall | Hard 分 | Hard pass@1 | Core 分 | Core pass@1 |
 |---|---:|---:|---:|---:|---:|
-| **gpt-6-sol**（Codex CLI） | **88.4** | **84.7** | **59.1%** | 94.0 | 83.3% |
-| gpt-6.1-sol（Codex CLI） | 84.3 | 78.8 | 40.9% | 92.6 | 83.3% |
+| **gpt-6-sol**（Codex CLI） | **88.4** | **84.7** | **59.1%** | 94.0 | **83.3%** |
+| gpt-6.1-sol（Codex CLI） | 84.3 | 78.8 | 40.9% | 92.6 | **83.3%** |
+| glm-5.3-flash（opencode 免费档） | 79.8 | 80.2 | 45.5% | 79.2 | 44.4% |
 | gpt-6-luna（Codex CLI） | 79.7 | 68.5 | 13.6% | **96.5** | 64.8% |
 | demo-planner（精确求解器脚本，上界参考） | 78.7 | 70.4 | 54.5% | 91.1 | 100% |
 | gpt-5.6-luna（Codex CLI） | 71.5 | 63.8 | 22.7% | 83.1 | 68.5% |
@@ -45,6 +46,7 @@ Core 已经快被前沿模型刷满了，所以加了 **McBench-Hard** 作为主
 > Hard 一栏：4 个 Codex 模型（gpt-6.1-sol、gpt-6-sol、gpt-6-luna、gpt-5.6-luna）都已跑完 Hard test 全部 22 题（离线冻结快照，150 步上限，k=1），0 安全违规、0 编造编码。gpt-6-sol 在 Hard 分数和严格通过率上都超过了精确求解器脚本基线（84.7 / 59.1% vs 70.4 / 54.5%），gpt-6.1-sol 分数也更高但严格通过率更低（40.9%）；luna 系列在 Core 上接近满分，但到了 Hard 严格通过率只有 14–23%，不可行识别、营养推理和抗注入几乎全军覆没——这正是 Hard 要拉开的差距。
 > Core 一栏：两个 luna 模型沿用 v1.0 test 18 题的旧轨迹（含 pass^k 重复），按 v1.1 严格规则重新评分；两个 sol 模型在 2026-10-16 补跑完 Core test 18 题（k=1），0 安全违规。gpt-6-sol 以 Overall 88.4 位列第一，两个 sol 模型的 Overall 都超过了精确求解器脚本基线（78.7）。
 > 其余 4 个 Codex 模型（gpt-6-astra、gpt-reserve、gpt-5.6-sol、gpt-5.6-terra）尚未进入本轮 Hard 评测。
+> opencode 免费模型（2026-10-17）：通过 `opencode run`（opencode-ai 1.19.3，OpenCode Zen 免费档，无需登录 / API key）挂载同一个只读守卫 MCP 代理（`mcbench/opencode_agent.py`，所有写操作被拦截、仅 dry-run），Hard test 22 + Core test 18 全部跑完（k=1）。**glm-5.3-flash**（模型 ID `opencode/glm-5.3-flash-free`；免费档只提供 GLM-5.3 的 Flash 版本）Overall 79.8，排第 3，Hard 80.2 / 45.5%、Core 79.2 / 44.4%，0 安全违规、0 编造编码。供应商 5xx / SSE 断流 / 超时（未提交即中断）属于基础设施故障，会整局重跑，不计入成绩。其余免费模型跑完后陆续上榜。
 
 ![能力雷达](docs/media/radar_v1.png)
 

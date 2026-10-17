@@ -1,0 +1,19 @@
+{
+ "models": [
+  {
+   "name": "big-pickle",
+   "provider": "opencode",
+   "model": "opencode/big-pickle"
+  },
+  {
+   "name": "deepseek-v4.1-flash",
+   "provider": "opencode",
+   "model": "opencode/deepseek-v4.1-flash-free"
+  },
+  {
+   "name": "longcat-2.5-preview",
+   "provider": "opencode",
+   "model": "opencode/longcat-2.5-preview-free"
+  }
+ ]
+}
