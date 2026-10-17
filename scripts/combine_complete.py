@@ -1,4 +1,4 @@
-"""Headline combine that only publishes opencode models once BOTH Hard test (22) and Core test (18)
+"""Headline combine that only publishes opencode and NVIDIA NIM models once BOTH Hard test (22) and Core test (18)
 are complete (other models pass through unchanged). Partial opencode runs stay in runs/ for --resume."""
 import json
 import re
@@ -24,7 +24,7 @@ def is_baseline(model, runtime=""):
     return bool(BASELINE_RE.search(model) or BASELINE_RE.search(runtime or ""))
 
 
-done, oc, baselines = defaultdict(lambda: defaultdict(set)), set(), set()
+done, oc, nim, baselines = defaultdict(lambda: defaultdict(set)), set(), set(), set()
 for kind, d in (("hard", HARD), ("core", CORE)):
     for p in (d / "traces").glob("*.json"):
         m, task = p.stem.split("__")[:2]
@@ -35,10 +35,15 @@ for kind, d in (("hard", HARD), ("core", CORE)):
             continue
         if '"runtime": "opencode CLI' in p.read_text("utf-8")[-4000:] or "opencode CLI" in json.load(open(p)).get("runtime", ""):
             oc.add(m)
+        elif "NVIDIA NIM" in (json.loads(p.read_text("utf-8")).get("runtime") or ""):
+            nim.add(m)
         done[m][kind].add(task)
 complete = {m for m in oc if need["hard"] <= done[m]["hard"] and need["core"] <= done[m]["core"]}
-excluded = sorted(oc - complete)
-print("opencode complete:", sorted(complete), "| held back (partial):", excluded)
+nim_complete = {m for m in nim if need["hard"] <= done[m]["hard"] and need["core"] <= done[m]["core"]}
+excluded = sorted((oc - complete) | (nim - nim_complete))
+# NOTE: /workspace/oc-run/publish.sh parses this first line — keep its format (opencode only).
+print("opencode complete:", sorted(complete), "| held back (partial):", sorted(oc - complete))
+print("nim complete:", sorted(nim_complete), "| held back (partial):", sorted(nim - nim_complete))
 tmp = Path(tempfile.mkdtemp())
 for src in (HARD, CORE):
     dst = tmp / src.name / "traces"
@@ -47,7 +52,7 @@ for src in (HARD, CORE):
         m = p.stem.split("__")[0]
         if m not in excluded and m not in baselines:
             shutil.copy(p, dst / p.name)
-note = sys.argv[1] if len(sys.argv) > 1 else "Hard test 22 + Core test 18 · offline frozen snapshot · Codex CLI + opencode (free tier) models"
+note = sys.argv[1] if len(sys.argv) > 1 else "Hard test 22 + Core test 18 · offline frozen snapshot · Codex CLI + opencode (free tier) + NVIDIA NIM (free) models"
 board = lb.combine(tmp / HARD.name, tmp / CORE.name, ROOT / "web", note=note)
 # Drop pending rows (no Overall = Hard or Core missing) and any baseline that slipped through.
 drop = {r["model"] for r in board["rows"] if r["overall"] is None or is_baseline(r["model"], r["runtime"])}

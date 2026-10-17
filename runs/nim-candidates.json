@@ -1,0 +1,19 @@
+{"models": [
+ {"name": "kimi-k2.6-nim", "provider": "nim", "model": "moonshotai/kimi-k2.6"},
+ {"name": "glm-5.3-nim", "provider": "nim", "model": "z-ai/glm-5.3"},
+ {"name": "deepseek-v4.1-flash-nim", "provider": "nim", "model": "deepseek-ai/deepseek-v4.1-flash"},
+ {"name": "nemotron-3-ultra-550b-nim", "provider": "nim", "model": "nvidia/nemotron-3-ultra-550b-a55b"},
+ {"name": "glm-5.3-flash-nim", "provider": "nim", "model": "z-ai/glm-5.3-flash"},
+ {"name": "nemotron-3-super-120b-nim", "provider": "nim", "model": "nvidia/nemotron-3-super-120b-a12b"},
+ {"name": "nemotron-3.5-super-vl-120b-nim", "provider": "nim", "model": "nvidia/nemotron-3.5-super-vl-120b-a12b"},
+ {"name": "step-5-preview-nim", "provider": "nim", "model": "stepfun-ai/step-5-preview"},
+ {"name": "gpt-oss-20b-nim", "provider": "nim", "model": "openai/gpt-oss-20b"},
+ {"name": "gemma-4-31b-it-nim", "provider": "nim", "model": "google/gemma-4-31b-it"},
+ {"name": "llama-3.1-nemotron-ultra-253b-nim", "provider": "nim", "model": "nvidia/llama-3.1-nemotron-ultra-253b-v1"},
+ {"name": "mistral-large-2-instruct-nim", "provider": "nim", "model": "mistralai/mistral-large-2-instruct"},
+ {"name": "nemotron-3.5-lightning-30b-nim", "provider": "nim", "model": "nvidia/nemotron-3.5-lightning-30b-a3b"},
+ {"name": "nemotron-nano-3-30b-nim", "provider": "nim", "model": "nvidia/nemotron-nano-3-30b-a3b"},
+ {"name": "llama-3.1-nemotron-70b-instruct-nim", "provider": "nim", "model": "nvidia/llama-3.1-nemotron-70b-instruct"},
+ {"name": "jamba-1.5-large-nim", "provider": "nim", "model": "ai21labs/jamba-1.5-large-instruct"},
+ {"name": "nemotron-4-340b-instruct-nim", "provider": "nim", "model": "nvidia/nemotron-4-340b-instruct"}
+]}

@@ -20,6 +20,8 @@ def label(r, zh):
         s = "Codex CLI"
     elif rt.startswith("opencode CLI"):
         s = "opencode 免费档" if zh else "opencode, free tier"
+    elif rt.startswith("NVIDIA NIM"):
+        s = "NVIDIA NIM 免费档" if zh else "NVIDIA NIM free"
     else:
         return m
     return m + (f"（{s}）" if zh else f" ({s})")

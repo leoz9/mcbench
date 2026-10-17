@@ -66,6 +66,8 @@ def _agent_jobs(a):
                 jobs.append({"kind": "codex", "name": m["name"], "model": m["model"]})
             elif m.get("provider") == "opencode":
                 jobs.append({"kind": "opencode", "name": m["name"], "model": m["model"]})
+            elif m.get("provider") == "nim":
+                jobs.append({"kind": "nim", "name": m["name"], "model": m["model"], "extra": m.get("extra")})
             elif m.get("provider") == "anthropic":
                 from .llm import AnthropicCompatChat
                 jobs.append({"kind": "openai", "name": m["name"],
@@ -111,6 +113,9 @@ def cmd_run(a):
         elif j["kind"] == "opencode":
             from .opencode_agent import run_opencode_episode
             tr = run_opencode_episode(j["model"], j["name"], t, env, task_set=a.task_set)
+        elif j["kind"] == "nim":
+            from .nim_agent import run_nim_episode
+            tr = run_nim_episode(j["model"], j["name"], t, env, extra=j.get("extra"))
         else:
             tr = run_episode(j["factory"](), j["name"], t, env)
         if seed is not None:

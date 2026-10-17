@@ -24,6 +24,8 @@ def run_episode(agent, agent_name, task, env: McBenchEnv, max_turns=16):
         try:
             msg, usage = agent.chat(messages, obs["tools"])
         except Exception as e:  # noqa
+            if getattr(e, "infra", False):  # provider/transport failure: discard episode, caller re-queues
+                raise
             env.log({"type": "error", "text": f"LLM error: {str(e)[:300]}"})
             break
         for k in usage_total:
