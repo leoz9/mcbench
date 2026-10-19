@@ -19,6 +19,7 @@ pip install -e . && mcbench demo   # offline frozen snapshot + scripted baseline
 |---|---:|---:|---:|---:|---:|
 | **gpt-6-sol** (Codex CLI) | **88.4** | **84.7** | **59.1%** | 94.0 | **83.3%** |
 | gpt-6.1-sol (Codex CLI) | 84.3 | 78.8 | 40.9% | 92.6 | **83.3%** |
+| deepseek-v4.1-flash (opencode, free tier) | 80.9 | 74.2 | 54.5% | 91.0 | 77.8% |
 | glm-5.3-flash (opencode, free tier) | 79.8 | 80.2 | 45.5% | 79.2 | 44.4% |
 | gpt-6-luna (Codex CLI) | 79.7 | 68.5 | 13.6% | **96.5** | 64.8% |
 | gpt-5.6-luna (Codex CLI) | 71.5 | 63.8 | 22.7% | 83.1 | 68.5% |
