@@ -3,7 +3,9 @@ global adaptive rate limiter (mcbench.nim_agent.LIMITER, NIM_RPM req/min total, 
 every worker. WORKERS threads total (default 10), at most PER_MODEL (default 2) concurrent episodes
 per model; models are queued in order so they finish one after another (incremental publishing).
 Resume-safe: a task is done when its trace exists. Infra failures (NimInfraError) are re-queued up to
-MAX_TRIES times and never scored; NimModelUnavailable drops the model. On each model completing both
+MAX_TRIES times and never scored; NimModelUnavailable drops the model, and so do MODEL_FAIL_LIMIT consecutive
+infra-failed episodes of one model with no success in between (persistently hanging / 5xx model). Drops are
+persisted to DROP_FILE so a restart does not loop on them again (delete the file to retry those models). On each model completing both
 splits, ON_COMPLETE (default scripts/nim_publish.sh) is run with the model name.
 
   python3 -u scripts/nim_supervisor.py models.nim.json
@@ -31,6 +33,8 @@ WORKERS = int(os.environ.get("WORKERS", "10"))
 PER_MODEL = int(os.environ.get("PER_MODEL", "2"))
 MAX_TRIES = int(os.environ.get("MAX_TRIES", "3"))
 ON_COMPLETE = os.environ.get("ON_COMPLETE", str(ROOT / "scripts/nim_publish.sh"))
+MODEL_FAIL_LIMIT = int(os.environ.get("MODEL_FAIL_LIMIT", "4"))
+DROP_FILE = Path(os.environ.get("DROP_FILE", "/workspace/nim-run/dropped.json"))
 models = json.loads(Path(sys.argv[1]).read_text())["models"]
 only = set(sys.argv[2:])
 if only:
@@ -48,7 +52,7 @@ def one(m, ts, out, t):
     tr = run_nim_episode(m["model"], m["name"], t, env, extra=m.get("extra"))
     save_trace(out, tr)
     v = tr["verdict"]
-    print(f"  {m['name']:<28} {t['id']:<22} {'PASS' if v.get('passed') else 'FAIL'} score={tr['score']} "
+    print(f"  {time.strftime('%H:%M:%S')} {m['name']:<28} {t['id']:<22} {'PASS' if v.get('passed') else 'FAIL'} score={tr['score']} "
           f"calls={tr['tool_calls']} sv={tr['safety_violations']} [{LIMITER.status()}]", flush=True)
 
 
@@ -56,8 +60,20 @@ def complete(m):
     return all(done(m, out, t) for _, out, ts in stages for t in ts)
 
 
+prev_dropped = json.loads(DROP_FILE.read_text()) if DROP_FILE.exists() else {}
+for n in prev_dropped:
+    print(f"[nim] skip {n} (dropped earlier: {prev_dropped[n][:160]})", flush=True)
+models = [m for m in models if m["name"] not in prev_dropped]
 queue = [(m, ts, out, t) for m in models for ts, out, tasks in stages for t in tasks if not done(m, out, t)]
 tries, dropped, published, lock = {}, {}, {m["name"] for m in models if complete(m)}, threading.Lock()
+mfails = {}
+
+
+def drop(name, why):
+    dropped[name] = why[:300]
+    print(f"[nim] {time.strftime('%H:%M:%S')} DROP {name}: {why[:300]}", flush=True)
+    keep = {k: v for k, v in dropped.items() if "auth/permission" not in v}  # key problems are not model verdicts
+    DROP_FILE.write_text(json.dumps(prev_dropped | keep, indent=1, ensure_ascii=False))
 print(f"[nim] {len(models)} models, {len(queue)} episodes pending, workers={WORKERS} per_model={PER_MODEL} "
       f"[{LIMITER.status()}]", flush=True)
 running = {}
@@ -68,17 +84,23 @@ with ThreadPoolExecutor(max_workers=WORKERS) as ex:
             m, key = item[0], (item[0]["name"], item[3]["id"])
             e = f.exception()
             if e is None:
+                mfails[m["name"]] = 0
                 if complete(m) and m["name"] not in published:
                     published.add(m["name"])
                     print(f"[nim] COMPLETE {m['name']} -> {ON_COMPLETE}", flush=True)
                     subprocess.run(["bash", ON_COMPLETE, m["name"]], cwd=ROOT)
                 continue
             if isinstance(e, NimModelUnavailable):
-                dropped[m["name"]] = str(e)[:300]
-                print(f"[nim] DROP {m['name']}: {str(e)[:300]}", flush=True)
+                drop(m["name"], str(e))
+                continue
+            if m["name"] in dropped:
+                continue
+            mfails[m["name"]] = mfails.get(m["name"], 0) + (1 if getattr(e, "infra", False) else 0)
+            if mfails[m["name"]] >= MODEL_FAIL_LIMIT:
+                drop(m["name"], f"{mfails[m['name']]} consecutive infra-failed episodes, last: {type(e).__name__}: {e}")
                 continue
             tries[key] = tries.get(key, 0) + 1
-            print(f"[nim] infra fail {key} try {tries[key]}/{MAX_TRIES}: {type(e).__name__}: {str(e)[:250]}", flush=True)
+            print(f"[nim] {time.strftime('%H:%M:%S')} infra fail {key} try {tries[key]}/{MAX_TRIES}: {type(e).__name__}: {str(e)[:250]}", flush=True)
             if not getattr(e, "infra", False):
                 traceback.print_exception(e)
             if tries[key] < MAX_TRIES:

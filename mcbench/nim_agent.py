@@ -90,10 +90,14 @@ def _api_key():
 
 
 class NimChat:
-    def __init__(self, model, base_url=NIM_BASE, temperature=0.0, timeout=180, max_tokens=8192, extra=None,
-                 limiter=None, retries=8):
+    def __init__(self, model, base_url=NIM_BASE, temperature=0.0, timeout=None, max_tokens=8192, extra=None,
+                 limiter=None, retries=8, max_hangs=None):
         self.model, self.base_url = model, base_url.rstrip("/")
-        self.temperature, self.timeout, self.max_tokens = temperature, timeout, max_tokens
+        # timeout = per-socket-op read timeout; max_hangs = consecutive read timeouts on one call before giving up
+        # (a model whose queue hangs every request otherwise pins a worker for ~30 min per call: 8 x 180 s + backoff)
+        self.timeout = timeout or float(os.environ.get("NIM_TIMEOUT", "150"))
+        self.max_hangs = max_hangs or int(os.environ.get("NIM_MAX_HANGS", "3"))
+        self.temperature, self.max_tokens = temperature, max_tokens
         self.extra, self.limiter, self.retries = extra or {}, limiter or LIMITER, retries
         self.runtime = f"NVIDIA NIM free ({model})"
         self.key = _api_key()
@@ -101,7 +105,7 @@ class NimChat:
     def chat(self, messages, tools):
         body = {"model": self.model, "messages": messages, "tools": tools, "tool_choice": "auto",
                 "temperature": self.temperature, "max_tokens": self.max_tokens, **self.extra}
-        data, last, n400 = json.dumps(body).encode(), "", 0
+        data, last, n400, hangs, n5xx = json.dumps(body).encode(), "", 0, 0, 0
         for attempt in range(self.retries):
             self.limiter.acquire()
             req = urllib.request.Request(self.base_url + "/chat/completions", data=data, method="POST",
@@ -141,8 +145,16 @@ class NimChat:
                         raise NimInfraError(last) from None
                 elif e.code not in (500, 502, 503, 504):
                     raise NimInfraError(last) from None
+                else:
+                    n5xx += 1
+                    if n5xx >= 5:
+                        raise NimInfraError(f"{self.model}: persistent {last}") from None
             except (urllib.error.URLError, TimeoutError, ConnectionError, json.JSONDecodeError, OSError) as e:
                 last = f"{type(e).__name__}: {e}"
+                if "timed out" in str(e).lower() or isinstance(e, TimeoutError):
+                    hangs += 1
+                    if hangs >= self.max_hangs:
+                        raise NimInfraError(f"{self.model}: {hangs} consecutive read timeouts ({self.timeout:.0f}s): {last}") from None
             time.sleep(min(120, 5 * 2 ** attempt) * random.uniform(0.7, 1.3))
         raise NimInfraError(f"{self.model}: retries exhausted: {last}")
 

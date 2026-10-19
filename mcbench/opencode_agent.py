@@ -7,6 +7,7 @@ The proxy runs the McBenchEnv episode (writes blocked, dry-run only); we merge o
 import json
 import os
 import shutil
+import signal
 import subprocess
 import tempfile
 import time
@@ -18,6 +19,18 @@ from .harness import scrub
 from .tasks import SYSTEM_PROMPT
 
 ROOT = Path(__file__).resolve().parent.parent
+IDLE_TIMEOUT = int(os.environ.get("OPENCODE_IDLE_TIMEOUT", "600"))  # s without any opencode output / tool event
+
+
+def _killpg(proc):
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError):
+        pass
+    try:
+        proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        pass
 BUILTIN = [  # informational: opencode built-ins that are auto-rejected (counted in shell_attempts)
            "bash", "edit", "write", "read", "grep", "glob", "list", "patch", "todowrite", "todoread",
            "webfetch", "websearch", "codesearch", "task", "skill", "lsp", "question", "multiedit", "apply_patch"]
@@ -100,13 +113,35 @@ def _episode(model, label, task, env: McBenchEnv, timeout, task_set):
                 OPENCODE_DISABLE_LSP_DOWNLOAD="1", OPENCODE_CONFIG=str(proj / "opencode.json"))
     cmd = [opencode_bin(), "run", "--format", "json", "--pure", "-m", model, "--dir", str(proj), prompt]
     t0 = time.time()
-    try:
-        proc = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=timeout,
-                              cwd=str(proj), env=penv)
-        stdout, rc, stderr = proc.stdout, proc.returncode, proc.stderr or ""
-    except subprocess.TimeoutExpired as e:
-        stdout = e.stdout.decode() if isinstance(e.stdout, bytes) else (e.stdout or "")
-        rc, stderr = "timeout", ""
+    # Output goes to files (not pipes) and opencode runs in its own process group: on timeout/stall we kill the
+    # whole group (opencode + MCP proxy + any helpers), so no orphan holding a pipe can block us forever.
+    # Watchdog uses the monotonic clock; a stall = no new opencode output and no new MCP tool event for
+    # IDLE_TIMEOUT seconds (provider stream hung) -> treated like a wall-clock timeout (infra, retried).
+    outf, errf = work / "stdout.jsonl", work / "stderr.txt"
+    with open(outf, "w") as fo, open(errf, "w") as fe:
+        proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=fo, stderr=fe, text=True, cwd=str(proj),
+                                env=penv, start_new_session=True)
+        m0 = last_act = time.monotonic()
+        sig, rc, why = None, None, f"no submit within {timeout}s"
+        while rc is None:
+            try:
+                rc = proc.wait(timeout=5)
+                break
+            except subprocess.TimeoutExpired:
+                pass
+            act = (outf.stat().st_size, tpath.stat().st_mtime if tpath.exists() else 0)
+            if act != sig:
+                sig, last_act = act, time.monotonic()
+            now = time.monotonic()
+            if now - m0 > timeout or now - last_act > IDLE_TIMEOUT:
+                if now - m0 <= timeout:
+                    why = f"stalled: no opencode output / tool call for {IDLE_TIMEOUT}s"
+                _killpg(proc)
+                rc = "timeout"
+    if rc != "timeout":
+        _killpg(proc)  # reap leftover helpers in the group, if any
+    stdout = outf.read_text("utf-8", "replace")
+    stderr = errf.read_text("utf-8", "replace") if rc != "timeout" else ""
     evs = []
     for line in stdout.splitlines():
         try:
@@ -163,7 +198,7 @@ def _episode(model, label, task, env: McBenchEnv, timeout, task_set):
     shutil.rmtree(work, ignore_errors=True)
     tr = scrub(tr)
     if env.outcome is None and rc == "timeout":
-        raise _InfraFailure("timeout", f"no submit within {timeout}s", tr)
+        raise _InfraFailure("timeout", why, tr)
     if env.outcome is None and errs:
         raise _InfraFailure("api_error", errs[-1][-600:])
     return tr
