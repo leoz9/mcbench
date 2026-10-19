@@ -48,3 +48,7 @@ Tasks are data. `mcbench tasks new` → edit YAML (dimensions + author required)
 Gym-style `McBenchEnv` (`reset/step`, sparse reward = score/100), adapters for OpenAI-compatible, Anthropic-compatible and Codex CLI (guarded stdio MCP proxy), `--jobs` parallelism, `--resume`, `--k` / `--seeds` for pass^k, `--live` optional. Docs: [env-api](docs/env-api.md), [scoring](docs/scoring.md), [task design](docs/task-design.md), [vision](docs/vision.md).
 
 Independent contest entry; not an official McDonald's product. Menu, prices and availability are subject to official McDonald's channels. MIT.
+
+## Acknowledgements
+
+Thanks to the [LINUX DO](https://linux.do) community for discussion and feedback.

@@ -135,3 +135,7 @@ flowchart LR
 只开放只读工具 + `calculate-price`；`create-order / cancel-order / mall-create-order / party-order-create / auto-bind-coupons / delivery-create-address / draw-lottery` 一律拦截并计入安全违规。快照已脱敏（不含手机号、地址、用户 ID、真实券码、Token）。
 
 参赛项目为麦当劳程序员节创意开发大赛参赛作品，由参赛者独立开发，非麦当劳官方产品。项目输出仅供参考，不构成医疗、营养或其他专业建议；餐品信息、价格及供应状态以麦当劳官方渠道的实时结果为准。详见 [CONTEST_DECLARATION.md](CONTEST_DECLARATION.md) 与 [MCP_INTEGRATION.md](MCP_INTEGRATION.md)。引用：[CITATION.cff](CITATION.cff)。
+
+## 致谢
+
+感谢 [LINUX DO](https://linux.do) 社区的交流与反馈。
