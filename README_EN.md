@@ -23,6 +23,7 @@ pip install -e . && mcbench demo   # offline frozen snapshot + scripted baseline
 | glm-5.3-flash (opencode, free tier) | 79.8 | 80.2 | 45.5% | 79.2 | 44.4% |
 | gpt-6-luna (Codex CLI) | 79.7 | 68.5 | 13.6% | **96.5** | 64.8% |
 | gpt-5.6-luna (Codex CLI) | 71.5 | 63.8 | 22.7% | 83.1 | 68.5% |
+| nemotron-3-ultra-550b-nim (NVIDIA NIM free) | 70.7 | 58.7 | 4.5% | 88.7 | 66.7% |
 
 gpt-6-sol has the highest Hard score and strict pass rate (84.7 / 59.1%); gpt-6.1-sol scores 78.8 with a 40.9% strict pass rate. The luna models are near-perfect on Core but pass only 14–23% of Hard tasks. Luna Core numbers reuse the v1.0 test-split traces re-scored under v1.1 rules. The two sol models finished the 18-task Core test split on 2026-10-16 (k=1, zero safety violations); gpt-6-sol leads with Overall 88.4, followed by gpt-6.1-sol at 84.3.
 
