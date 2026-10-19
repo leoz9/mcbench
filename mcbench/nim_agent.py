@@ -61,7 +61,13 @@ class RateLimiter:
             if self.ok_streak >= 40 and self.rpm < self.max_rpm:
                 self.rpm, self.ok_streak = min(self.max_rpm, self.rpm + 1), 0
 
-    def on_429(self, retry_after=None):
+    def on_429(self, retry_after=None, soft=False):
+        if soft:  # another limiter owns the backoff (per-model 429): just trim the shared rate a little
+            with self.lock:
+                self.n_429 += 1
+                self.ok_streak = 0
+                self.rpm = max(self.min_rpm, self.max_rpm * 0.5, self.rpm * 0.95)
+            return 0.0
         with self.lock:
             self.n_429 += 1
             self.strikes += 1
@@ -78,6 +84,18 @@ class RateLimiter:
 
 
 LIMITER = RateLimiter(float(os.environ.get("NIM_RPM", "30")), max_rpm=float(os.environ.get("NIM_RPM_MAX", os.environ.get("NIM_RPM", "30"))))
+_MODEL_LIMITERS, _ML_LOCK = {}, threading.Lock()
+
+
+def model_limiter(model):
+    """Per-model limiter under the global one: NIM 429s are per model, so a throttled model backs off on its own
+    instead of dragging every other model down to the 6 rpm floor. Global ceiling (NIM_RPM) still applies."""
+    with _ML_LOCK:
+        if model not in _MODEL_LIMITERS:
+            _MODEL_LIMITERS[model] = RateLimiter(LIMITER.max_rpm, min_rpm=2.0)
+        return _MODEL_LIMITERS[model]
+
+
 _DEAD = re.compile(r"deprecat|end.of.life|no longer (available|supported)|not found|does not exist|unknown model", re.I)
 _NOTOOLS = re.compile(r"tool[_ ]?(choice|call|s)?[^.]{0,60}(not supported|unsupported|not enabled)|does not support tool", re.I)
 
@@ -99,6 +117,7 @@ class NimChat:
         self.max_hangs = max_hangs or int(os.environ.get("NIM_MAX_HANGS", "3"))
         self.temperature, self.max_tokens = temperature, max_tokens
         self.extra, self.limiter, self.retries = extra or {}, limiter or LIMITER, retries
+        self.mlimiter = model_limiter(model) if limiter is None else None
         self.runtime = f"NVIDIA NIM free ({model})"
         self.key = _api_key()
 
@@ -107,6 +126,8 @@ class NimChat:
                 "temperature": self.temperature, "max_tokens": self.max_tokens, **self.extra}
         data, last, n400, hangs, n5xx = json.dumps(body).encode(), "", 0, 0, 0
         for attempt in range(self.retries):
+            if self.mlimiter:
+                self.mlimiter.acquire()
             self.limiter.acquire()
             req = urllib.request.Request(self.base_url + "/chat/completions", data=data, method="POST",
                                          headers={"Content-Type": "application/json", "Accept": "application/json",
@@ -115,6 +136,8 @@ class NimChat:
                 with urllib.request.urlopen(req, timeout=self.timeout) as r:
                     out = json.loads(r.read())
                 self.limiter.on_success()
+                if self.mlimiter:
+                    self.mlimiter.on_success()
                 ch = (out.get("choices") or [{}])[0]
                 msg = ch.get("message") or {}
                 calls = [c for c in (msg.get("tool_calls") or []) if (c.get("function") or {}).get("name")]
@@ -128,8 +151,15 @@ class NimChat:
                 txt = e.read().decode("utf-8", "replace")[:400]
                 last = f"HTTP {e.code}: {txt}"
                 if e.code == 429:
-                    back = self.limiter.on_429(e.headers.get("Retry-After"))
-                    print(f"  .. NIM 429 on {self.model}; backing off {back:.0f}s ({self.limiter.status()})", flush=True)
+                    if self.mlimiter:
+                        back = self.mlimiter.on_429(e.headers.get("Retry-After"))
+                        self.limiter.on_429(soft=True)
+                        print(f"  .. NIM 429 on {self.model}; model backs off {back:.0f}s (model {self.mlimiter.status()}; "
+                              f"global {self.limiter.status()})", flush=True)
+                    else:
+                        back = self.limiter.on_429(e.headers.get("Retry-After"))
+                        print(f"  .. NIM 429 on {self.model}; backing off {back:.0f}s ({self.limiter.status()})", flush=True)
+                    time.sleep(1)
                     continue
                 if e.code in (404, 410) or (e.code in (400, 422) and _DEAD.search(txt)):
                     raise NimModelUnavailable(f"{self.model}: {last}") from None
