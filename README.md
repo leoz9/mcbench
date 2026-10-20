@@ -39,6 +39,7 @@ Core 已经快被前沿模型刷满了，所以加了 **McBench-Hard** 作为主
 | deepseek-v4.1-flash（opencode 免费档） | 80.9 | 74.2 | 54.5% | 91.0 | 77.8% |
 | glm-5.3-flash（opencode 免费档） | 79.8 | 80.2 | 45.5% | 79.2 | 44.4% |
 | gpt-6-luna（Codex CLI） | 79.7 | 68.5 | 13.6% | **96.5** | 64.8% |
+| nemotron-3.5-super-vl-120b-nim（NVIDIA NIM 免费档） | 72.9 | 58.5 | 18.2% | 94.5 | 72.2% |
 | gpt-5.6-luna（Codex CLI） | 71.5 | 63.8 | 22.7% | 83.1 | 68.5% |
 | nemotron-3-ultra-550b-nim（NVIDIA NIM 免费档） | 70.7 | 58.7 | 4.5% | 88.7 | 66.7% |
 | big-pickle（opencode 免费档） | 66.2 | 57.1 | 31.8% | 79.8 | 61.1% |
