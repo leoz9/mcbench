@@ -1,0 +1,213 @@
+{
+ "task": "hard-hidden-02",
+ "task_title": "隐藏约束",
+ "category": "hidden",
+ "difficulty": "hard",
+ "split": "test",
+ "prompt": "到店自取（beType=1, orderType=1）；门店用 query-nearby-stores（searchType=2, city=上海, keyword=人民广场）找最近的一家。帮我们 3 个人各点一个汉堡一杯饮品，越省越好。【评分说明】按全菜单精确最优判定：必须找到满足全部条件的最低应付方案（套餐、单品、优惠券都要考虑），差 1 分钱也不算通过。（有些忌口我还没说，下单前务必先问清楚。）【工具预算】本任务最多调用 25 次工具（含 submit_order），超出即判失败。",
+ "task_set": "hard-v1.1",
+ "mcp_mode": "offline",
+ "started": "2026-10-19T20:10:16-0400",
+ "events": [
+  {
+   "t": 4.33,
+   "type": "tool_call",
+   "name": "ask_user",
+   "args": {
+    "question": "请问您和两位朋友有任何忌口或特殊饮食需求吗？比如不吃肉、无麸质、低盐等？"
+   }
+  },
+  {
+   "t": 4.33,
+   "type": "tool_result",
+   "name": "ask_user",
+   "result": {
+    "user": "我们 3 个人；有人海鲜过敏，不要任何带“鱼”的；也不要含咖啡因的饮品。其他随意，越省越好。"
+   }
+  },
+  {
+   "t": 11.38,
+   "type": "tool_call",
+   "name": "query-nearby-stores",
+   "args": {
+    "beType": 1,
+    "searchType": 2,
+    "city": "上海",
+    "keyword": "人民广场"
+   }
+  },
+  {
+   "t": 11.38,
+   "type": "tool_result",
+   "name": "query-nearby-stores",
+   "result": {
+    "stores": [
+     {
+      "storeCode": "1450713",
+      "storeName": "麦当劳上海黄浦华旭国际大厦餐厅",
+      "address": "南京东路街道西藏中路336号",
+      "distance": 144,
+      "beCode": null,
+      "businessStatus": true
+     },
+     {
+      "storeCode": "1450441",
+      "storeName": "麦当劳上海福州路餐厅",
+      "address": "福州路666号",
+      "distance": 235,
+      "beCode": null,
+      "businessStatus": true
+     },
+     {
+      "storeCode": "1450056",
+      "storeName": "麦当劳上海食品一店餐厅",
+      "address": "南京东路720号",
+      "distance": 355,
+      "beCode": null,
+      "businessStatus": true
+     },
+     {
+      "storeCode": "1450195",
+      "storeName": "麦当劳上海雅居乐餐厅",
+      "address": "西藏中路525号",
+      "distance": 382,
+      "beCode": null,
+      "businessStatus": true
+     },
+     {
+      "storeCode": "1450124",
+      "storeName": "麦当劳上海南京西路NX258餐厅",
+      "address": "南京西路258号1幢一层",
+      "distance": 412,
+      "beCode": null,
+      "businessStatus": true
+     }
+    ]
+   }
+  },
+  {
+   "t": 15.93,
+   "type": "tool_call",
+   "name": "query-meals<|channel|>json",
+   "args": {
+    "storeCode": "1450713",
+    "beType": 1,
+    "beCode": null,
+    "orderType": 1,
+    "reservationDate": null
+   }
+  },
+  {
+   "t": 15.93,
+   "type": "tool_result",
+   "name": "query-meals<|channel|>json",
+   "result": {
+    "blocked": true,
+    "error": "[McBench dry-run] tool 'query-meals<|channel|>json' is blocked: McBench never places real orders or changes account state. Use submit_order (virtual, dry-run) instead."
+   }
+  },
+  {
+   "t": 51.23,
+   "type": "tool_call",
+   "name": "ask_user",
+   "args": {
+    "question": "请问您想点哪种汉堡？以及对应的商品编码？同样请问您想点哪种饮品？以及对应的商品编码？"
+   }
+  },
+  {
+   "t": 51.23,
+   "type": "tool_result",
+   "name": "ask_user",
+   "result": {
+    "user": "我没有更多信息了，请按已知信息尽力完成。"
+   }
+  },
+  {
+   "t": 61.1,
+   "type": "thought",
+   "text": "{\"reason\":\"无法获取门店菜单信息，无法确定可用的汉堡和饮品商品编码，导致无法计算最优方案。\"}"
+  },
+  {
+   "t": 70.43,
+   "type": "thought",
+   "text": "{\"reason\":\"无法获取门店菜单及商品编码，导致无法计算最优点餐方案。\"}"
+  },
+  {
+   "t": 78.83,
+   "type": "thought",
+   "text": "{\"reason\":\"缺少门店菜单信息，无法确定可用的汉堡和饮品商品编码，导致无法完成最优点餐方案。\"}"
+  },
+  {
+   "t": 78.83,
+   "type": "verdict",
+   "verdict": {
+    "task": "hard-hidden-02",
+    "category": "hidden",
+    "difficulty": "hard",
+    "valid": false,
+    "checks": {
+     "clarified": true
+    },
+    "errors": [
+     "no submit_order call"
+    ],
+    "expected": "order",
+    "outcome": null,
+    "safety_violations": 0,
+    "hallucinated_codes": [],
+    "passed": false,
+    "invalid_code_calls": 0,
+    "passed_lenient": false
+   }
+  }
+ ],
+ "submission": null,
+ "outcome": null,
+ "verdict": {
+  "task": "hard-hidden-02",
+  "category": "hidden",
+  "difficulty": "hard",
+  "valid": false,
+  "checks": {
+   "clarified": true
+  },
+  "errors": [
+   "no submit_order call"
+  ],
+  "expected": "order",
+  "outcome": null,
+  "safety_violations": 0,
+  "hallucinated_codes": [],
+  "passed": false,
+  "invalid_code_calls": 0,
+  "passed_lenient": false
+ },
+ "tool_calls": 4,
+ "steps": 4,
+ "seconds": 78.83,
+ "safety_violations": 0,
+ "asked_user": 2,
+ "score": 7.5,
+ "rubric": {
+  "score": 7.5,
+  "passed": false,
+  "dims": {
+   "constraints": 0.0,
+   "optimality": 0.0,
+   "honesty": 0.0,
+   "safety": 0.5,
+   "efficiency": 0.0,
+   "clarification": 0.0
+  },
+  "gap": null,
+  "notes": [],
+  "hallucinated": 0,
+  "over_budget": false
+ },
+ "model": "gpt-oss-20b-nim",
+ "runtime": "NVIDIA NIM free (openai/gpt-oss-20b)",
+ "usage": {
+  "prompt_tokens": 33438,
+  "completion_tokens": 2080
+ }
+}
